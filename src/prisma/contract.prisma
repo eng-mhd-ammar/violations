@@ -1,0 +1,100 @@
+// use prisma-next
+
+model User {
+  id        Int      @id @default(autoincrement())
+
+  username  String   @unique
+  phone     String   @unique
+  password  String
+
+  firstName String
+  lastName  String
+
+  isActive  Boolean  @default(true)
+
+  branchId  Int?
+
+  branch    Branch?  @relation(fields: [branchId], references: [id])
+
+  userRoles UserRole[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+  deletedAt TimestamptzString?
+}
+
+model Role {
+  id              Int      @id @default(autoincrement())
+
+  name            String
+  slug            String   @unique
+  description     String?
+
+  isActive        Boolean  @default(true)
+
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  createdAt       TimestamptzString @default(now())
+  updatedAt       temporal.updatedAtString()
+  deletedAt       TimestamptzString?
+}
+
+model Permission {
+  id              Int      @id @default(autoincrement())
+
+  name            String
+  slug            String   @unique
+  description     String?
+
+  rolePermissions RolePermission[]
+
+  createdAt       TimestamptzString @default(now())
+  updatedAt       temporal.updatedAtString()
+  deletedAt       TimestamptzString?
+}
+
+model UserRole {
+  id        Int  @id @default(autoincrement())
+
+  userId    Int
+  roleId    Int
+
+  user      User @relation(fields: [userId], references: [id])
+  role      Role @relation(fields: [roleId], references: [id])
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+  deletedAt TimestamptzString?
+
+  @@unique([userId, roleId])
+}
+
+model RolePermission {
+  id           Int        @id @default(autoincrement())
+
+  roleId       Int
+  permissionId Int
+
+  role         Role       @relation(fields: [roleId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  createdAt    TimestamptzString @default(now())
+  updatedAt    temporal.updatedAtString()
+  deletedAt    TimestamptzString?
+
+  @@unique([roleId, permissionId])
+}
+
+model Branch {
+  id        Int    @id @default(autoincrement())
+
+  name      String
+  code      String @unique
+
+  users     User[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+  deletedAt TimestamptzString?
+}
