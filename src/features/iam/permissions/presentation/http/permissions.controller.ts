@@ -10,7 +10,6 @@ import {
     Res,
 } from '@nestjs/common';
 
-import { PermissionsService } from '../../application/permissions.service.js';
 
 import { CreatePermissionDto } from './dto/create-permission.dto.js';
 
@@ -23,6 +22,7 @@ import { ResponseUtil } from '../../../../../shared/utils/response.js';
 import type { Response as ExpressResponse } from 'express';
 
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
+import { PermissionsService } from '../../application/user-roles.service.js';
 
 @Controller('/api/v1/permissions')
 export class PermissionsController {
