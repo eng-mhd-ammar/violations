@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Res,
 } from '@nestjs/common';
 
 import {
@@ -14,6 +15,8 @@ import {
   LoginDto,
 } from './dto/login.dto.js';
 import { Public } from '../../../../core/authorization/decorators/public.decorator.js';
+import type { Response as ExpressResponse } from 'express';
+import { ResponseUtil } from '../../../../shared/utils/response.js';
 
 @Controller('api/v1/auth')
 export class AuthController {
@@ -22,7 +25,10 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  async login(@Body() dto: LoginDto, @Res() res: ExpressResponse) {
+    const data = await this.authService.login(dto);
+    console.log('data', data);
+
+    return new ResponseUtil(res).success(data, 'User force deleted successfully', ResponseUtil.HTTP_OK);
   }
 }
