@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
 
-import { UserRolesController } from './presentation/http/user-roles.controller.js';
-import { UserRolesService } from './application/user-roles.service.js';
-
-import { UserRoleRepository } from './domain/user-role.repository.js';
 import { UserRolePrismaRepository } from './infrastructure/user-role-prisma.repository.js';
+import { UserRoleRepository } from './domain/user-role.repository.js';
+import { UserRolesService } from './application/user-roles.service.js';
+import { UserRolesController } from './presentation/http/user-roles.controller.js';
 
 @Module({
     controllers: [
