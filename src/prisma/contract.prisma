@@ -14,13 +14,15 @@ model User {
 
   branchId  Int?
 
-  branch    Branch?  @relation(fields: [branchId], references: [id])
+  branch    Branch? @relation(fields: [branchId], references: [id])
 
   userRoles UserRole[]
 
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
   deletedAt TimestamptzString?
+
+  @@map("users")
 }
 
 model Role {
@@ -35,9 +37,11 @@ model Role {
   userRoles       UserRole[]
   rolePermissions RolePermission[]
 
-  createdAt       TimestamptzString @default(now())
-  updatedAt       temporal.updatedAtString()
-  deletedAt       TimestamptzString?
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+  deletedAt TimestamptzString?
+
+  @@map("roles")
 }
 
 model Permission {
@@ -49,9 +53,11 @@ model Permission {
 
   rolePermissions RolePermission[]
 
-  createdAt       TimestamptzString @default(now())
-  updatedAt       temporal.updatedAtString()
-  deletedAt       TimestamptzString?
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+  deletedAt TimestamptzString?
+
+  @@map("permissions")
 }
 
 model UserRole {
@@ -68,6 +74,8 @@ model UserRole {
   deletedAt TimestamptzString?
 
   @@unique([userId, roleId])
+
+  @@map("user_roles")
 }
 
 model RolePermission {
@@ -80,10 +88,12 @@ model RolePermission {
   permission   Permission @relation(fields: [permissionId], references: [id])
 
   createdAt    TimestamptzString @default(now())
-  updatedAt    temporal.updatedAtString()
+  updatedAt temporal.updatedAtString()
   deletedAt    TimestamptzString?
 
   @@unique([roleId, permissionId])
+
+  @@map("role_permissions")
 }
 
 model Branch {
@@ -97,4 +107,6 @@ model Branch {
   createdAt TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
   deletedAt TimestamptzString?
+
+  @@map("branches")
 }

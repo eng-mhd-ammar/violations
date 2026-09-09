@@ -7,6 +7,7 @@ import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UserResource } from './resources/user.resource.js';
 import { ResponseUtil } from '../../../../../shared/utils/response.js';
 import type { Response as ExpressResponse } from 'express';
+import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
 @Controller('/api/v1/users')
 export class UsersController {
     constructor(
@@ -18,6 +19,7 @@ export class UsersController {
     *
     * POST /users
     */
+    @Can('users-create')
     @Post()
     async create(@Body() dto: CreateUserDto, @Res() res: ExpressResponse) {
         const user = await this.usersService.create(dto);
@@ -70,6 +72,7 @@ export class UsersController {
     *
     * DELETE /users/:id
     */
+    @Can('users.delete')
     @Delete(':id')
     async delete(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
         const user = await this.usersService.delete(id);

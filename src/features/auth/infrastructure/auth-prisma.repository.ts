@@ -11,10 +11,15 @@ import {
 
 @Injectable()
 export class AuthPrismaRepository
-  implements AuthRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  implements AuthRepository
+{
+  constructor(
+    private readonly prisma: PrismaService,
+  ) {}
 
-  async findUserForLogin(identifier: string): Promise<AuthUser | null> {
+  async findUserForLogin(
+    identifier: string,
+  ): Promise<AuthUser | null> {
     const user =
       await this.prisma.db.orm.public.User
         .where((user) =>
@@ -26,9 +31,21 @@ export class AuthPrismaRepository
         .include(
           'userRoles',
           (userRoles) =>
-            userRoles.include('role'),
+            userRoles.include(
+              'role',
+              (role) =>
+                role.include(
+                  'rolePermissions',
+                  (rolePermissions) =>
+                    rolePermissions.include(
+                      'permission',
+                    ),
+                ),
+            ),
         )
         .first();
+
+      // console.dir(user, { depth: null });
 
     if (!user) {
       return null;
@@ -54,6 +71,23 @@ export class AuthPrismaRepository
           name: userRole.role.name,
           slug: userRole.role.slug,
           createdAt: userRole.role.createdAt,
+
+          permissions:
+            userRole.role.rolePermissions.map(
+              (rolePermission) => ({
+                id:
+                  rolePermission.permission.id,
+
+                name:
+                  rolePermission.permission.name,
+
+                slug:
+                  rolePermission.permission.slug,
+
+                createdAt:
+                  rolePermission.permission.createdAt,
+              }),
+            ),
         })),
     };
   }

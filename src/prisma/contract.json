@@ -4,28 +4,28 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
-    "branch": {
+    "branches": {
       "model": "Branch",
       "namespace": "public"
     },
-    "permission": {
+    "permissions": {
       "model": "Permission",
       "namespace": "public"
     },
-    "role": {
-      "model": "Role",
-      "namespace": "public"
-    },
-    "rolePermission": {
+    "role_permissions": {
       "model": "RolePermission",
       "namespace": "public"
     },
-    "user": {
-      "model": "User",
+    "roles": {
+      "model": "Role",
       "namespace": "public"
     },
-    "userRole": {
+    "user_roles": {
       "model": "UserRole",
+      "namespace": "public"
+    },
+    "users": {
+      "model": "User",
       "namespace": "public"
     }
   },
@@ -117,7 +117,7 @@
                 }
               },
               "namespaceId": "public",
-              "table": "branch"
+              "table": "branches"
             }
           },
           "Permission": {
@@ -214,7 +214,7 @@
                 }
               },
               "namespaceId": "public",
-              "table": "permission"
+              "table": "permissions"
             }
           },
           "Role": {
@@ -336,7 +336,7 @@
                 }
               },
               "namespaceId": "public",
-              "table": "role"
+              "table": "roles"
             }
           },
           "RolePermission": {
@@ -438,7 +438,7 @@
                 }
               },
               "namespaceId": "public",
-              "table": "rolePermission"
+              "table": "role_permissions"
             }
           },
           "User": {
@@ -590,7 +590,7 @@
                 }
               },
               "namespaceId": "public",
-              "table": "user"
+              "table": "users"
             }
           },
           "UserRole": {
@@ -692,7 +692,7 @@
                 }
               },
               "namespaceId": "public",
-              "table": "userRole"
+              "table": "user_roles"
             }
           }
         }
@@ -704,7 +704,7 @@
       "public": {
         "entries": {
           "table": {
-            "branch": {
+            "branches": {
               "columns": {
                 "code": {
                   "codecId": "pg/text@1",
@@ -760,7 +760,7 @@
                 }
               ]
             },
-            "permission": {
+            "permissions": {
               "columns": {
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
@@ -821,7 +821,114 @@
                 }
               ]
             },
-            "role": {
+            "role_permissions": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "deletedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "permissionId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "roleId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamptz-string@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "roleId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "role_permissions"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "roles"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "permissionId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "role_permissions"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "permissions"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "permissionId"
+                  ],
+                  "name": "role_permissions_permissionId_idx_f46fcdf5",
+                  "prefix": "role_permissions_permissionId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "roleId"
+                  ],
+                  "name": "role_permissions_roleId_idx_ffccc9a4",
+                  "prefix": "role_permissions_roleId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "roleId",
+                    "permissionId"
+                  ]
+                }
+              ]
+            },
+            "roles": {
               "columns": {
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
@@ -891,7 +998,7 @@
                 }
               ]
             },
-            "rolePermission": {
+            "user_roles": {
               "columns": {
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
@@ -916,11 +1023,6 @@
                   "nativeType": "int4",
                   "nullable": false
                 },
-                "permissionId": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
                 "roleId": {
                   "codecId": "pg/int4@1",
                   "nativeType": "int4",
@@ -930,57 +1032,62 @@
                   "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": false
+                },
+                "userId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
                 }
               },
               "foreignKeys": [
                 {
                   "source": {
                     "columns": [
-                      "roleId"
+                      "userId"
                     ],
                     "namespaceId": "public",
-                    "tableName": "rolePermission"
+                    "tableName": "user_roles"
                   },
                   "target": {
                     "columns": [
                       "id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "role"
+                    "tableName": "users"
                   }
                 },
                 {
                   "source": {
                     "columns": [
-                      "permissionId"
+                      "roleId"
                     ],
                     "namespaceId": "public",
-                    "tableName": "rolePermission"
+                    "tableName": "user_roles"
                   },
                   "target": {
                     "columns": [
                       "id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "permission"
+                    "tableName": "roles"
                   }
                 }
               ],
               "indexes": [
                 {
                   "columns": [
-                    "permissionId"
+                    "roleId"
                   ],
-                  "name": "rolePermission_permissionId_idx_f46fcdf5",
-                  "prefix": "rolePermission_permissionId_idx",
+                  "name": "user_roles_roleId_idx_ffccc9a4",
+                  "prefix": "user_roles_roleId_idx",
                   "unique": false
                 },
                 {
                   "columns": [
-                    "roleId"
+                    "userId"
                   ],
-                  "name": "rolePermission_roleId_idx_ffccc9a4",
-                  "prefix": "rolePermission_roleId_idx",
+                  "name": "user_roles_userId_idx_a489d58a",
+                  "prefix": "user_roles_userId_idx",
                   "unique": false
                 }
               ],
@@ -992,13 +1099,13 @@
               "uniques": [
                 {
                   "columns": [
-                    "roleId",
-                    "permissionId"
+                    "userId",
+                    "roleId"
                   ]
                 }
               ]
             },
-            "user": {
+            "users": {
               "columns": {
                 "branchId": {
                   "codecId": "pg/int4@1",
@@ -1075,14 +1182,14 @@
                       "branchId"
                     ],
                     "namespaceId": "public",
-                    "tableName": "user"
+                    "tableName": "users"
                   },
                   "target": {
                     "columns": [
                       "id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "branch"
+                    "tableName": "branches"
                   }
                 }
               ],
@@ -1091,8 +1198,8 @@
                   "columns": [
                     "branchId"
                   ],
-                  "name": "user_branchId_idx_d04da5bb",
-                  "prefix": "user_branchId_idx",
+                  "name": "users_branchId_idx_d04da5bb",
+                  "prefix": "users_branchId_idx",
                   "unique": false
                 }
               ],
@@ -1113,113 +1220,6 @@
                   ]
                 }
               ]
-            },
-            "userRole": {
-              "columns": {
-                "createdAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
-                "deletedAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
-                  "nullable": true
-                },
-                "id": {
-                  "codecId": "pg/int4@1",
-                  "default": {
-                    "expression": "autoincrement()",
-                    "kind": "function"
-                  },
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "roleId": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
-                "updatedAt": {
-                  "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
-                  "nullable": false
-                },
-                "userId": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                }
-              },
-              "foreignKeys": [
-                {
-                  "source": {
-                    "columns": [
-                      "userId"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "userRole"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "user"
-                  }
-                },
-                {
-                  "source": {
-                    "columns": [
-                      "roleId"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "userRole"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "role"
-                  }
-                }
-              ],
-              "indexes": [
-                {
-                  "columns": [
-                    "roleId"
-                  ],
-                  "name": "userRole_roleId_idx_ffccc9a4",
-                  "prefix": "userRole_roleId_idx",
-                  "unique": false
-                },
-                {
-                  "columns": [
-                    "userId"
-                  ],
-                  "name": "userRole_userId_idx_a489d58a",
-                  "prefix": "userRole_userId_idx",
-                  "unique": false
-                }
-              ],
-              "primaryKey": {
-                "columns": [
-                  "id"
-                ]
-              },
-              "uniques": [
-                {
-                  "columns": [
-                    "userId",
-                    "roleId"
-                  ]
-                }
-              ]
             }
           }
         },
@@ -1227,10 +1227,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "3547d6dbe30a75e4100f789127212ff3d05b2abe29ce3d10f01a4ccd1b891c38"
+    "storageHash": "7536ff7bcfd594615329eb84d3395c3319d260ebdd22ea7322176f55ba3e9a45"
   },
   "execution": {
-    "executionHash": "db32071697f4f3d32c5535faa48e75fa67621c606b943795896dbac5d85a5412",
+    "executionHash": "8a80aa7bbcf6c818bbdce1ebd98eda75d789fcdc663951ca3f1a97c62b923488",
     "mutations": {
       "defaults": [
         {
@@ -1245,7 +1245,7 @@
           "ref": {
             "column": "updatedAt",
             "namespace": "public",
-            "table": "branch"
+            "table": "branches"
           }
         },
         {
@@ -1260,7 +1260,7 @@
           "ref": {
             "column": "updatedAt",
             "namespace": "public",
-            "table": "permission"
+            "table": "permissions"
           }
         },
         {
@@ -1275,7 +1275,7 @@
           "ref": {
             "column": "updatedAt",
             "namespace": "public",
-            "table": "role"
+            "table": "role_permissions"
           }
         },
         {
@@ -1290,7 +1290,7 @@
           "ref": {
             "column": "updatedAt",
             "namespace": "public",
-            "table": "rolePermission"
+            "table": "roles"
           }
         },
         {
@@ -1305,7 +1305,7 @@
           "ref": {
             "column": "updatedAt",
             "namespace": "public",
-            "table": "user"
+            "table": "user_roles"
           }
         },
         {
@@ -1320,7 +1320,7 @@
           "ref": {
             "column": "updatedAt",
             "namespace": "public",
-            "table": "userRole"
+            "table": "users"
           }
         }
       ]
