@@ -8,5 +8,10 @@ export class UpdateUserRoleDto {
     @IsOptional()
     @IsInt()
     @IsPositive()
+    userId: number;
+
+    @IsOptional()
+    @IsInt()
+    @IsPositive()
     roleId?: number;
 }

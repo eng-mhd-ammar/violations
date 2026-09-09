@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 
 import { PrismaService } from '../../../../core/database/prisma.service.js';
+
 import {
     UserRole,
     UserRoleAttributes,
 } from '../domain/user-role.model.js';
+
 import { UserRoleRepository } from '../domain/user-role.repository.js';
+import { User, UserAttributes } from '../../users/domain/user.model.js';
+import { Role, RoleAttributes } from '../../roles/domain/role.model.js';
 
 @Injectable()
 export class UserRolePrismaRepository
@@ -33,6 +37,8 @@ export class UserRolePrismaRepository
                 .where({
                     deletedAt: null,
                 })
+                .include('user')
+                .include('role')
                 .all();
 
         return userRoles.map((userRole) =>
@@ -49,6 +55,8 @@ export class UserRolePrismaRepository
                     id,
                     deletedAt: null,
                 })
+                .include('user')
+                .include('role')
                 .first();
 
         if (!userRole) {
@@ -64,6 +72,8 @@ export class UserRolePrismaRepository
         const userRole =
             await this.prisma.db.orm.public.UserRole
                 .where({ id })
+                .include('user')
+                .include('role')
                 .first();
 
         if (!userRole) {
@@ -156,11 +166,11 @@ export class UserRolePrismaRepository
             ...(data.userId !== undefined && {
                 userId: data.userId,
             }),
-        
+
             ...(data.roleId !== undefined && {
                 roleId: data.roleId,
             }),
-        
+
             ...(data.deletedAt !== undefined && {
                 deletedAt: data.deletedAt,
             }),
@@ -174,11 +184,26 @@ export class UserRolePrismaRepository
         createdAt: string;
         updatedAt: string;
         deletedAt: string | null;
+        user?: Record<string, unknown>;
+        role?: Record<string, unknown>;
     }): UserRole {
         return new UserRole({
             id: data.id,
             userId: data.userId,
             roleId: data.roleId,
+
+            user: data.user
+                ? new User(
+                        data.user as unknown as UserAttributes,
+                    )
+                : undefined,
+
+            role: data.role
+                ? new Role(
+                        data.role as unknown as RoleAttributes,
+                    )
+                : undefined,
+
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
             deletedAt: data.deletedAt,

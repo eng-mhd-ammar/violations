@@ -18,7 +18,7 @@ import { ResponseUtil } from '../../../../../shared/utils/response.js';
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
 import { UserRolesService } from '../../application/user-roles.service.js';
 import { CreateUserRoleDto } from './dto/create.user-role.dto.js';
-import { UserRoleResource } from './resources/permission.resource.js';
+import { UserRoleResource } from './resources/user-role.resource.js';
 
 @Controller('/api/v1/user-roles')
 export class UserRolesController {
@@ -153,7 +153,7 @@ export class UserRolesController {
      * POST /user-roles/:id/restore
      */
     @Can('user_roles_restore')
-    @Post(':id/restore')
+    @Get(':id/restore')
     async restore(
         @Param('id', ParseIntPipe) id: number,
         @Res() res: ExpressResponse,
