@@ -19,7 +19,7 @@ export class UsersController {
     *
     * POST /users
     */
-    @Can('users-create')
+    @Can('users_create')
     @Post()
     async create(@Body() dto: CreateUserDto, @Res() res: ExpressResponse) {
         const user = await this.usersService.create(dto);
@@ -33,6 +33,7 @@ export class UsersController {
     *
     * GET /users
     */
+    @Can('users_index')
     @Get()
     async findAll(@Res() res: ExpressResponse) {
         const users = await this.usersService.findAll();
@@ -46,6 +47,7 @@ export class UsersController {
     *
     * GET /users/:id
     */
+    @Can('users_show')
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
         const user = await this.usersService.findById(id);
@@ -59,6 +61,7 @@ export class UsersController {
     *
     * PATCH /users/:id
     */
+    @Can('users_update')
     @Patch(':id')
     async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto, @Res() res: ExpressResponse) {
         const user = await this.usersService.update(id, dto);
@@ -72,7 +75,7 @@ export class UsersController {
     *
     * DELETE /users/:id
     */
-    @Can('users.delete')
+    @Can('users_delete')
     @Delete(':id')
     async delete(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
         const user = await this.usersService.delete(id);
@@ -86,6 +89,7 @@ export class UsersController {
     *
     * POST /users/:id/restore
     */
+    @Can('users_restore')
     @Get(':id/restore')
     async restore(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
         const user = await this.usersService.restore(id);
@@ -99,6 +103,7 @@ export class UsersController {
     *
     * POST /users/:id/force-delete
     */
+    @Can('users_force_delete')
     @Delete(':id/force-delete')
     async forceDelete(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
         const user = await this.usersService.forceDelete(id);

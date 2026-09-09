@@ -11,8 +11,6 @@ export class UserResource {
             full_name: user.fullName,
             is_active: user.isActive,
             branch_id: user.branchId,
-            create_at: user.createdAt,
-            update_at: user.updatedAt,
         };
     }
 

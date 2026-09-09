@@ -17,11 +17,9 @@ export class AuthPrismaRepository
     private readonly prisma: PrismaService,
   ) {}
 
-  async findUserForLogin(
-    identifier: string,
-  ): Promise<AuthUser | null> {
-    const user =
-      await this.prisma.db.orm.public.User
+  async findUserForLogin(identifier: string): Promise<AuthUser | null> {
+    console.log('LOGIN IDENTIFIER:', identifier);
+    const user = await this.prisma.db.orm.public.User
         .where((user) =>
           or(
             user.username.eq(identifier),
@@ -45,7 +43,7 @@ export class AuthPrismaRepository
         )
         .first();
 
-      // console.dir(user, { depth: null });
+      console.dir(user, { depth: null });
 
     if (!user) {
       return null;

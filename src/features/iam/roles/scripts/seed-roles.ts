@@ -4,7 +4,7 @@ import { db } from '../../../../prisma/db';
 
 const roles = [
     {
-        name: 'Admin',
+        name: 'admin',
         slug: 'admin',
         description: 'System administrator',
         isActive: true,

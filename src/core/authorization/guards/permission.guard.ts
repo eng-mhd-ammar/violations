@@ -30,6 +30,7 @@ export class PermissionGuard
   canActivate(
     context: ExecutionContext,
   ): boolean {
+    
     const permission =
       this.reflector.getAllAndOverride<string>(
         PERMISSION_KEY,
@@ -56,6 +57,8 @@ export class PermissionGuard
       );
     }
 
+    console.log('ROLES:', user.roles);
+
     if (user.roles.includes('admin')) {
       return true;
     }
@@ -63,10 +66,7 @@ export class PermissionGuard
     const permissions =
       user.permissions ?? [];
 
-    console.log(
-      'PERMISSIONS:',
-      permissions,
-    );
+    console.log('PERMISSIONS:', permissions);
 
     const hasPermission =
       permissions.includes(permission);

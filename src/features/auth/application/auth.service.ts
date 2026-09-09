@@ -24,6 +24,7 @@ export class AuthService {
   constructor(@Inject(AUTH_REPOSITORY) private readonly authRepository: AuthRepository, private readonly jwtService: JwtService) {}
 
   async login(dto: LoginDto) {
+    console.log('test');
     const user =
       await this.authRepository.findUserForLogin(
         dto.identifier,
