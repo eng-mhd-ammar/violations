@@ -16,6 +16,7 @@ import { PermissionGuard } from './core/authorization/guards/permission.guard.js
 import { JwtAuthGuard } from './features/auth/presentation/http/guards/jwt-auth.guard.js';
 
 import { IamModule } from './features/iam/iam.module.js';
+import { LocationModule } from './features/locations/locations.module.js';
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import { IamModule } from './features/iam/iam.module.js';
         AuthorizationModule,
 
         IamModule,
+        LocationModule,
     ],
 
     providers: [

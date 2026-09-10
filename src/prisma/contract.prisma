@@ -89,7 +89,7 @@ model RolePermission {
 
   createdAt    TimestamptzString @default(now())
   updatedAt temporal.updatedAtString()
-  deletedAt    TimestamptzString?
+  deletedAt TimestamptzString?
 
   @@unique([roleId, permissionId])
 
@@ -109,4 +109,34 @@ model Branch {
   deletedAt TimestamptzString?
 
   @@map("branches")
+}
+
+model State {
+  id        Int      @id @default(autoincrement())
+
+  name      String   @unique
+
+  addresses Address[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+  deletedAt TimestamptzString?
+
+  @@map("states")
+}
+
+model Address {
+  id        Int      @id @default(autoincrement())
+
+  stateId   Int
+  city      String
+  street    String
+
+  state     State    @relation(fields: [stateId], references: [id])
+
+  createdAt TimestamptzString @default(now())
+  updatedAt temporal.updatedAtString()
+  deletedAt TimestamptzString?
+
+  @@map("addresses")
 }
