@@ -1,63 +1,77 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../core/database/prisma.service.js';
-import { State, StateAttributes } from '../domain/state.model.js';
+import { BaseRepository } from '../../../../core/database/repositories/base.repository.js';
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
+import { State, type StateAttributes } from '../domain/state.model.js';
 import { StateRepository } from '../domain/state.repository.js';
 
 @Injectable()
-export class StatePrismaRepository implements StateRepository {
-    constructor(
-        private readonly prisma: PrismaService,
-    ) {}
+export class StatePrismaRepository extends BaseRepository<State, StateAttributes> implements StateRepository
+{
+    constructor(private readonly prisma: PrismaService) {
+        super(
+            prisma.db.orm.public.State,
+        );
+    }
+
+    protected allowedSorts(): string[] {
+        return [
+            'id',
+            'name',
+            'createdAt',
+            'updatedAt',
+        ];
+    }
+
+    protected allowedFilters(): string[] {
+        return [
+            'id',
+            'name',
+        ];
+    }
+
+    protected allowedIncludes(): string[] {
+        return [
+            'addresses',
+        ];
+    }
+
+    protected allowedFields(): string[] {
+        return [
+            'id',
+            'name',
+            'createdAt',
+            'updatedAt',
+            'deletedAt',
+        ];
+    }
+
+    protected defaultSort(): string[] {
+        return [
+            '-createdAt',
+        ];
+    }
 
     async create(state: State): Promise<State> {
         const data = state.toAttributes();
-        console.log('Creating state with data:', data);
-        
-        const created = await this.prisma.db.orm.public.State.create({ name: data.name });
 
-        return this.toDomain(created);
+        return this.createRecord(data);
     }
 
-    async findAll(): Promise<State[]> {
-        const states = await this.prisma.db.orm.public.State.where({ deletedAt: null }).all();
-
-        return states.map((state) => this.toDomain(state));
+    async all(options: QueryOptions = {}): Promise<State[]> {
+        return super.all(options);
     }
 
-    async findById(id: number): Promise<State | null> {
-        const state = await this.prisma.db.orm.public.State.where({ id, deletedAt: null }).first();
-
-        if (!state) {
-            return null;
-        }
-
-        return this.toDomain(state);
+    async first(options: QueryOptions = {}): Promise<State | null> {
+        return super.first(options);
     }
 
-    async findByIdIncludingDeleted(id: number): Promise<State | null> {
-        const state = await this.prisma.db.orm.public.State.where({ id }).first();
-
-        if (!state) {
-            return null;
-        }
-
-        return this.toDomain(state);
-    }
-
-    async findByName(name: string): Promise<State | null> {
-        const state = await this.prisma.db.orm.public.State.where({ name, deletedAt: null }).first();
-
-        if (!state) {
-            return null;
-        }
-
-        return this.toDomain(state);
+    async find(id: number, options: QueryOptions = {}): Promise<State | null> {
+        return super.find(id, options);
     }
 
     async update(id: number, data: Partial<StateAttributes>): Promise<State> {
-        const updateData = this.toPrismaUpdateData(data);
-
-        const updated = await this.prisma.db.orm.public.State.where({ id, deletedAt: null }).update(updateData);
+        const updated = await this.updateRecord(id, this.toPrismaUpdateData(data));
 
         if (!updated) {
             throw new Error(
@@ -65,11 +79,11 @@ export class StatePrismaRepository implements StateRepository {
             );
         }
 
-        return this.toDomain(updated);
+        return updated;
     }
 
     async delete(id: number): Promise<State> {
-        const deleted = await this.prisma.db.orm.public.State.where({ id, deletedAt: null }).update({ deletedAt: new Date().toISOString() });
+        const deleted = await this.softDeleteRecord(id);
 
         if (!deleted) {
             throw new Error(
@@ -77,11 +91,11 @@ export class StatePrismaRepository implements StateRepository {
             );
         }
 
-        return this.toDomain(deleted);
+        return deleted;
     }
 
     async restore(id: number): Promise<State> {
-        const restored = await this.prisma.db.orm.public.State.where({ id }).update({ deletedAt: null });
+        const restored = await this.restoreRecord(id);
 
         if (!restored) {
             throw new Error(
@@ -89,14 +103,11 @@ export class StatePrismaRepository implements StateRepository {
             );
         }
 
-        return this.toDomain(restored);
+        return restored;
     }
 
     async forceDelete(id: number): Promise<State> {
-        const deleted =
-            await this.prisma.db.orm.public.State
-                .where({ id })
-                .delete();
+        const deleted = await this.forceDeleteRecord(id);
 
         if (!deleted) {
             throw new Error(
@@ -104,10 +115,14 @@ export class StatePrismaRepository implements StateRepository {
             );
         }
 
-        return this.toDomain(deleted);
+        return deleted;
     }
 
-    private toPrismaUpdateData(data: Partial<StateAttributes>): Partial<StateAttributes> {
+    protected toDomain(data: StateAttributes): State {
+        return new State(data);
+    }
+
+    private toPrismaUpdateData(data: Partial<StateAttributes>): Record<string, unknown> {
         return {
             ...(data.name !== undefined && {
                 name: data.name,
@@ -117,9 +132,5 @@ export class StatePrismaRepository implements StateRepository {
                 deletedAt: data.deletedAt,
             }),
         };
-    }
-
-    private toDomain(data: StateAttributes): State {
-        return new State(data);
     }
 }

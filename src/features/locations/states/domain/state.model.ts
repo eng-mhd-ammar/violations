@@ -1,17 +1,19 @@
+import { AddressAttributes } from "../../addresses/domain/address.model";
+
 export type StateAttributes = {
     id?: number;
     name: string;
     createdAt?: string;
     updatedAt?: string;
     deletedAt?: string | null;
+
+    addresses?: AddressAttributes[];
 };
 
 export class State {
     private attributes: StateAttributes;
 
-    constructor(
-        attributes: StateAttributes,
-    ) {
+    constructor(attributes: StateAttributes) {
         this.attributes = {
             deletedAt: null,
             ...attributes,
@@ -40,6 +42,10 @@ export class State {
 
     get deletedAt(): string | null {
         return this.attributes.deletedAt ?? null;
+    }
+
+    get addresses(): AddressAttributes[] {
+        return this.attributes.addresses ?? [];
     }
 
     // ============================================================

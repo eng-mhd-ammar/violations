@@ -1,15 +1,14 @@
-import { State, StateAttributes } from "./state.model";
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
+import { State, StateAttributes } from './state.model.js';
 
 export abstract class StateRepository {
+    abstract all(options?: QueryOptions): Promise<State[]>;
+
+    abstract first(options?: QueryOptions): Promise<State | null>;
+
+    abstract find(id: number, options?: QueryOptions): Promise<State | null>;
+
     abstract create(state: State): Promise<State>;
-
-    abstract findAll(): Promise<State[]>;
-
-    abstract findById(id: number): Promise<State | null>;
-
-    abstract findByIdIncludingDeleted(id: number): Promise<State | null>;
-
-    abstract findByName(name: string): Promise<State | null>;
 
     abstract update(id: number, data: Partial<StateAttributes>): Promise<State>;
 

@@ -3,15 +3,26 @@ import 'dotenv/config';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { useContainer } from 'class-validator';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 import { AppModule } from './app.module.js';
 
 import { GlobalExceptionFilter } from './core/exceptions/filters/global-exception.filter.js';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(
+        AppModule,
+    );
 
-    useContainer(app.select(AppModule), { fallback: true, fallbackOnErrors: true });
+    app.set('query parser', 'extended');
+
+    useContainer(
+        app.select(AppModule),
+        {
+            fallback: true,
+            fallbackOnErrors: true,
+        },
+    );
 
     app.useGlobalPipes(
         new ValidationPipe({

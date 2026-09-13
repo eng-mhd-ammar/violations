@@ -1,53 +1,35 @@
-import {
-    ConflictException,
-    Injectable,
-    NotFoundException,
-} from '@nestjs/common';
-
-import {
-    State,
-    StateAttributes,
-} from '../domain/state.model.js';
-
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { State, StateAttributes } from '../domain/state.model.js';
 import { StateRepository } from '../domain/state.repository.js';
-
 import { CreateStateDto } from '../presentation/http/dto/create-state.dto.js';
 import { UpdateStateDto } from '../presentation/http/dto/update-state.dto.js';
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
 
 @Injectable()
 export class StatesService {
-
-    constructor(
-        private readonly stateRepository: StateRepository,
-    ) {}
+    constructor(private readonly stateRepository: StateRepository) {}
 
     /**
-     * Create a new state
+     * Create a new state.
      */
     async create(dto: CreateStateDto): Promise<State> {
-        const state = new State({
-            name: dto.name,
-        });
+        const state = new State(dto);
 
         return this.stateRepository.create(state);
     }
 
     /**
-     * Get all states
+     * Get all states.
      */
-    async findAll(): Promise<State[]> {
-
-        return this.stateRepository.findAll();
-
+    async findAll(options: QueryOptions = {}): Promise<State[]> {
+        return this.stateRepository.all(options);
     }
 
     /**
-     * Get state by ID
+     * Get state by ID.
      */
-    async findById(id: number): Promise<State> {
-
-        const state =
-            await this.stateRepository.findById(id);
+    async findById(id: number, options: QueryOptions = {}): Promise<State> {
+        const state = await this.stateRepository.find(id, options);
 
         if (!state) {
             throw new NotFoundException(
@@ -59,79 +41,38 @@ export class StatesService {
     }
 
     /**
-     * Update state
+     * Update state.
      */
-    async update(
-        id: number,
-        dto: UpdateStateDto,
-    ): Promise<State> {
-
+    async update(id: number, dto: UpdateStateDto): Promise<State> {
         const state = await this.findById(id);
 
-        /**
-         * Check name uniqueness only when
-         * the name is actually changed.
-         */
-        if (
-            dto.name !== undefined &&
-            dto.name !== state.name
-        ) {
-
-            const existingName =
-                await this.stateRepository.findByName(
-                    dto.name,
-                );
-
-            if (
-                existingName &&
-                existingName.id !== id
-            ) {
-                throw new ConflictException(
-                    'State name is already in use',
-                );
-            }
-        }
-
-        /**
-         * Apply domain mutations.
-         */
         if (dto.name !== undefined) {
-            state.changeName(dto.name);
+            state.changeName(
+                dto.name,
+            );
         }
 
-        /**
-         * Persist the updated domain entity.
-         */
         const data: Partial<StateAttributes> = {
             name: state.name,
         };
 
-        return this.stateRepository.update(
-            id,
-            data,
-        );
+        return this.stateRepository.update(id, data);
     }
 
     /**
-     * Soft delete state
+     * Soft delete state.
      */
     async delete(id: number): Promise<State> {
+        await this.findById(id);
 
-        const state = await this.findById(id);
-
-        await this.stateRepository.delete(id);
-
-        return state;
+        return this.stateRepository.delete(id);
     }
 
     /**
-     * Restore soft-deleted state
+     * Restore state.
      */
     async restore(id: number): Promise<State> {
-
-        const state =
-            await this.stateRepository
-                .findByIdIncludingDeleted(id);
+        const state = await this.stateRepository.find(id, { trashed: 'only' });
 
         if (!state) {
             throw new NotFoundException(
@@ -147,16 +88,11 @@ export class StatesService {
     }
 
     /**
-     * Force delete state
+     * Force delete state.
      */
-    async forceDelete(
-        id: number,
-    ): Promise<State> {
+    async forceDelete(id: number): Promise<State> {
+        await this.findById(id);
 
-        const state = await this.findById(id);
-
-        await this.stateRepository.forceDelete(id);
-
-        return state;
+        return this.stateRepository.forceDelete(id);
     }
 }

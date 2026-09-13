@@ -7,6 +7,7 @@ import {
     ParseIntPipe,
     Patch,
     Post,
+    Query,
     Res,
 } from '@nestjs/common';
 
@@ -18,6 +19,7 @@ import { StatesService } from '../../application/states.service.js';
 import { CreateStateDto } from './dto/create-state.dto.js';
 import { StateResource } from './resources/state.resource.js';
 import { UpdateStateDto } from './dto/update-state.dto.js';
+import { QueryDto } from '../../../../../core/database/repositories/query.dto.js';
 
 @Controller('/api/v1/states')
 export class StatesController {
@@ -45,8 +47,8 @@ export class StatesController {
      */
     @Can('states_index')
     @Get()
-    async findAll(@Res() res: ExpressResponse) {
-        const states = await this.statesService.findAll();
+    async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
+        const states = await this.statesService.findAll(query);
         const data = StateResource.collection(states);
 
         return new ResponseUtil(res).success(data, 'States retrieved successfully', ResponseUtil.HTTP_OK);
