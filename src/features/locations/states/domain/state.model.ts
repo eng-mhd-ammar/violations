@@ -1,31 +1,21 @@
-export interface StateAttributes {
-
+export type StateAttributes = {
     id?: number;
-
     name: string;
-
     createdAt?: string;
-
     updatedAt?: string;
-
     deletedAt?: string | null;
-
-}
+};
 
 export class State {
-
     private attributes: StateAttributes;
 
-    constructor(attributes: StateAttributes) {
-
+    constructor(
+        attributes: StateAttributes,
+    ) {
         this.attributes = {
-
             deletedAt: null,
-
             ...attributes,
-
         };
-
     }
 
     // ============================================================
@@ -33,33 +23,23 @@ export class State {
     // ============================================================
 
     get id(): number | undefined {
-
         return this.attributes.id;
-
     }
 
     get name(): string {
-
         return this.attributes.name;
-
     }
 
     get createdAt(): string | undefined {
-
         return this.attributes.createdAt;
-
     }
 
     get updatedAt(): string | undefined {
-
         return this.attributes.updatedAt;
-
     }
 
     get deletedAt(): string | null {
-
         return this.attributes.deletedAt ?? null;
-
     }
 
     // ============================================================
@@ -67,9 +47,7 @@ export class State {
     // ============================================================
 
     changeName(name: string): void {
-
         this.attributes.name = name;
-
     }
 
     // ============================================================
@@ -77,9 +55,7 @@ export class State {
     // ============================================================
 
     isDeleted(): boolean {
-
         return this.deletedAt !== null;
-
     }
 
     // ============================================================
@@ -87,13 +63,14 @@ export class State {
     // ============================================================
 
     toAttributes(): StateAttributes {
-
         return {
-
             ...this.attributes,
-
         };
-
     }
 
+    toArray(): StateAttributes {
+        return {
+            ...this.attributes,
+        };
+    }
 }

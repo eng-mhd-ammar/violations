@@ -1,27 +1,33 @@
 import 'dotenv/config';
+
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { useContainer } from 'class-validator';
+
 import { AppModule } from './app.module.js';
+
 import { GlobalExceptionFilter } from './core/exceptions/filters/global-exception.filter.js';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+    useContainer(app.select(AppModule), { fallback: true, fallbackOnErrors: true });
 
-  app.useGlobalFilters(
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            forbidNonWhitelisted: true,
+            transform: true,
+        }),
+    );
+
+    app.useGlobalFilters(
         new GlobalExceptionFilter(),
-  );
+    );
 
-  await app.listen(
-    process.env.PORT ?? 3000,
-  );
+    await app.listen(
+        process.env.PORT ?? 3000,
+    );
 }
 
 bootstrap();

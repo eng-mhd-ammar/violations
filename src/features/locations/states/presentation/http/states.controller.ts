@@ -22,9 +22,7 @@ import { UpdateStateDto } from './dto/update-state.dto.js';
 @Controller('/api/v1/states')
 export class StatesController {
 
-    constructor(
-        private readonly statesService: StatesService,
-    ) {}
+    constructor(private readonly statesService: StatesService) {}
 
     /**
      * Create a new state
@@ -33,18 +31,11 @@ export class StatesController {
      */
     @Can('states_create')
     @Post()
-    async create(
-        @Body() dto: CreateStateDto,
-        @Res() res: ExpressResponse,
-    ) {
+    async create(@Body() dto: CreateStateDto, @Res() res: ExpressResponse,) {
         const state = await this.statesService.create(dto);
         const data = StateResource.make(state);
 
-        return new ResponseUtil(res).success(
-            data,
-            'State created successfully',
-            ResponseUtil.HTTP_CREATED,
-        );
+        return new ResponseUtil(res).success(data, 'State created successfully', ResponseUtil.HTTP_CREATED);
     }
 
     /**
@@ -54,17 +45,11 @@ export class StatesController {
      */
     @Can('states_index')
     @Get()
-    async findAll(
-        @Res() res: ExpressResponse,
-    ) {
+    async findAll(@Res() res: ExpressResponse) {
         const states = await this.statesService.findAll();
         const data = StateResource.collection(states);
 
-        return new ResponseUtil(res).success(
-            data,
-            'States retrieved successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'States retrieved successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
@@ -74,18 +59,11 @@ export class StatesController {
      */
     @Can('states_show')
     @Get(':id')
-    async findOne(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
+    async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
         const state = await this.statesService.findById(id);
         const data = StateResource.make(state);
 
-        return new ResponseUtil(res).success(
-            data,
-            'State retrieved successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'State retrieved successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
@@ -95,11 +73,7 @@ export class StatesController {
      */
     @Can('states_update')
     @Patch(':id')
-    async update(
-        @Param('id', ParseIntPipe) id: number,
-        @Body() dto: UpdateStateDto,
-        @Res() res: ExpressResponse,
-    ) {
+    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateStateDto, @Res() res: ExpressResponse) {
         const state = await this.statesService.update(id, dto);
         const data = StateResource.make(state);
 
@@ -117,18 +91,11 @@ export class StatesController {
      */
     @Can('states_delete')
     @Delete(':id')
-    async delete(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
+    async delete(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
         const state = await this.statesService.delete(id);
         const data = StateResource.make(state);
 
-        return new ResponseUtil(res).success(
-            data,
-            'State deleted successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'State deleted successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
@@ -138,18 +105,11 @@ export class StatesController {
      */
     @Can('states_restore')
     @Get(':id/restore')
-    async restore(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
+    async restore(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
         const state = await this.statesService.restore(id);
         const data = StateResource.make(state);
 
-        return new ResponseUtil(res).success(
-            data,
-            'State restored successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'State restored successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
@@ -159,17 +119,10 @@ export class StatesController {
      */
     @Can('states_force_delete')
     @Delete(':id/force-delete')
-    async forceDelete(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
+    async forceDelete(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
         const state = await this.statesService.forceDelete(id);
         const data = StateResource.make(state);
 
-        return new ResponseUtil(res).success(
-            data,
-            'State force deleted successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'State force deleted successfully', ResponseUtil.HTTP_OK);
     }
 }

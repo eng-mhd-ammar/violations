@@ -24,19 +24,7 @@ export class StatesService {
     /**
      * Create a new state
      */
-    async create(
-        dto: CreateStateDto,
-    ): Promise<State> {
-
-        const existingName =
-            await this.stateRepository.findByName(dto.name);
-
-        if (existingName) {
-            throw new ConflictException(
-                'State name is already in use',
-            );
-        }
-
+    async create(dto: CreateStateDto): Promise<State> {
         const state = new State({
             name: dto.name,
         });

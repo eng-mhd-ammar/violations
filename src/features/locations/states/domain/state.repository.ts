@@ -5,22 +5,13 @@ export abstract class StateRepository {
 
     abstract findAll(): Promise<State[]>;
 
-    abstract findById(
-        id: number,
-    ): Promise<State | null>;
+    abstract findById(id: number): Promise<State | null>;
 
-    abstract findByIdIncludingDeleted(
-        id: number,
-    ): Promise<State | null>;
+    abstract findByIdIncludingDeleted(id: number): Promise<State | null>;
 
-    abstract findByName(
-        name: string,
-    ): Promise<State | null>;
+    abstract findByName(name: string): Promise<State | null>;
 
-    abstract update(
-        id: number,
-        data: Partial<StateAttributes>,
-    ): Promise<State>;
+    abstract update(id: number, data: Partial<StateAttributes>): Promise<State>;
 
     abstract delete(id: number): Promise<State>;
 
