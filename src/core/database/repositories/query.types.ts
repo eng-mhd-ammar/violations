@@ -18,5 +18,20 @@ export interface QueryOptions {
 
     perPage?: number;
 
+    paginate?: boolean;
+
     trashed?: TrashedMode;
+}
+
+export interface PaginationMeta {
+    currentPage: number;
+    perPage: number;
+    total: number;
+    lastPage: number;
+}
+
+export interface PaginatedResult<T> {
+    items: T[];
+
+    pagination: PaginationMeta;
 }

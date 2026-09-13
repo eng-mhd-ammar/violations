@@ -16,7 +16,7 @@ import type { Response as ExpressResponse } from 'express';
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
 import { AddressesService } from '../../application/addresses.service.js';
 import { CreateAddressDto } from './dto/create-address.dto.js';
-import { AddressResource } from './resources/role.resource.js';
+import { AddressResource } from './resources/address.resource.js';
 import { UpdateAddressDto } from './dto/update-address.dto.js';
 
 @Controller('/api/v1/addresses')

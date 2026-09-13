@@ -1,4 +1,4 @@
-import { AddressAttributes } from "../../addresses/domain/address.model";
+import { Address } from '../../addresses/domain/address.model.js';
 
 export type StateAttributes = {
     id?: number;
@@ -7,7 +7,7 @@ export type StateAttributes = {
     updatedAt?: string;
     deletedAt?: string | null;
 
-    addresses?: AddressAttributes[];
+    addresses?: Address[];
 };
 
 export class State {
@@ -44,7 +44,11 @@ export class State {
         return this.attributes.deletedAt ?? null;
     }
 
-    get addresses(): AddressAttributes[] {
+    // ============================================================
+    // Relations
+    // ============================================================
+
+    get addresses(): Address[] {
         return this.attributes.addresses ?? [];
     }
 

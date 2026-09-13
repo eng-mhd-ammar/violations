@@ -1,9 +1,11 @@
 import type { QueryOptions } from './query.types.js';
+import type { IncludeResolver } from './include-resolver.js';
 
 export class BaseQueryBuilder {
+
     protected query: any;
 
-    constructor(protected readonly model: any) {
+    constructor(protected readonly model: any, protected readonly includeResolvers: Record<string, IncludeResolver> = {}) {
         this.query = model;
     }
 
@@ -18,6 +20,7 @@ export class BaseQueryBuilder {
             const [column, value]
             of Object.entries(filters)
         ) {
+
             if (
                 value === undefined ||
                 value === null ||
@@ -26,9 +29,10 @@ export class BaseQueryBuilder {
                 continue;
             }
 
-            this.query = this.query.where({
-                [column]: value,
-            });
+            this.query =
+                this.query.where({
+                    [column]: value,
+                });
         }
 
         return this;
@@ -46,6 +50,7 @@ export class BaseQueryBuilder {
                 : defaultSort;
 
         for (const sort of sorts) {
+
             const descending =
                 sort.startsWith('-');
 
@@ -83,10 +88,10 @@ export class BaseQueryBuilder {
     // ============================================================
 
     applyIncludes(options: QueryOptions, allowedIncludes: string[]): this {
-        const includes =
-            options.include ?? [];
+        const includes = options.include ?? [];
 
         for (const include of includes) {
+
             if (
                 !allowedIncludes.includes(
                     include,
@@ -102,12 +107,13 @@ export class BaseQueryBuilder {
     }
 
     protected applyInclude(relation: string): void {
-        /*
-         * Prisma 8 relation/include API
-         * can be implemented here once the
-         * exact generated relation selector
-         * is defined.
-         */
+        const resolver = this.includeResolvers[relation];
+
+        if (!resolver) {
+            return;
+        }
+
+        this.query = resolver(this.query);
     }
 
     // ============================================================
@@ -115,29 +121,29 @@ export class BaseQueryBuilder {
     // ============================================================
 
     applySoftDeletes(options: QueryOptions): this {
-    
         const trashed = options.trashed ?? 'not';
-    
+
         if (trashed === 'not') {
-        
-            this.query = this.query.where({
-                deletedAt: null,
-            });
-        
+
+            this.query =
+                this.query.where({
+                    deletedAt: null,
+                });
+
             return this;
         }
-    
+
         if (trashed === 'only') {
-        
-            this.query = this.query.where(
-                (record: any) =>
-                    record.deletedAt.isNotNull(),
-            );
-        
+
+            this.query =
+                this.query.where(
+                    (record: any) =>
+                        record.deletedAt.isNotNull(),
+                );
+
             return this;
         }
-    
-        // with
+
         return this;
     }
 

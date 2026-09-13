@@ -48,8 +48,24 @@ export class StatesController {
     @Can('states_index')
     @Get()
     async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
-        const states = await this.statesService.findAll(query);
-        const data = StateResource.collection(states);
+        const result = await this.statesService.findAll(query);
+
+        const isPaginated = 'items' in result;
+
+        const items = isPaginated
+            ? result.items
+            : result;
+
+        const data = {
+            items: StateResource.collection(
+                items,
+                query.include ?? [],
+            ),
+
+            ...(isPaginated && {
+                pagination: result.pagination,
+            }),
+        };
 
         return new ResponseUtil(res).success(data, 'States retrieved successfully', ResponseUtil.HTTP_OK);
     }

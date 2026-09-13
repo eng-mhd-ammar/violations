@@ -58,8 +58,92 @@ export class StatePrismaRepository extends BaseRepository<State, StateAttributes
         return this.createRecord(data);
     }
 
-    async all(options: QueryOptions = {}): Promise<State[]> {
-        return super.all(options);
+    async all(options: QueryOptions = {}): Promise<any> {
+        const builder = this.createQuery(options);
+
+        const records = await builder.all();
+
+        let states =
+            records.map(
+                (record: StateAttributes) =>
+                    this.toDomain(record),
+            );
+
+        /*
+         * =========================
+         * INCLUDE: addresses
+         * =========================
+         */
+
+        if (
+            options.include?.includes(
+                'addresses',
+            )
+        ) {
+            const result: State[] = [];
+
+            for (const state of states) {
+                if (!state.id) {
+                    result.push(state);
+                    continue;
+                }
+
+                const addresses =
+                    await this.prisma
+                        .db
+                        .orm
+                        .public
+                        .Address
+                        .where({
+                            stateId: state.id,
+                        })
+                        .all();
+
+                result.push(
+                    new State({
+                        ...state.toAttributes(),
+
+                        addresses:
+                            addresses as any,
+                    }),
+                );
+            }
+
+            states = result;
+        }
+
+        /*
+         * =========================
+         * PAGINATION
+         * =========================
+         */
+
+        if (options.paginate === false) {
+            return states;
+        }
+
+        const page = options.page ?? 1;
+
+        const perPage = options.perPage ?? 10;
+
+        const total = states.length;
+
+        const start = (page - 1) * perPage;
+
+        const items = states.slice(start, start + perPage);
+
+        return {
+            items,
+
+            pagination: {
+                currentPage: page,
+                perPage,
+                total,
+                lastPage: Math.ceil(
+                    total / perPage,
+                ),
+            },
+        };
     }
 
     async first(options: QueryOptions = {}): Promise<State | null> {
@@ -67,11 +151,20 @@ export class StatePrismaRepository extends BaseRepository<State, StateAttributes
     }
 
     async find(id: number, options: QueryOptions = {}): Promise<State | null> {
-        return super.find(id, options);
+        return super.find(
+            id,
+            options,
+        );
     }
 
     async update(id: number, data: Partial<StateAttributes>): Promise<State> {
-        const updated = await this.updateRecord(id, this.toPrismaUpdateData(data));
+        const updated =
+            await this.updateRecord(
+                id,
+                this.toPrismaUpdateData(
+                    data,
+                ),
+            );
 
         if (!updated) {
             throw new Error(
@@ -83,7 +176,8 @@ export class StatePrismaRepository extends BaseRepository<State, StateAttributes
     }
 
     async delete(id: number): Promise<State> {
-        const deleted = await this.softDeleteRecord(id);
+        const deleted =
+            await this.softDeleteRecord(id);
 
         if (!deleted) {
             throw new Error(
@@ -95,7 +189,8 @@ export class StatePrismaRepository extends BaseRepository<State, StateAttributes
     }
 
     async restore(id: number): Promise<State> {
-        const restored = await this.restoreRecord(id);
+        const restored =
+            await this.restoreRecord(id);
 
         if (!restored) {
             throw new Error(
@@ -107,7 +202,8 @@ export class StatePrismaRepository extends BaseRepository<State, StateAttributes
     }
 
     async forceDelete(id: number): Promise<State> {
-        const deleted = await this.forceDeleteRecord(id);
+        const deleted =
+            await this.forceDeleteRecord(id);
 
         if (!deleted) {
             throw new Error(

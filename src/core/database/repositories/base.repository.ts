@@ -1,19 +1,20 @@
 import { BaseQueryBuilder } from './base-query-builder.js';
-import type { QueryOptions } from './query.types.js';
+
+import type {
+    PaginatedResult,
+    QueryOptions,
+} from './query.types.js';
 
 export abstract class BaseRepository<TDomain, TAttributes> {
-
     protected readonly model: any;
 
     constructor(model: any) {
         this.model = model;
     }
 
-    protected abstract toDomain(data: TAttributes): TDomain;
-
-    // ============================================================
-    // Configuration
-    // ============================================================
+    protected abstract toDomain(
+        data: TAttributes,
+    ): TDomain;
 
     protected allowedSorts(): string[] {
         return [];
@@ -35,13 +36,7 @@ export abstract class BaseRepository<TDomain, TAttributes> {
         return [];
     }
 
-    // ============================================================
-    // Query Builder
-    // ============================================================
-
     protected createQuery(options: QueryOptions = {}): BaseQueryBuilder {
-        console.log('QUERY OPTIONS:', options);
-
         const filteredOptions = this.filterAllowedFilters(options);
 
         const builder = new BaseQueryBuilder(this.model);
@@ -52,17 +47,12 @@ export abstract class BaseRepository<TDomain, TAttributes> {
 
         builder.applySort(filteredOptions, this.allowedSorts(), this.defaultSort());
 
-        builder.applyIncludes( filteredOptions, this.allowedIncludes());
+        builder.applyIncludes(filteredOptions, this.allowedIncludes());
 
         return builder;
     }
 
-    // ============================================================
-    // Allowed Filters
-    // ============================================================
-
     protected filterAllowedFilters(options: QueryOptions): QueryOptions {
-
         if (!options.filter) {
             return options;
         }
@@ -73,13 +63,9 @@ export abstract class BaseRepository<TDomain, TAttributes> {
 
         for (
             const [key, value]
-            of Object.entries(
-                options.filter,
-            )
+            of Object.entries(options.filter)
         ) {
-            if (
-                allowed.includes(key)
-            ) {
+            if (allowed.includes(key)) {
                 filter[key] = value;
             }
         }
@@ -90,22 +76,67 @@ export abstract class BaseRepository<TDomain, TAttributes> {
         };
     }
 
-    // ============================================================
-    // All
-    // ============================================================
-
-    async all(options: QueryOptions = {}): Promise<TDomain[]> {
+    async all(options: QueryOptions = {}): Promise<PaginatedResult<TDomain>> {
         const records = await this.createQuery(options).all();
 
-        return records.map(
-            (record: TAttributes) =>
-                this.toDomain(record),
-        );
-    }
+        const domains =
+            records.map(
+                (record: TAttributes) =>
+                    this.toDomain(record),
+            );
 
-    // ============================================================
-    // First
-    // ============================================================
+        /*
+         * ============================
+         * WITHOUT PAGINATION
+         * ============================
+         */
+
+        if (options.paginate === false) {
+            return {
+                items: domains,
+
+                pagination: {
+                    currentPage: 1,
+                    perPage: domains.length,
+                    total: domains.length,
+                    lastPage: 1,
+                },
+            };
+        }
+
+        /*
+         * ============================
+         * PAGINATION
+         * ============================
+         */
+
+        const page = options.page ?? 1;
+
+        const perPage = options.perPage ?? 10;
+
+        const total = domains.length;
+
+        const lastPage = Math.ceil(total / perPage);
+
+        const start = (page - 1) * perPage;
+
+        const items =
+            domains.slice(
+                start,
+                start + perPage,
+            );
+
+        return {
+            items,
+
+            pagination: {
+                currentPage: page,
+                perPage,
+                total,
+                lastPage,
+            },
+        };
+    }
 
     async first(options: QueryOptions = {}): Promise<TDomain | null> {
         const record = await this.createQuery(options).first();
@@ -117,14 +148,14 @@ export abstract class BaseRepository<TDomain, TAttributes> {
         return this.toDomain(record);
     }
 
-    // ============================================================
-    // Find
-    // ============================================================
-
     async find(id: number, options: QueryOptions = {}): Promise<TDomain | null> {
         const query = this.createQuery(options);
 
-        const record = await query.getQuery().where({ id }).first();
+        const record =
+            await query
+                .getQuery()
+                .where({ id })
+                .first();
 
         if (!record) {
             return null;
@@ -133,22 +164,26 @@ export abstract class BaseRepository<TDomain, TAttributes> {
         return this.toDomain(record);
     }
 
-    // ============================================================
-    // Create
-    // ============================================================
-
-    protected async createRecord(data: Record<string, unknown>): Promise<TDomain> {
-        const record = await this.model.create(data);
+    protected async createRecord(
+        data: Record<string, unknown>,
+    ): Promise<TDomain> {
+        const record =
+            await this.model.create(data);
 
         return this.toDomain(record);
     }
 
-    // ============================================================
-    // Update
-    // ============================================================
-
-    protected async updateRecord(id: number, data: Record<string, unknown>): Promise<TDomain | null> {
-        const record = await this.model.where({ id, deletedAt: null }).update(data);
+    protected async updateRecord(
+        id: number,
+        data: Record<string, unknown>,
+    ): Promise<TDomain | null> {
+        const record =
+            await this.model
+                .where({
+                    id,
+                    deletedAt: null,
+                })
+                .update(data);
 
         if (!record) {
             return null;
@@ -156,13 +191,18 @@ export abstract class BaseRepository<TDomain, TAttributes> {
 
         return this.toDomain(record);
     }
-
-    // ============================================================
-    // Soft Delete
-    // ============================================================
 
     protected async softDeleteRecord(id: number): Promise<TDomain | null> {
-        const record = await this.model.where({ id, deletedAt: null }).update({ deletedAt: new Date().toISOString() });
+        const record =
+            await this.model
+                .where({
+                    id,
+                    deletedAt: null,
+                })
+                .update({
+                    deletedAt:
+                        new Date().toISOString(),
+                });
 
         if (!record) {
             return null;
@@ -170,13 +210,14 @@ export abstract class BaseRepository<TDomain, TAttributes> {
 
         return this.toDomain(record);
     }
-
-    // ============================================================
-    // Restore
-    // ============================================================
 
     protected async restoreRecord(id: number): Promise<TDomain | null> {
-        const record = await this.model.where({ id }).update({ deletedAt: null });
+        const record =
+            await this.model
+                .where({ id })
+                .update({
+                    deletedAt: null,
+                });
 
         if (!record) {
             return null;
@@ -185,12 +226,11 @@ export abstract class BaseRepository<TDomain, TAttributes> {
         return this.toDomain(record);
     }
 
-    // ============================================================
-    // Force Delete
-    // ============================================================
-
     protected async forceDeleteRecord(id: number): Promise<TDomain | null> {
-        const record = await this.model.where({ id }).delete();
+        const record =
+            await this.model
+                .where({ id })
+                .delete();
 
         if (!record) {
             return null;
