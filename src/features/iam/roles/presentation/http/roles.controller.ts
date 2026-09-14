@@ -7,24 +7,26 @@ import {
     ParseIntPipe,
     Patch,
     Post,
+    Query,
     Res,
 } from '@nestjs/common';
 
-
-
-
-import { ResponseUtil } from '../../../../../shared/utils/response.js';
-
 import type { Response as ExpressResponse } from 'express';
 
+import { ResponseUtil } from '../../../../../shared/utils/response.js';
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
+
 import { RolesService } from '../../application/roles.service.js';
+
 import { CreateRoleDto } from './dto/create-role.dto.js';
-import { RoleResource } from './resources/role.resource.js';
 import { UpdateRoleDto } from './dto/update-role.dto.js';
+import { RoleResource } from './resources/role.resource.js';
+
+import { QueryDto } from '../../../../../core/database/repositories/query.dto.js';
 
 @Controller('/api/v1/roles')
 export class RolesController {
+
     constructor(
         private readonly rolesService: RolesService,
     ) {}
@@ -58,18 +60,27 @@ export class RolesController {
      */
     @Can('roles_index')
     @Get()
-    async findAll(
-        @Res() res: ExpressResponse,
-    ) {
-        const roles = await this.rolesService.findAll();
+    async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
+        const result = await this.rolesService.findAll(query);
 
-        const data = RoleResource.collection(roles);
+        const isPaginated = 'items' in result;
 
-        return new ResponseUtil(res).success(
-            data,
-            'Roles retrieved successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        const items = isPaginated
+            ? result.items
+            : result;
+
+        const data = {
+            items: RoleResource.collection(
+                items,
+                query.include ?? [],
+            ),
+
+            ...(isPaginated && {
+                pagination: result.pagination,
+            }),
+        };
+
+        return new ResponseUtil(res).success(data, 'States retrieved successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
@@ -173,6 +184,7 @@ export class RolesController {
         @Res() res: ExpressResponse,
     ) {
         const role = await this.rolesService.forceDelete(id);
+
         const data = RoleResource.make(role);
 
         return new ResponseUtil(res).success(

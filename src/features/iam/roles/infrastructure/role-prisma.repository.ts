@@ -1,173 +1,394 @@
 import { Injectable } from '@nestjs/common';
 
-import { RoleRepository } from '../domain/role.repository.js';
-
 import { PrismaService } from '../../../../core/database/prisma.service.js';
+
+import {
+    BaseRepository,
+} from '../../../../core/database/repositories/base.repository.js';
+
+import type {
+    QueryOptions,
+} from '../../../../core/database/repositories/query.types.js';
+
 import {
     Role,
-    RoleAttributes,
+    type RoleAttributes,
 } from '../domain/role.model.js';
 
+import {
+    RoleRepository,
+} from '../domain/role.repository.js';
+
+
 @Injectable()
-export class RolePrismaRepository implements RoleRepository {
+export class RolePrismaRepository
+    extends BaseRepository<Role, RoleAttributes>
+    implements RoleRepository
+{
+
     constructor(
         private readonly prisma: PrismaService,
-    ) {}
+    ) {
 
-    async create(role: Role): Promise<Role> {
+        super(
+            prisma.db.orm.public.Role,
+        );
+
+    }
+
+
+    // ============================================================
+    // Query configuration
+    // ============================================================
+
+    protected allowedSorts(): string[] {
+
+        return [
+            'id',
+            'name',
+            'slug',
+            'isActive',
+            'createdAt',
+            'updatedAt',
+        ];
+
+    }
+
+
+    protected allowedFilters(): string[] {
+
+        return [
+            'id',
+            'name',
+            'slug',
+            'isActive',
+        ];
+
+    }
+
+
+    protected allowedIncludes(): string[] {
+
+        return [
+            'permissions',
+            'userRoles',
+        ];
+
+    }
+
+
+    protected allowedFields(): string[] {
+
+        return [
+            'id',
+            'name',
+            'slug',
+            'description',
+            'isActive',
+            'createdAt',
+            'updatedAt',
+            'deletedAt',
+        ];
+
+    }
+
+
+    protected defaultSort(): string[] {
+
+        return [
+            '-createdAt',
+        ];
+
+    }
+
+
+    // ============================================================
+    // Create
+    // ============================================================
+
+    async create(
+        role: Role,
+    ): Promise<Role> {
+
         const data = role.toAttributes();
 
-        const created =
-            await this.prisma.db.orm.public.Role.create({
-                name: data.name,
-                slug: data.slug,
-                description: data.description ?? null,
-                isActive: data.isActive,
-            });
-
-        return this.toDomain(created);
+        return this.createRecord(data);
     }
 
-    async findAll(): Promise<Role[]> {
-        const roles =
-            await this.prisma.db.orm.public.Role
-                .where({
-                    deletedAt: null,
-                })
-                .all();
 
-        return roles.map((role) =>
-            this.toDomain(role),
+    // ============================================================
+    // Read
+    // ============================================================
+
+    async all(
+        options: QueryOptions = {},
+    ): Promise<any> {
+
+        const builder =
+            this.createQuery(options);
+
+        const records =
+            await builder.all();
+
+        let roles = records.map(
+            (record: RoleAttributes) =>
+                this.toDomain(record),
         );
-    }
 
-    async findById(id: number): Promise<Role | null> {
-        const role =
-            await this.prisma.db.orm.public.Role
-                .where({
-                    id,
-                    deletedAt: null,
-                })
-                .first();
 
-        if (!role) {
-            return null;
+        /*
+         * ========================================================
+         * INCLUDE: permissions
+         * ========================================================
+         *
+         * إذا BaseRepository عندك حاليًا لا يدعم العلاقات
+         * تلقائيًا، يمكنك مؤقتًا تحميلها هنا.
+         */
+
+        if (
+            options.include?.includes(
+                'permissions',
+            )
+        ) {
+
+            // سنضيفها بعد تثبيت Permission relation.
         }
 
-        return this.toDomain(role);
+
+        /*
+         * ========================================================
+         * INCLUDE: userRoles
+         * ========================================================
+         */
+
+        if (
+            options.include?.includes(
+                'userRoles',
+            )
+        ) {
+
+            // سنضيفها بعد تثبيت UserRole relation.
+        }
+
+
+        // ========================================================
+        // Pagination
+        // ========================================================
+
+        if (options.paginate === false) {
+            return roles;
+        }
+
+
+        const page =
+            options.page ?? 1;
+
+        const perPage =
+            options.perPage ?? 10;
+
+        const total =
+            roles.length;
+
+        const start =
+            (page - 1) * perPage;
+
+        const items =
+            roles.slice(
+                start,
+                start + perPage,
+            );
+
+
+        return {
+
+            items,
+
+            pagination: {
+
+                currentPage: page,
+
+                perPage,
+
+                total,
+
+                lastPage:
+                    Math.ceil(
+                        total / perPage,
+                    ),
+
+            },
+
+        };
+
     }
 
-    async findByIdIncludingDeleted(
+
+    async find(
         id: number,
+        options: QueryOptions = {},
     ): Promise<Role | null> {
-        const role =
-            await this.prisma.db.orm.public.Role
-                .where({ id })
-                .first();
 
-        if (!role) {
-            return null;
-        }
+        return super.find(
+            id,
+            options,
+        );
 
-        return this.toDomain(role);
     }
 
-    async findBySlug(slug: string): Promise<Role | null> {
-        const role =
-            await this.prisma.db.orm.public.Role
-                .where({
-                    slug,
-                    deletedAt: null,
-                })
-                .first();
 
-        if (!role) {
-            return null;
-        }
+    async findOneBy(
+        conditions: Record<string, unknown>,
+        options: QueryOptions = {},
+    ): Promise<Role | null> {
 
-        return this.toDomain(role);
+        return super.findOneBy(
+            conditions,
+            options,
+        );
+
     }
+
+
+    async first(
+        options: QueryOptions = {},
+    ): Promise<Role | null> {
+
+        return super.first(
+            options,
+        );
+
+    }
+
+
+    // ============================================================
+    // Update
+    // ============================================================
 
     async update(
         id: number,
         data: Partial<RoleAttributes>,
     ): Promise<Role> {
-        const updateData =
-            this.toPrismaUpdateData(data);
 
         const updated =
-            await this.prisma.db.orm.public.Role
-                .where({
-                    id,
-                    deletedAt: null,
-                })
-                .update(updateData);
+            await this.updateRecord(
+                id,
+                this.toPrismaUpdateData(
+                    data,
+                ),
+            );
 
         if (!updated) {
+
             throw new Error(
                 `Role with id ${id} not found`,
             );
+
         }
 
-        return this.toDomain(updated);
+        return updated;
+
     }
 
-    async delete(id: number): Promise<Role> {
+
+    // ============================================================
+    // Delete
+    // ============================================================
+
+    async delete(
+        id: number,
+    ): Promise<Role> {
+
         const deleted =
-            await this.prisma.db.orm.public.Role
-                .where({
-                    id,
-                    deletedAt: null,
-                })
-                .update({
-                    deletedAt: new Date().toISOString(),
-                });
+            await this.softDeleteRecord(
+                id,
+            );
 
         if (!deleted) {
+
             throw new Error(
                 `Role with id ${id} not found`,
             );
+
         }
 
-        return this.toDomain(deleted);
+        return deleted;
+
     }
 
-    async restore(id: number): Promise<Role> {
+
+    // ============================================================
+    // Restore
+    // ============================================================
+
+    async restore(
+        id: number,
+    ): Promise<Role> {
+
         const restored =
-            await this.prisma.db.orm.public.Role
-                .where({ id })
-                .update({
-                    deletedAt: null,
-                });
+            await this.restoreRecord(
+                id,
+            );
 
         if (!restored) {
+
             throw new Error(
                 `Role with id ${id} not found`,
             );
+
         }
 
-        return this.toDomain(restored);
+        return restored;
+
     }
 
-    async forceDelete(id: number): Promise<Role> {
+
+    // ============================================================
+    // Force Delete
+    // ============================================================
+
+    async forceDelete(
+        id: number,
+    ): Promise<Role> {
+
         const deleted =
-            await this.prisma.db.orm.public.Role
-                .where({ id })
-                .delete();
+            await this.forceDeleteRecord(
+                id,
+            );
 
         if (!deleted) {
+
             throw new Error(
                 `Role with id ${id} not found`,
             );
+
         }
 
-        return this.toDomain(deleted);
+        return deleted;
+
     }
+
+
+    // ============================================================
+    // Mapping
+    // ============================================================
+
+    protected toDomain(
+        data: RoleAttributes,
+    ): Role {
+
+        return new Role(
+            data,
+        );
+
+    }
+
 
     private toPrismaUpdateData(
         data: Partial<RoleAttributes>,
-    ): Partial<RoleAttributes> {
+    ): Record<string, unknown> {
+
         return {
+
             ...(data.name !== undefined && {
                 name: data.name,
             }),
@@ -177,38 +398,22 @@ export class RolePrismaRepository implements RoleRepository {
             }),
 
             ...(data.description !== undefined && {
-                description: data.description,
+                description:
+                    data.description,
             }),
 
             ...(data.isActive !== undefined && {
-                isActive: data.isActive,
+                isActive:
+                    data.isActive,
             }),
 
             ...(data.deletedAt !== undefined && {
-                deletedAt: data.deletedAt,
+                deletedAt:
+                    data.deletedAt,
             }),
+
         };
+
     }
 
-    private toDomain(data: {
-        id: number;
-        name: string;
-        slug: string;
-        description: string | null;
-        isActive: boolean;
-        createdAt: string;
-        updatedAt: string;
-        deletedAt: string | null;
-    }): Role {
-        return new Role({
-            id: data.id,
-            name: data.name,
-            slug: data.slug,
-            description: data.description,
-            isActive: data.isActive,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-            deletedAt: data.deletedAt,
-        });
-    }
 }

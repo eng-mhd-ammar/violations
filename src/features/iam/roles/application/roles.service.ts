@@ -1,37 +1,59 @@
 import {
     ConflictException,
+    Inject,
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
 
 import {
     Role,
+} from '../domain/role.model.js';
+
+import type {
     RoleAttributes,
 } from '../domain/role.model.js';
 
-import { RoleRepository } from '../domain/role.repository.js';
+import { ROLE_REPOSITORY } from '../domain/role.repository.js';
 
-import { CreateRoleDto } from '../presentation/http/dto/create-role.dto.js';
-import { UpdateRoleDto } from '../presentation/http/dto/update-role.dto.js';
+import type {
+    RoleRepository,
+} from '../domain/role.repository.js';
+
+import {
+    CreateRoleDto,
+} from '../presentation/http/dto/create-role.dto.js';
+
+import {
+    UpdateRoleDto,
+} from '../presentation/http/dto/update-role.dto.js';
+
+import type {
+    QueryOptions,
+} from '../../../../core/database/repositories/query.types.js';
+
 
 @Injectable()
 export class RolesService {
+
     constructor(
+        @Inject(ROLE_REPOSITORY)
         private readonly roleRepository: RoleRepository,
     ) {}
 
-    /**
-     * Create a new role
-     */
+
     async create(
         dto: CreateRoleDto,
     ): Promise<Role> {
-        const existingSlug =
-            await this.roleRepository.findBySlug(dto.slug);
 
-        if (existingSlug) {
+        const existingRole =
+            await this.roleRepository.findOneBy({
+                slug: dto.slug,
+                deletedAt: null,
+            });
+
+        if (existingRole) {
             throw new ConflictException(
-                'Role slug is already in use',
+                `Role with slug "${dto.slug}" already exists.`,
             );
         }
 
@@ -39,24 +61,26 @@ export class RolesService {
             name: dto.name,
             slug: dto.slug,
             description: dto.description ?? null,
+            isActive: dto.isActive ?? true,
         });
 
         return this.roleRepository.create(role);
     }
 
-    /**
-     * Get all roles
-     */
-    async findAll(): Promise<Role[]> {
-        return this.roleRepository.findAll();
+    async findAll(options: QueryOptions = {}) {
+        return this.roleRepository.all(options);
     }
 
-    /**
-     * Get role by ID
-     */
-    async findById(id: number): Promise<Role> {
+    async findById(
+        id: number,
+        options: QueryOptions = {},
+    ): Promise<Role> {
+
         const role =
-            await this.roleRepository.findById(id);
+            await this.roleRepository.find(
+                id,
+                options,
+            );
 
         if (!role) {
             throw new NotFoundException(
@@ -67,54 +91,58 @@ export class RolesService {
         return role;
     }
 
-    /**
-     * Update role
-     */
+
     async update(
         id: number,
         dto: UpdateRoleDto,
     ): Promise<Role> {
-        const role = await this.findById(id);
+
+        const role =
+            await this.findById(id);
+
 
         /**
-         * Check slug uniqueness only when
-         * the slug is actually changed.
+         * Check slug uniqueness
+         * only when slug is changed.
          */
         if (
             dto.slug !== undefined &&
             dto.slug !== role.slug
         ) {
-            const existingSlug =
-                await this.roleRepository.findBySlug(
-                    dto.slug,
-                );
+
+            const existingRole =
+                await this.roleRepository.findOneBy({
+                    slug: dto.slug,
+                    deletedAt: null,
+                });
 
             if (
-                existingSlug &&
-                existingSlug.id !== id
+                existingRole &&
+                existingRole.id !== id
             ) {
                 throw new ConflictException(
-                    'Role slug is already in use',
+                    `Role with slug "${dto.slug}" already exists.`,
                 );
             }
+
+            role.changeSlug(dto.slug);
         }
 
-        /**
-         * Apply domain mutations.
-         */
+
         if (dto.name !== undefined) {
             role.changeName(dto.name);
         }
 
-        if (dto.slug !== undefined) {
-            role.changeSlug(dto.slug);
-        }
 
         if (dto.description !== undefined) {
-            role.changeDescription(dto.description);
+            role.changeDescription(
+                dto.description,
+            );
         }
 
+
         if (dto.isActive !== undefined) {
+
             if (dto.isActive) {
                 role.activate();
             } else {
@@ -122,9 +150,7 @@ export class RolesService {
             }
         }
 
-        /**
-         * Persist the updated domain entity.
-         */
+
         const data: Partial<RoleAttributes> = {
             name: role.name,
             slug: role.slug,
@@ -132,54 +158,80 @@ export class RolesService {
             isActive: role.isActive,
         };
 
+
         return this.roleRepository.update(
             id,
             data,
         );
     }
 
-    /**
-     * Soft delete role
-     */
-    async delete(id: number): Promise<Role> {
-        const role = await this.findById(id);
 
-        await this.roleRepository.delete(id);
+    async delete(
+        id: number,
+    ): Promise<Role> {
 
+        const role =
+            await this.findById(id);
+
+        return this.roleRepository.delete(id);
+    }
+
+
+    async restore(id: number): Promise<Role> {
+    const role =
+        await this.roleRepository.find(
+            id,
+            {
+                trashed: 'only',
+            },
+        );
+
+    if (!role) {
+        throw new NotFoundException(
+            `Role with id ${id} not found`,
+        );
+    }
+
+    if (!role.deletedAt) {
         return role;
     }
 
-    /**
-     * Restore soft-deleted role
-     */
-    async restore(id: number): Promise<Role> {
-        const role =
-            await this.roleRepository
-                .findByIdIncludingDeleted(id);
+    // Check active role with the same name
+    const activeRoleByName =
+        await this.roleRepository.findOneBy({
+            name: role.name,
+            deletedAt: null,
+        });
 
-        if (!role) {
-            throw new NotFoundException(
-                `Role with id ${id} not found`,
-            );
-        }
-
-        if (!role.deletedAt) {
-            return role;
-        }
-
-        return this.roleRepository.restore(id);
+    if (activeRoleByName) {
+        throw new ConflictException(
+            `Cannot restore role "${role.slug}" because an active role with the same name already exists.`,
+        );
     }
 
-    /**
-     * Force delete role
-     */
+    // Check active role with the same slug
+    const activeRoleBySlug =
+        await this.roleRepository.findOneBy({
+            slug: role.slug,
+            deletedAt: null,
+        });
+
+    if (activeRoleBySlug) {
+        throw new ConflictException(
+            `Cannot restore role "${role.slug}" because an active role with the same slug already exists.`,
+        );
+    }
+
+    return this.roleRepository.restore(id);
+}
+
+
     async forceDelete(
         id: number,
     ): Promise<Role> {
-        const role = await this.findById(id);
 
-        await this.roleRepository.forceDelete(id);
+        await this.findById(id);
 
-        return role;
+        return this.roleRepository.forceDelete(id);
     }
 }

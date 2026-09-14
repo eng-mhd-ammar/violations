@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { RolesController } from './presentation/http/roles.controller.js';
 
-import { RoleRepository } from './domain/role.repository.js';
+import { ROLE_REPOSITORY, RoleRepository } from './domain/role.repository.js';
 import { RolePrismaRepository } from './infrastructure/role-prisma.repository.js';
 import { RolesService } from './application/roles.service.js';
 
@@ -13,9 +13,9 @@ import { RolesService } from './application/roles.service.js';
 
     providers: [
         RolesService,
-
+        
         {
-            provide: RoleRepository,
+            provide: ROLE_REPOSITORY,
             useClass: RolePrismaRepository,
         },
     ],
