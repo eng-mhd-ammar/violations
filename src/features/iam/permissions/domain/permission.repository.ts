@@ -1,22 +1,60 @@
-import { Permission, PermissionAttributes } from "./permission.model";
+import { Permission } from './permission.model.js';
+import type { PermissionAttributes } from './permission.model.js';
 
+import type {
+    QueryOptions,
+} from '../../../../core/database/repositories/query.types.js';
+
+
+export const PERMISSION_REPOSITORY =
+    Symbol('PERMISSION_REPOSITORY');
 
 export abstract class PermissionRepository {
-    abstract create(permission: Permission): Promise<Permission>;
 
-    abstract findAll(): Promise<Permission[]>;
+    abstract create(
+        permission: Permission,
+    ): Promise<Permission>;
 
-    abstract findById(id: number): Promise<Permission | null>;
 
-    abstract findByIdIncludingDeleted(id: number): Promise<Permission | null>;
+    abstract all(
+        options?: QueryOptions,
+    ): Promise<any>;
 
-    abstract findBySlug(slug: string): Promise<Permission | null>;
 
-    abstract update(id: number, data: Partial<PermissionAttributes>): Promise<Permission>;
+    abstract find(
+        id: number,
+        options?: QueryOptions,
+    ): Promise<Permission | null>;
 
-    abstract delete(id: number): Promise<Permission>;
 
-    abstract restore(id: number): Promise<Permission>;
+    abstract findOneBy(
+        conditions: Record<string, unknown>,
+        options?: QueryOptions,
+    ): Promise<Permission | null>;
 
-    abstract forceDelete(id: number): Promise<Permission>;
+
+    abstract first(
+        options?: QueryOptions,
+    ): Promise<Permission | null>;
+
+
+    abstract update(
+        id: number,
+        data: Partial<PermissionAttributes>,
+    ): Promise<Permission>;
+
+
+    abstract delete(
+        id: number,
+    ): Promise<Permission>;
+
+
+    abstract restore(
+        id: number,
+    ): Promise<Permission>;
+
+
+    abstract forceDelete(
+        id: number,
+    ): Promise<Permission>;
 }

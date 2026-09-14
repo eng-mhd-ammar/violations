@@ -5,13 +5,17 @@ import {
     Length,
     Matches,
 } from 'class-validator';
+import { route } from '../../../../../../core/http/helpers/route.helper.js';
+import { UniqueNotDeleted } from '../../../../../../core/validation/decorators/unique-not-deleted.decorator.js';
 
 export class CreatePermissionDto {
+    @UniqueNotDeleted('Permission', 'name')
     @IsString()
     @IsNotEmpty()
     @Length(2, 100)
     name: string;
 
+    @UniqueNotDeleted('Permission', 'slug')
     @IsString()
     @IsNotEmpty()
     @Length(2, 100)

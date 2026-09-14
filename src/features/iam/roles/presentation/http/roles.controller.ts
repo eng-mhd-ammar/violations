@@ -80,7 +80,7 @@ export class RolesController {
             }),
         };
 
-        return new ResponseUtil(res).success(data, 'States retrieved successfully', ResponseUtil.HTTP_OK);
+        return new ResponseUtil(res).success(data, 'Roles retrieved successfully', ResponseUtil.HTTP_OK);
     }
 
     /**

@@ -1,164 +1,363 @@
 import { Injectable } from '@nestjs/common';
 
-import { PermissionRepository } from '../domain/permission.repository.js';
-
 import { PrismaService } from '../../../../core/database/prisma.service.js';
-import { Permission, PermissionAttributes } from '../domain/permission.model.js';
+
+import {
+    BaseRepository,
+} from '../../../../core/database/repositories/base.repository.js';
+
+import type {
+    QueryOptions,
+} from '../../../../core/database/repositories/query.types.js';
+
+import {
+    Permission,
+    type PermissionAttributes,
+} from '../domain/permission.model.js';
+
+import {
+    PermissionRepository,
+} from '../domain/permission.repository.js';
+
 
 @Injectable()
-export class PermissionPrismaRepository implements PermissionRepository {
-    constructor(private readonly prisma: PrismaService) {}
+export class PermissionPrismaRepository extends BaseRepository<Permission, PermissionAttributes> implements PermissionRepository
+{
+
+    constructor(private readonly prisma: PrismaService) {
+        super(
+            prisma.db.orm.public.Permission,
+        );
+    }
+
+
+    // ============================================================
+    // Query configuration
+    // ============================================================
+
+    protected allowedSorts(): string[] {
+        return [
+            // 'id',
+            // 'name',
+            // 'slug',
+            // 'isActive',
+            // 'createdAt',
+            // 'updatedAt',
+        ];
+    }
+
+
+    protected allowedFilters(): string[] {
+        return [
+            'id',
+            'name',
+            'slug',
+        ];
+    }
+
+
+    protected allowedIncludes(): string[] {
+        return [
+            // 'permissions',
+            // 'userPermissions',
+        ];
+    }
+
+
+    protected allowedFields(): string[] {
+        return [
+            // 'id',
+            // 'name',
+            // 'slug',
+            // 'description',
+            // 'createdAt',
+            // 'updatedAt',
+            // 'deletedAt',
+        ];
+    }
+
+
+    protected defaultSort(): string[] {
+        return [
+            // '-createdAt',
+        ];
+    }
+
+
+    // ============================================================
+    // Create
+    // ============================================================
 
     async create(permission: Permission): Promise<Permission> {
         const data = permission.toAttributes();
 
-        const created =
-            await this.prisma.db.orm.public.Permission.create({
-                name: data.name,
-                slug: data.slug,
-                description: data.description ?? null,
-            });
-
-        return this.toDomain(created);
+        return this.createRecord(data);
     }
 
-    async findAll(): Promise<Permission[]> {
-        const permissions =
-            await this.prisma.db.orm.public.Permission
-                .where({ deletedAt: null })
-                .all();
 
-        return permissions.map((permission) =>
-            this.toDomain(permission),
-        );
-    }
+    // ============================================================
+    // Read
+    // ============================================================
 
-    async findById(id: number): Promise<Permission | null> {
-        const permission =
-            await this.prisma.db.orm.public.Permission
-                .where({
-                    id,
-                    deletedAt: null,
-                })
-                .first();
+    async all(options: QueryOptions = {}): Promise<any> {
+        const builder = this.createQuery(options);
+        const records = await builder.all();
 
-        if (!permission) {
-            return null;
+        let permissions = records.map((record: PermissionAttributes) => this.toDomain(record));
+
+
+        /*
+         * ========================================================
+         * INCLUDE: permissions
+         * ========================================================
+         *
+         * إذا BaseRepository عندك حاليًا لا يدعم العلاقات
+         * تلقائيًا، يمكنك مؤقتًا تحميلها هنا.
+         */
+
+        if (
+            options.include?.includes(
+                'permissions',
+            )
+        ) {
+
+            // سنضيفها بعد تثبيت Permission relation.
         }
 
-        return this.toDomain(permission);
+
+        /*
+         * ========================================================
+         * INCLUDE: userPermissions
+         * ========================================================
+         */
+
+        if (
+            options.include?.includes(
+                'userPermissions',
+            )
+        ) {
+            // سنضيفها بعد تثبيت UserPermission relation.
+        }
+
+
+        // ========================================================
+        // Pagination
+        // ========================================================
+
+        if (options.paginate === false) {
+            return permissions;
+        }
+
+
+        const page =
+            options.page ?? 1;
+
+        const perPage =
+            options.perPage ?? 10;
+
+        const total =
+            permissions.length;
+
+        const start =
+            (page - 1) * perPage;
+
+        const items =
+            permissions.slice(
+                start,
+                start + perPage,
+            );
+
+
+        return {
+
+            items,
+
+            pagination: {
+
+                currentPage: page,
+
+                perPage,
+
+                total,
+
+                lastPage:
+                    Math.ceil(
+                        total / perPage,
+                    ),
+
+            },
+
+        };
+
     }
 
-    async findByIdIncludingDeleted(
+
+    async find(
         id: number,
+        options: QueryOptions = {},
     ): Promise<Permission | null> {
-        const permission =
-            await this.prisma.db.orm.public.Permission
-                .where({ id })
-                .first();
 
-        if (!permission) {
-            return null;
-        }
+        return super.find(
+            id,
+            options,
+        );
 
-        return this.toDomain(permission);
     }
 
-    async findBySlug(slug: string): Promise<Permission | null> {
-        const permission =
-            await this.prisma.db.orm.public.Permission
-                .where({
-                    slug,
-                    deletedAt: null,
-                })
-                .first();
 
-        if (!permission) {
-            return null;
-        }
+    async findOneBy(
+        conditions: Record<string, unknown>,
+        options: QueryOptions = {},
+    ): Promise<Permission | null> {
 
-        return this.toDomain(permission);
+        return super.findOneBy(
+            conditions,
+            options,
+        );
+
     }
+
+
+    async first(
+        options: QueryOptions = {},
+    ): Promise<Permission | null> {
+
+        return super.first(
+            options,
+        );
+
+    }
+
+
+    // ============================================================
+    // Update
+    // ============================================================
 
     async update(
         id: number,
         data: Partial<PermissionAttributes>,
     ): Promise<Permission> {
-        const updateData = this.toPrismaUpdateData(data);
 
         const updated =
-            await this.prisma.db.orm.public.Permission
-                .where({
-                    id,
-                    deletedAt: null,
-                })
-                .update(updateData);
+            await this.updateRecord(
+                id,
+                this.toPrismaUpdateData(
+                    data,
+                ),
+            );
 
         if (!updated) {
+
             throw new Error(
                 `Permission with id ${id} not found`,
             );
+
         }
 
-        return this.toDomain(updated);
+        return updated;
+
     }
 
-    async delete(id: number): Promise<Permission> {
+
+    // ============================================================
+    // Delete
+    // ============================================================
+
+    async delete(
+        id: number,
+    ): Promise<Permission> {
+
         const deleted =
-            await this.prisma.db.orm.public.Permission
-                .where({
-                    id,
-                    deletedAt: null,
-                })
-                .update({
-                    deletedAt: new Date().toISOString(),
-                });
+            await this.softDeleteRecord(
+                id,
+            );
 
         if (!deleted) {
+
             throw new Error(
                 `Permission with id ${id} not found`,
             );
+
         }
 
-        return this.toDomain(deleted);
+        return deleted;
+
     }
 
-    async restore(id: number): Promise<Permission> {
+
+    // ============================================================
+    // Restore
+    // ============================================================
+
+    async restore(
+        id: number,
+    ): Promise<Permission> {
+
         const restored =
-            await this.prisma.db.orm.public.Permission
-                .where({ id })
-                .update({
-                    deletedAt: null,
-                });
+            await this.restoreRecord(
+                id,
+            );
 
         if (!restored) {
+
             throw new Error(
                 `Permission with id ${id} not found`,
             );
+
         }
 
-        return this.toDomain(restored);
+        return restored;
+
     }
 
-    async forceDelete(id: number): Promise<Permission> {
+
+    // ============================================================
+    // Force Delete
+    // ============================================================
+
+    async forceDelete(
+        id: number,
+    ): Promise<Permission> {
+
         const deleted =
-            await this.prisma.db.orm.public.Permission
-                .where({ id })
-                .delete();
+            await this.forceDeleteRecord(
+                id,
+            );
 
         if (!deleted) {
+
             throw new Error(
                 `Permission with id ${id} not found`,
             );
+
         }
 
-        return this.toDomain(deleted);
+        return deleted;
+
     }
+
+
+    // ============================================================
+    // Mapping
+    // ============================================================
+
+    protected toDomain(
+        data: PermissionAttributes,
+    ): Permission {
+
+        return new Permission(
+            data,
+        );
+
+    }
+
 
     private toPrismaUpdateData(
         data: Partial<PermissionAttributes>,
-    ): Partial<PermissionAttributes> {
+    ): Record<string, unknown> {
+
         return {
+
             ...(data.name !== undefined && {
                 name: data.name,
             }),
@@ -168,32 +367,17 @@ export class PermissionPrismaRepository implements PermissionRepository {
             }),
 
             ...(data.description !== undefined && {
-                description: data.description,
+                description:
+                    data.description,
             }),
 
             ...(data.deletedAt !== undefined && {
-                deletedAt: data.deletedAt,
+                deletedAt:
+                    data.deletedAt,
             }),
+
         };
+
     }
 
-    private toDomain(data: {
-        id: number;
-        name: string;
-        slug: string;
-        description: string | null;
-        createdAt: string;
-        updatedAt: string;
-        deletedAt: string | null;
-    }): Permission {
-        return new Permission({
-            id: data.id,
-            name: data.name,
-            slug: data.slug,
-            description: data.description,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-            deletedAt: data.deletedAt,
-        });
-    }
 }

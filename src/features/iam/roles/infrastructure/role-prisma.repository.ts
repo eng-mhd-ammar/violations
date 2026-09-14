@@ -21,19 +21,13 @@ import {
 
 
 @Injectable()
-export class RolePrismaRepository
-    extends BaseRepository<Role, RoleAttributes>
-    implements RoleRepository
+export class RolePrismaRepository extends BaseRepository<Role, RoleAttributes> implements RoleRepository
 {
 
-    constructor(
-        private readonly prisma: PrismaService,
-    ) {
-
+    constructor(private readonly prisma: PrismaService) {
         super(
             prisma.db.orm.public.Role,
         );
-
     }
 
 
@@ -42,7 +36,6 @@ export class RolePrismaRepository
     // ============================================================
 
     protected allowedSorts(): string[] {
-
         return [
             'id',
             'name',
@@ -51,34 +44,28 @@ export class RolePrismaRepository
             'createdAt',
             'updatedAt',
         ];
-
     }
 
 
     protected allowedFilters(): string[] {
-
         return [
             'id',
             'name',
             'slug',
             'isActive',
         ];
-
     }
 
 
     protected allowedIncludes(): string[] {
-
         return [
             'permissions',
             'userRoles',
         ];
-
     }
 
 
     protected allowedFields(): string[] {
-
         return [
             'id',
             'name',
@@ -89,16 +76,13 @@ export class RolePrismaRepository
             'updatedAt',
             'deletedAt',
         ];
-
     }
 
 
     protected defaultSort(): string[] {
-
         return [
             '-createdAt',
         ];
-
     }
 
 
@@ -106,10 +90,7 @@ export class RolePrismaRepository
     // Create
     // ============================================================
 
-    async create(
-        role: Role,
-    ): Promise<Role> {
-
+    async create(role: Role): Promise<Role> {
         const data = role.toAttributes();
 
         return this.createRecord(data);
@@ -120,20 +101,11 @@ export class RolePrismaRepository
     // Read
     // ============================================================
 
-    async all(
-        options: QueryOptions = {},
-    ): Promise<any> {
+    async all(options: QueryOptions = {}): Promise<any> {
+        const builder = this.createQuery(options);
+        const records = await builder.all();
 
-        const builder =
-            this.createQuery(options);
-
-        const records =
-            await builder.all();
-
-        let roles = records.map(
-            (record: RoleAttributes) =>
-                this.toDomain(record),
-        );
+        let roles = records.map((record: RoleAttributes) => this.toDomain(record));
 
 
         /*
@@ -166,7 +138,6 @@ export class RolePrismaRepository
                 'userRoles',
             )
         ) {
-
             // سنضيفها بعد تثبيت UserRole relation.
         }
 

@@ -1,4 +1,4 @@
-export interface PermissionAttributes {
+export type PermissionAttributes = {
   id?: number;
 
   name: string;
