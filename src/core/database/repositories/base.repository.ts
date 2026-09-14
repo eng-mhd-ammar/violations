@@ -163,6 +163,25 @@ export abstract class BaseRepository<TDomain, TAttributes> {
 
         return this.toDomain(record);
     }
+    
+    async findOneBy(
+        conditions: Record<string, unknown>,
+        options: QueryOptions = {},
+    ): Promise<TDomain | null> {
+    
+        const query = this.createQuery(options);
+    
+        const record = await query
+            .getQuery()
+            .where(conditions)
+            .first();
+    
+        if (!record) {
+            return null;
+        }
+    
+        return this.toDomain(record);
+    }
 
     protected async createRecord(
         data: Record<string, unknown>,

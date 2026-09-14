@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { State } from '../domain/state.model.js';
 import type { StateAttributes } from '../domain/state.model.js';
 import { STATE_REPOSITORY } from '../domain/state.repository.js';
@@ -6,8 +6,6 @@ import type { StateRepository } from '../domain/state.repository.js';
 import { CreateStateDto } from '../presentation/http/dto/create-state.dto.js';
 import { UpdateStateDto } from '../presentation/http/dto/update-state.dto.js';
 import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
-
-import { StateResource } from '../presentation/http/resources/state.resource.js';
 
 @Injectable()
 export class StatesService {
@@ -28,7 +26,6 @@ export class StatesService {
     }
 
     async findById(id: number, options: QueryOptions = {}): Promise<State> {
-
         const state =
             await this.stateRepository.find(id, options);
 
@@ -42,7 +39,6 @@ export class StatesService {
     }
 
     async update(id: number, dto: UpdateStateDto): Promise<State> {
-
         const state = await this.findById(id);
 
         if (dto.name !== undefined) {
@@ -63,25 +59,34 @@ export class StatesService {
     }
 
     async restore(id: number): Promise<State> {
+    const state = await this.stateRepository.find(id, {
+        trashed: 'only',
+    });
 
-        const state =
-            await this.stateRepository.find(
-                id,
-                { trashed: 'only' },
-            );
-
-        if (!state) {
-            throw new NotFoundException(
-                `State with id ${id} not found`,
-            );
-        }
-
-        if (!state.deletedAt) {
-            return state;
-        }
-
-        return this.stateRepository.restore(id);
+    if (!state) {
+        throw new NotFoundException(
+            `State with id ${id} not found`,
+        );
     }
+
+    if (!state.deletedAt) {
+        return state;
+    }
+
+    const activeState =
+        await this.stateRepository.findOneBy({
+            name: state.name,
+            deletedAt: null,
+        });
+
+    if (activeState) {
+        throw new ConflictException(
+            `Cannot restore state "${state.name}" because an active state with the same name already exists.`,
+        );
+    }
+
+    return this.stateRepository.restore(id);
+}
 
     async forceDelete(id: number): Promise<State> {
         await this.findById(id);

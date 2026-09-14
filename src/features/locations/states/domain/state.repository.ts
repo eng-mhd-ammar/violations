@@ -1,22 +1,47 @@
-import type { PaginatedResult, QueryOptions } from '../../../../core/database/repositories/query.types.js';
-import type { State } from './state.model.js';
+import { State } from './state.model.js';
+import type { StateAttributes } from './state.model.js';
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
 
 export const STATE_REPOSITORY = Symbol('STATE_REPOSITORY');
 
-export interface StateRepository {
+export abstract class StateRepository {
 
-    create(state: State): Promise<State>;
+    abstract create(
+        state: State,
+    ): Promise<State>;
 
-    all(options?: QueryOptions): Promise<PaginatedResult<State>>;
+    abstract all(
+        options?: QueryOptions,
+    ): Promise<any>;
 
-    first(options?: QueryOptions): Promise<State | null>;
-    find(id: number, options?: QueryOptions): Promise<State | null>;
+    abstract find(
+        id: number,
+        options?: QueryOptions,
+    ): Promise<State | null>;
 
-    update(id: number, data: Partial<{ name: string; }>): Promise<State>;
+    abstract findOneBy(
+        conditions: Record<string, unknown>,
+        options?: QueryOptions,
+    ): Promise<State | null>;
 
-    delete(id: number): Promise<State>;
+    abstract first(
+        options?: QueryOptions,
+    ): Promise<State | null>;
 
-    restore(id: number): Promise<State>;
+    abstract update(
+        id: number,
+        data: Partial<StateAttributes>,
+    ): Promise<State>;
 
-    forceDelete(id: number): Promise<State>;
+    abstract delete(
+        id: number,
+    ): Promise<State>;
+
+    abstract restore(
+        id: number,
+    ): Promise<State>;
+
+    abstract forceDelete(
+        id: number,
+    ): Promise<State>;
 }

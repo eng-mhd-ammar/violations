@@ -146,6 +146,23 @@ export class StatePrismaRepository extends BaseRepository<State, StateAttributes
         };
     }
 
+    /*async findOneBy(
+    column: string,
+    value: unknown,
+): Promise<State[]> {
+    const records =
+        await this.prisma.db.orm.public.State
+            .where({
+                [column]: value,
+            })
+            .all();
+
+    return records.map(
+        (record: StateAttributes) =>
+            this.toDomain(record),
+    );
+}*/
+
     async first(options: QueryOptions = {}): Promise<State | null> {
         return super.first(options);
     }
