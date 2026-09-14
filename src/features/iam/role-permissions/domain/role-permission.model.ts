@@ -1,39 +1,28 @@
-import { Role } from '../../roles/domain/role.model.js';
 import { Permission } from '../../permissions/domain/permission.model.js';
+import { Role } from '../../roles/domain/role.model.js';
 
-export interface RolePermissionAttributes {
-
+export type RolePermissionAttributes = {
     id?: number;
 
-    roleId: number;
-
-    permissionId: number;
-
-    role?: Role;
-
-    permission?: Permission;
+    permissionId?: number;
+    roleId?: number;
 
     createdAt?: string;
-
     updatedAt?: string;
-
     deletedAt?: string | null;
-}
+
+    permission?: Permission;
+    role?: Role;
+};
 
 export class RolePermission {
 
-    private readonly attributes: RolePermissionAttributes;
+    private attributes: RolePermissionAttributes;
 
     constructor(attributes: RolePermissionAttributes) {
-
         this.attributes = {
-
-            deletedAt: null,
-
             ...attributes,
-
         };
-
     }
 
     // ============================================================
@@ -44,20 +33,12 @@ export class RolePermission {
         return this.attributes.id;
     }
 
-    get roleId(): number {
-        return this.attributes.roleId;
-    }
-
-    get permissionId(): number {
+    get permissionId(): number | undefined {
         return this.attributes.permissionId;
     }
 
-    get role(): Role | undefined {
-        return this.attributes.role;
-    }
-
-    get permission(): Permission | undefined {
-        return this.attributes.permission;
+    get roleId(): number | undefined {
+        return this.attributes.roleId;
     }
 
     get createdAt(): string | undefined {
@@ -73,19 +54,15 @@ export class RolePermission {
     }
 
     // ============================================================
-    // Mutations
+    // Relations
     // ============================================================
 
-    changeRole(roleId: number): void {
-
-        this.attributes.roleId = roleId;
-
+    get permission(): Permission | undefined {
+        return this.attributes.permission;
     }
 
-    changePermission(permissionId: number): void {
-
-        this.attributes.permissionId = permissionId;
-
+    get role(): Role | undefined {
+        return this.attributes.role;
     }
 
     // ============================================================
@@ -93,9 +70,7 @@ export class RolePermission {
     // ============================================================
 
     isDeleted(): boolean {
-
         return this.deletedAt !== null;
-
     }
 
     // ============================================================
@@ -103,12 +78,14 @@ export class RolePermission {
     // ============================================================
 
     toAttributes(): RolePermissionAttributes {
-
         return {
-
             ...this.attributes,
-
         };
+    }
 
+    toArray(): RolePermissionAttributes {
+        return {
+            ...this.attributes,
+        };
     }
 }

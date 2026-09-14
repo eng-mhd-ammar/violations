@@ -7,6 +7,7 @@ import {
     ParseIntPipe,
     Patch,
     Post,
+    Query,
     Res,
 } from '@nestjs/common';
 
@@ -14,10 +15,11 @@ import type { Response as ExpressResponse } from 'express';
 
 import { ResponseUtil } from '../../../../../shared/utils/response.js';
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
-import { CreateRolePermissionDto } from './dto/create.role-permission.dto.js';
-import { RolePermissionsService } from '../../application/user-roles.service.js';
+import { CreateRolePermissionDto } from './dto/create-role-permission.dto.js';
 import { RolePermissionResource } from './resources/role-permission.resource.js';
 import { UpdateRolePermissionDto } from './dto/update-role-permission.dto.js';
+import { RolePermissionsService } from '../../application/role-permissions.service.js';
+import { QueryDto } from '../../../../../core/database/repositories/query.dto.js';
 
 @Controller('/api/v1/role-permissions')
 export class RolePermissionsController {
@@ -57,20 +59,27 @@ export class RolePermissionsController {
      */
     @Can('role_permissions_index')
     @Get()
-    async findAll(
-        @Res() res: ExpressResponse,
-    ) {
-        const rolePermissions =
-            await this.rolePermissionsService.findAll();
+    async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
+        const result = await this.rolePermissionsService.findAll(query);
 
-        const data =
-            RolePermissionResource.collection(rolePermissions);
+        const isPaginated = 'items' in result;
 
-        return new ResponseUtil(res).success(
-            data,
-            'Role permissions retrieved successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        const items = isPaginated
+            ? result.items
+            : result;
+
+        const data = {
+            items: RolePermissionResource.collection(
+                items,
+                query.include ?? [],
+            ),
+
+            ...(isPaginated && {
+                pagination: result.pagination,
+            }),
+        };
+
+        return new ResponseUtil(res).success(data, 'Roles retrieved successfully', ResponseUtil.HTTP_OK);
     }
 
     /**

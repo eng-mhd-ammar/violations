@@ -1,12 +1,6 @@
-import {
-    IsBoolean,
-    IsNotEmpty,
-    IsOptional,
-    IsString,
-    Length,
-    Matches,
-} from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
 import { UniqueNotDeleted } from '../../../../../../core/validation/decorators/unique-not-deleted.decorator.js';
+import { Exists } from '../../../../../../core/validation/decorators/exists.decorator.js';
 
 export class CreateRoleDto {
     @UniqueNotDeleted('Role', 'name')
@@ -33,4 +27,10 @@ export class CreateRoleDto {
     @IsOptional()
     @IsBoolean()
     isActive: boolean = true;
+
+    @IsOptional()
+    @IsArray()
+    @IsInt({ each: true })
+    @Exists('Permission', 'id', { each: true })
+    permissions?: number[];
 }

@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
-
 import { PermissionsController } from './presentation/http/permissions.controller.js';
-
-import { PERMISSION_REPOSITORY } from './domain/permission.repository.js';
 import { PermissionPrismaRepository } from './infrastructure/permission-prisma.repository.js';
 import { PermissionsService } from './application/permissions.service.js';
+import { PERMISSION_REPOSITORY } from '../permissions/domain/permission.repository.js';
 
 @Module({
     controllers: [

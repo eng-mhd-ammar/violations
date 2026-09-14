@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+
 import { RolePermissionsController } from './presentation/http/role-permissions.controller.js';
-import { RolePermissionsService } from './application/user-roles.service.js';
-import { RolePermissionRepository } from './domain/user-role.repository.js';
-import { RolePermissionPrismaRepository } from './infrastructure/user-role-prisma.repository.js';
+
+import { ROLE_PERMISSION_REPOSITORY } from './domain/role-permission.repository.js';
+import { RolePermissionPrismaRepository } from './infrastructure/role-permission-prisma.repository.js';
+import { RolePermissionsService } from './application/role-permissions.service.js';
 
 @Module({
     controllers: [
@@ -11,16 +13,11 @@ import { RolePermissionPrismaRepository } from './infrastructure/user-role-prism
 
     providers: [
         RolePermissionsService,
-
+        
         {
-            provide: RolePermissionRepository,
+            provide: ROLE_PERMISSION_REPOSITORY,
             useClass: RolePermissionPrismaRepository,
         },
-    ],
-
-    exports: [
-        RolePermissionRepository,
-        RolePermissionsService,
     ],
 })
 export class RolePermissionsModule {}

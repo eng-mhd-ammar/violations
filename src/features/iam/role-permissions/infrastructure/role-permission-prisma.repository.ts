@@ -9,27 +9,18 @@ import {
 import type {
     QueryOptions,
 } from '../../../../core/database/repositories/query.types.js';
-
-import {
-    Permission,
-    type PermissionAttributes,
-} from '../domain/permission.model.js';
-
-import {
-    PermissionRepository,
-} from '../domain/permission.repository.js';
-
+import { RolePermission, RolePermissionAttributes } from '../domain/role-permission.model.js';
+import { RolePermissionRepository } from '../domain/role-permission.repository.js';
 
 @Injectable()
-export class PermissionPrismaRepository extends BaseRepository<Permission, PermissionAttributes> implements PermissionRepository
+export class RolePermissionPrismaRepository extends BaseRepository<RolePermission, RolePermissionAttributes> implements RolePermissionRepository
 {
 
     constructor(private readonly prisma: PrismaService) {
         super(
-            prisma.db.orm.public.Permission,
+            prisma.db.orm.public.RolePermission,
         );
     }
-
 
     // ============================================================
     // Query configuration
@@ -56,8 +47,8 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
 
     protected allowedIncludes(): string[] {
         return [
-            // 'permissions',
-            // 'userPermissions',
+            // 'rolepermissions',
+            // 'userRolePermissions',
         ];
     }
 
@@ -83,8 +74,8 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
     // Create
     // ============================================================
 
-    async create(permission: Permission): Promise<Permission> {
-        const data = permission.toAttributes();
+    async create(rolepermission: RolePermission): Promise<RolePermission> {
+        const data = rolepermission.toAttributes();
 
         return this.createRecord(data);
     }
@@ -97,11 +88,11 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
         const builder = this.createQuery(options);
         const records = await builder.all();
 
-        let permissions = records.map((record: PermissionAttributes) => this.toDomain(record));
+        let rolepermissions = records.map((record: RolePermissionAttributes) => this.toDomain(record));
 
         /*
          * ========================================================
-         * INCLUDE: permissions
+         * INCLUDE: rolepermissions
          * ========================================================
          *
          * إذا BaseRepository عندك حاليًا لا يدعم العلاقات
@@ -110,25 +101,25 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
 
         if (
             options.include?.includes(
-                'permissions',
+                'rolepermissions',
             )
         ) {
 
-            // سنضيفها بعد تثبيت Permission relation.
+            // سنضيفها بعد تثبيت RolePermission relation.
         }
 
         /*
          * ========================================================
-         * INCLUDE: userPermissions
+         * INCLUDE: userRolePermissions
          * ========================================================
          */
 
         if (
             options.include?.includes(
-                'userPermissions',
+                'userRolePermissions',
             )
         ) {
-            // سنضيفها بعد تثبيت UserPermission relation.
+            // سنضيفها بعد تثبيت UserRolePermission relation.
         }
 
         // ========================================================
@@ -136,7 +127,7 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
         // ========================================================
 
         if (options.paginate === false) {
-            return permissions;
+            return rolepermissions;
         }
 
         const page =
@@ -146,13 +137,13 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
             options.perPage ?? 10;
 
         const total =
-            permissions.length;
+            rolepermissions.length;
 
         const start =
             (page - 1) * perPage;
 
         const items =
-            permissions.slice(
+            rolepermissions.slice(
                 start,
                 start + perPage,
             );
@@ -175,7 +166,7 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
     async find(
         id: number,
         options: QueryOptions = {},
-    ): Promise<Permission | null> {
+    ): Promise<RolePermission | null> {
         return super.find(
             id,
             options,
@@ -185,7 +176,7 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
     async findOneBy(
         conditions: Record<string, unknown>,
         options: QueryOptions = {},
-    ): Promise<Permission | null> {
+    ): Promise<RolePermission | null> {
 
         return super.findOneBy(
             conditions,
@@ -196,7 +187,7 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
 
     async first(
         options: QueryOptions = {},
-    ): Promise<Permission | null> {
+    ): Promise<RolePermission | null> {
         return super.first(
             options,
         );
@@ -208,8 +199,8 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
 
     async update(
         id: number,
-        data: Partial<PermissionAttributes>,
-    ): Promise<Permission> {
+        data: Partial<RolePermissionAttributes>,
+    ): Promise<RolePermission> {
 
         const updated =
             await this.updateRecord(
@@ -221,7 +212,7 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
 
         if (!updated) {
             throw new Error(
-                `Permission with id ${id} not found`,
+                `RolePermission with id ${id} not found`,
             );
         }
 
@@ -234,7 +225,7 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
 
     async delete(
         id: number,
-    ): Promise<Permission> {
+    ): Promise<RolePermission> {
 
         const deleted =
             await this.softDeleteRecord(
@@ -243,7 +234,7 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
 
         if (!deleted) {
             throw new Error(
-                `Permission with id ${id} not found`,
+                `RolePermission with id ${id} not found`,
             );
         }
 
@@ -256,7 +247,7 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
 
     async restore(
         id: number,
-    ): Promise<Permission> {
+    ): Promise<RolePermission> {
 
         const restored =
             await this.restoreRecord(
@@ -265,7 +256,7 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
 
         if (!restored) {
             throw new Error(
-                `Permission with id ${id} not found`,
+                `RolePermission with id ${id} not found`,
             );
         }
 
@@ -279,7 +270,7 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
 
     async forceDelete(
         id: number,
-    ): Promise<Permission> {
+    ): Promise<RolePermission> {
 
         const deleted =
             await this.forceDeleteRecord(
@@ -288,7 +279,7 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
 
         if (!deleted) {
             throw new Error(
-                `Permission with id ${id} not found`,
+                `RolePermission with id ${id} not found`,
             );
         }
 
@@ -300,27 +291,17 @@ export class PermissionPrismaRepository extends BaseRepository<Permission, Permi
     // ============================================================
 
     protected toDomain(
-        data: PermissionAttributes,
-    ): Permission {
-        return new Permission(
+        data: RolePermissionAttributes,
+    ): RolePermission {
+        return new RolePermission(
             data,
         );
     }
 
     private toPrismaUpdateData(
-        data: Partial<PermissionAttributes>,
+        data: Partial<RolePermissionAttributes>,
     ): Record<string, unknown> {
         return {
-            ...(data.name !== undefined && {
-                name: data.name,
-            }),
-            ...(data.slug !== undefined && {
-                slug: data.slug,
-            }),
-            ...(data.description !== undefined && {
-                description:
-                    data.description,
-            }),
             ...(data.deletedAt !== undefined && {
                 deletedAt:
                     data.deletedAt,

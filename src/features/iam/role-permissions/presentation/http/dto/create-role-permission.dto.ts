@@ -1,14 +1,14 @@
 import { IsInt, IsNotEmpty, IsPositive } from 'class-validator';
 import { Exists } from '../../../../../../core/validation/decorators/exists.decorator.js';
 
-export class UpdateRolePermissionDto {
-    @Exists('RolePermission', 'id', { each: true })
+export class CreateRolePermissionDto {
+    @Exists('Role', 'id', { each: true })
     @IsInt()
     @IsNotEmpty()
     @IsPositive()
     roleId: number;
 
-    @Exists('RolePermission', 'id', { each: true })
+    @Exists('Permission', 'id', { each: true })
     @IsInt()
     @IsNotEmpty()
     @IsPositive()

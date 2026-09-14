@@ -1,13 +1,7 @@
-import {
-    IsBoolean,
-    IsNotEmpty,
-    IsOptional,
-    IsString,
-    Length,
-    Matches,
-} from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
 import { UniqueNotDeleted } from '../../../../../../core/validation/decorators/unique-not-deleted.decorator.js';
 import { route } from '../../../../../../core/http/helpers/route.helper.js';
+import { ExistsOrMinusOne } from '../../../../../../core/validation/decorators/exists-or-minus-one.decorator.js';
 
 export class UpdateRoleDto {
     @UniqueNotDeleted('Role', 'name', route('id'))
@@ -36,4 +30,10 @@ export class UpdateRoleDto {
     @IsOptional()
     @IsBoolean()
     isActive?: boolean;
+    
+    @IsOptional()
+    @IsArray()
+    @IsInt({ each: true })
+    @ExistsOrMinusOne('Permission', 'id', { each: true })
+    permissions?: number[];
 }
