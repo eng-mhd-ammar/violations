@@ -1,18 +1,5 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    ParseIntPipe,
-    Patch,
-    Post,
-    Query,
-    Res,
-} from '@nestjs/common';
-
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from '@nestjs/common';
 import type { Response as ExpressResponse } from 'express';
-
 import { ResponseUtil } from '../../../../../shared/utils/response.js';
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
 import { StatesService } from '../../application/states.service.js';
@@ -27,10 +14,10 @@ export class StatesController {
     constructor(private readonly statesService: StatesService) {}
 
     /**
-     * Create a new state
-     *
-     * POST /states
-     */
+    * Create a new state
+    *
+    * POST /states
+    */
     @Can('states_create')
     @Post()
     async create(@Body() dto: CreateStateDto, @Res() res: ExpressResponse,) {
@@ -41,20 +28,16 @@ export class StatesController {
     }
 
     /**
-     * Get all states
-     *
-     * GET /states
-     */
+    * Get all states
+    *
+    * GET /states
+    */
     @Can('states_index')
     @Get()
     async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
         const result = await this.statesService.findAll(query);
-
         const isPaginated = 'items' in result;
-
-        const items = isPaginated
-            ? result.items
-            : result;
+        const items = isPaginated? result.items: result;
 
         const data = {
             items: StateResource.collection(
@@ -71,10 +54,10 @@ export class StatesController {
     }
 
     /**
-     * Get a single state
-     *
-     * GET /states/:id
-     */
+    * Get a single state
+    *
+    * GET /states/:id
+    */
     @Can('states_show')
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
@@ -85,10 +68,10 @@ export class StatesController {
     }
 
     /**
-     * Update a state
-     *
-     * PATCH /states/:id
-     */
+    * Update a state
+    *
+    * PATCH /states/:id
+    */
     @Can('states_update')
     @Patch(':id')
     async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateStateDto, @Res() res: ExpressResponse) {
@@ -103,10 +86,10 @@ export class StatesController {
     }
 
     /**
-     * Soft delete a state
-     *
-     * DELETE /states/:id
-     */
+    * Soft delete a state
+    *
+    * DELETE /states/:id
+    */
     @Can('states_delete')
     @Delete(':id')
     async delete(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
@@ -117,10 +100,10 @@ export class StatesController {
     }
 
     /**
-     * Restore a soft-deleted state
-     *
-     * POST /states/:id/restore
-     */
+    * Restore a soft-deleted state
+    *
+    * POST /states/:id/restore
+    */
     @Can('states_restore')
     @Get(':id/restore')
     async restore(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
@@ -131,10 +114,10 @@ export class StatesController {
     }
 
     /**
-     * Force delete a state
-     *
-     * DELETE /states/:id/force-delete
-     */
+    * Force delete a state
+    *
+    * DELETE /states/:id/force-delete
+    */
     @Can('states_force_delete')
     @Delete(':id/force-delete')
     async forceDelete(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {

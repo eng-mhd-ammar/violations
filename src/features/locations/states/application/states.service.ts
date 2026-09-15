@@ -9,11 +9,7 @@ import type { QueryOptions } from '../../../../core/database/repositories/query.
 
 @Injectable()
 export class StatesService {
-
-    constructor(
-        @Inject(STATE_REPOSITORY)
-        private readonly stateRepository: StateRepository,
-    ) {}
+    constructor(@Inject(STATE_REPOSITORY) private readonly stateRepository: StateRepository) {}
 
     async create(dto: CreateStateDto): Promise<State> {
         const state = new State(dto);
@@ -30,9 +26,7 @@ export class StatesService {
             await this.stateRepository.find(id, options);
 
         if (!state) {
-            throw new NotFoundException(
-                `State with id ${id} not found`,
-            );
+            throw new NotFoundException(`State with id ${id} not found`);
         }
 
         return state;
@@ -59,34 +53,26 @@ export class StatesService {
     }
 
     async restore(id: number): Promise<State> {
-    const state = await this.stateRepository.find(id, {
-        trashed: 'only',
-    });
+        const state = await this.stateRepository.find(id, { trashed: 'only' });
 
-    if (!state) {
-        throw new NotFoundException(
-            `State with id ${id} not found`,
-        );
+        if (!state) {
+            throw new NotFoundException(
+                `State with id ${id} not found`,
+            );
+        }
+
+        if (!state.deletedAt) {
+            return state;
+        }
+
+        const activeState = await this.stateRepository.findOneBy({ name: state.name, deletedAt: null });
+
+        if (activeState) {
+            throw new ConflictException(`Cannot restore state "${state.name}" because an active state with the same name already exists.`);
+        }
+
+        return this.stateRepository.restore(id);
     }
-
-    if (!state.deletedAt) {
-        return state;
-    }
-
-    const activeState =
-        await this.stateRepository.findOneBy({
-            name: state.name,
-            deletedAt: null,
-        });
-
-    if (activeState) {
-        throw new ConflictException(
-            `Cannot restore state "${state.name}" because an active state with the same name already exists.`,
-        );
-    }
-
-    return this.stateRepository.restore(id);
-}
 
     async forceDelete(id: number): Promise<State> {
         await this.findById(id);

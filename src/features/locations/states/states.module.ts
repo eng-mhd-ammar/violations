@@ -18,4 +18,5 @@ import { StatePrismaRepository } from './infrastructure/state-prisma.repository.
         },
     ],
 })
+    
 export class StatesModule {}

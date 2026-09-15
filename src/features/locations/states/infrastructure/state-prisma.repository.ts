@@ -70,53 +70,10 @@ export class StatePrismaRepository extends BaseRepository<State, StateAttributes
             );
 
         /*
-         * =========================
-         * INCLUDE: addresses
-         * =========================
-         */
-
-        if (
-            options.include?.includes(
-                'addresses',
-            )
-        ) {
-            const result: State[] = [];
-
-            for (const state of states) {
-                if (!state.id) {
-                    result.push(state);
-                    continue;
-                }
-
-                const addresses =
-                    await this.prisma
-                        .db
-                        .orm
-                        .public
-                        .Address
-                        .where({
-                            stateId: state.id,
-                        })
-                        .all();
-
-                result.push(
-                    new State({
-                        ...state.toAttributes(),
-
-                        addresses:
-                            addresses as any,
-                    }),
-                );
-            }
-
-            states = result;
-        }
-
-        /*
-         * =========================
-         * PAGINATION
-         * =========================
-         */
+        * =========================
+        * PAGINATION
+        * =========================
+        */
 
         if (options.paginate === false) {
             return states;
@@ -145,23 +102,6 @@ export class StatePrismaRepository extends BaseRepository<State, StateAttributes
             },
         };
     }
-
-    /*async findOneBy(
-    column: string,
-    value: unknown,
-): Promise<State[]> {
-    const records =
-        await this.prisma.db.orm.public.State
-            .where({
-                [column]: value,
-            })
-            .all();
-
-    return records.map(
-        (record: StateAttributes) =>
-            this.toDomain(record),
-    );
-}*/
 
     async first(options: QueryOptions = {}): Promise<State | null> {
         return super.first(options);

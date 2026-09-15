@@ -1,9 +1,4 @@
-import {
-    IsNotEmpty,
-    IsString,
-    Length,
-} from 'class-validator';
-
+import { IsNotEmpty, IsString, Length } from 'class-validator';
 import { UniqueNotDeleted } from '../../../../../../core/validation/decorators/unique-not-deleted.decorator.js';
 
 export class CreateStateDto {

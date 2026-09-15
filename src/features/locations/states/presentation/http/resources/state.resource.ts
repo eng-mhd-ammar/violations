@@ -10,7 +10,6 @@ export interface StateResourceData {
 export class StateResource {
 
     static make(state: State, includes: string[] = []): StateResourceData {
-
         const resource: StateResourceData = {
             id: state.id,
             name: state.name,
@@ -27,7 +26,6 @@ export class StateResource {
     }
 
     static collection(states: State[], includes: string[] = []): StateResourceData[] {
-
         return states.map(
             (state) =>
                 this.make(
