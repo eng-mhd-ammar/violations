@@ -8,11 +8,7 @@ export interface PermissionResourceData {
 }
 
 export class PermissionResource {
-
-    static make(
-        permission: Permission,
-        includes: string[] = [],
-    ): PermissionResourceData {
+    static make(permission: Permission, includes: string[] = []): PermissionResourceData {
 
         const resource: PermissionResourceData = {
             id: permission.id,
@@ -24,11 +20,7 @@ export class PermissionResource {
         return resource;
     }
 
-    static collection(
-        permissions: Permission[],
-        includes: string[] = [],
-    ): PermissionResourceData[] {
-
+    static collection(permissions: Permission[], includes: string[] = []): PermissionResourceData[] {
         return permissions.map(
             (permission) =>
                 this.make(

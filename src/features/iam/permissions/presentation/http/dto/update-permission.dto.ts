@@ -1,10 +1,4 @@
-import {
-    IsNotEmpty,
-    IsOptional,
-    IsString,
-    Length,
-    Matches,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
 import { UniqueNotDeleted } from '../../../../../../core/validation/decorators/unique-not-deleted.decorator.js';
 import { route } from '../../../../../../core/http/helpers/route.helper.js';
 

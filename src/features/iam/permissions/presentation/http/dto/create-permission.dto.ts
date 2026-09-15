@@ -1,11 +1,4 @@
-import {
-    IsNotEmpty,
-    IsOptional,
-    IsString,
-    Length,
-    Matches,
-} from 'class-validator';
-import { route } from '../../../../../../core/http/helpers/route.helper.js';
+import { IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
 import { UniqueNotDeleted } from '../../../../../../core/validation/decorators/unique-not-deleted.decorator.js';
 
 export class CreatePermissionDto {

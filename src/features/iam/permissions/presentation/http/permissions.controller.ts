@@ -10,9 +10,7 @@ import { QueryDto } from '../../../../../core/database/repositories/query.dto.js
 
 @Controller('/api/v1/permissions')
 export class PermissionsController {
-    constructor(
-        private readonly permissionsService: PermissionsService,
-    ) {}
+    constructor(private readonly permissionsService: PermissionsService) {}
 
     /**
      * Create a new permission

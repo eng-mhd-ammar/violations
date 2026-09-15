@@ -18,4 +18,5 @@ import { PERMISSION_REPOSITORY } from '../permissions/domain/permission.reposito
         },
     ],
 })
+
 export class PermissionsModule {}

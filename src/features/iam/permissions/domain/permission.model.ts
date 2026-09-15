@@ -1,5 +1,8 @@
+import { RolePermission } from "../../role-permissions/domain/role-permission.model";
+
 export type PermissionAttributes = {
   id?: number;
+
   name: string;
   slug: string;
   description?: string | null;
@@ -7,6 +10,8 @@ export type PermissionAttributes = {
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;
+
+  rolePermissions?: RolePermission[],
 }
 
 export class Permission {
@@ -50,6 +55,14 @@ export class Permission {
 
   get deletedAt(): string | null {
     return this.attributes.deletedAt ?? null;
+  }
+  
+  // ============================================================
+  // Relations
+  // ============================================================
+
+  get rolePermissions(): RolePermission[] {
+      return this.attributes.rolePermissions ?? [];
   }
 
   // ============================================================

@@ -1,50 +1,18 @@
-import {
-    ConflictException,
-    Inject,
-    Injectable,
-    NotFoundException,
-} from '@nestjs/common';
-
-import {
-    Permission,
-} from '../domain/permission.model.js';
-
-import type {
-    PermissionAttributes,
-} from '../domain/permission.model.js';
-
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Permission } from '../domain/permission.model.js';
+import type { PermissionAttributes } from '../domain/permission.model.js';
 import { PERMISSION_REPOSITORY } from '../domain/permission.repository.js';
-
-import type {
-    PermissionRepository,
-} from '../domain/permission.repository.js';
-
-import {
-    CreatePermissionDto,
-} from '../presentation/http/dto/create-permission.dto.js';
-
-import {
-    UpdatePermissionDto,
-} from '../presentation/http/dto/update-permission.dto.js';
-
-import type {
-    QueryOptions,
-} from '../../../../core/database/repositories/query.types.js';
-
+import type { PermissionRepository } from '../domain/permission.repository.js';
+import { CreatePermissionDto } from '../presentation/http/dto/create-permission.dto.js';
+import { UpdatePermissionDto } from '../presentation/http/dto/update-permission.dto.js';
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
 
 @Injectable()
 export class PermissionsService {
 
-    constructor(
-        @Inject(PERMISSION_REPOSITORY)
-        private readonly permissionRepository: PermissionRepository,
-    ) {}
+    constructor(@Inject(PERMISSION_REPOSITORY) private readonly permissionRepository: PermissionRepository) {}
 
-
-    async create(
-        dto: CreatePermissionDto,
-    ): Promise<Permission> {
-
+    async create(dto: CreatePermissionDto): Promise<Permission> {
         const permission = new Permission({
             name: dto.name,
             slug: dto.slug,
@@ -58,34 +26,19 @@ export class PermissionsService {
         return this.permissionRepository.all(options);
     }
 
-    async findById(
-        id: number,
-        options: QueryOptions = {},
-    ): Promise<Permission> {
-
-        const permission =
-            await this.permissionRepository.find(
-                id,
-                options,
-            );
+    async findById(id: number, options: QueryOptions = {}): Promise<Permission> {
+        const permission = await this.permissionRepository.find(id, options);
 
         if (!permission) {
-            throw new NotFoundException(
-                `Permission with id ${id} not found`,
-            );
+            throw new NotFoundException(`Permission with id ${id} not found`);
         }
 
         return permission;
     }
 
 
-    async update(
-        id: number,
-        dto: UpdatePermissionDto,
-    ): Promise<Permission> {
-
-        const permission =
-            await this.findById(id);
+    async update(id: number, dto: UpdatePermissionDto): Promise<Permission> {
+        const permission = await this.findById(id);
 
         if (dto.name !== undefined) {
             permission.changeName(dto.name);
@@ -103,77 +56,55 @@ export class PermissionsService {
             description: permission.description,
         };
 
-        return this.permissionRepository.update(
-            id,
-            data,
-        );
+        return this.permissionRepository.update(id, data);
     }
 
 
-    async delete(
-        id: number,
-    ): Promise<Permission> {
-
-        const permission =
-            await this.findById(id);
+    async delete(id: number): Promise<Permission> {
+        const permission = await this.findById(id);
 
         return this.permissionRepository.delete(id);
     }
 
 
     async restore(id: number): Promise<Permission> {
-    const permission =
-        await this.permissionRepository.find(
-            id,
-            {
-                trashed: 'only',
-            },
-        );
+        const permission = await this.permissionRepository.find(id, { trashed: 'only' });
 
-    if (!permission) {
-        throw new NotFoundException(
-            `Permission with id ${id} not found`,
-        );
+        if (!permission) {
+            throw new NotFoundException(`Permission with id ${id} not found`);
+        }
+
+        if (!permission.deletedAt) {
+            return permission;
+        }
+
+        // Check active permission with the same name
+        const activePermissionByName =
+            await this.permissionRepository.findOneBy({
+                name: permission.name,
+                deletedAt: null,
+            });
+
+        if (activePermissionByName) {
+            throw new ConflictException(`Cannot restore permission "${permission.slug}" because an active permission with the same name already exists.`);
+        }
+
+        // Check active permission with the same slug
+        const activePermissionBySlug =
+            await this.permissionRepository.findOneBy({
+                slug: permission.slug,
+                deletedAt: null,
+            });
+
+        if (activePermissionBySlug) {
+            throw new ConflictException(`Cannot restore permission "${permission.slug}" because an active permission with the same slug already exists.`);
+        }
+
+        return this.permissionRepository.restore(id);
     }
 
-    if (!permission.deletedAt) {
-        return permission;
-    }
 
-    // Check active permission with the same name
-    const activePermissionByName =
-        await this.permissionRepository.findOneBy({
-            name: permission.name,
-            deletedAt: null,
-        });
-
-    if (activePermissionByName) {
-        throw new ConflictException(
-            `Cannot restore permission "${permission.slug}" because an active permission with the same name already exists.`,
-        );
-    }
-
-    // Check active permission with the same slug
-    const activePermissionBySlug =
-        await this.permissionRepository.findOneBy({
-            slug: permission.slug,
-            deletedAt: null,
-        });
-
-    if (activePermissionBySlug) {
-        throw new ConflictException(
-            `Cannot restore permission "${permission.slug}" because an active permission with the same slug already exists.`,
-        );
-    }
-
-    return this.permissionRepository.restore(id);
-}
-
-
-    async forceDelete(
-        id: number,
-    ): Promise<Permission> {
-
+    async forceDelete(id: number): Promise<Permission> {
         await this.findById(id);
 
         return this.permissionRepository.forceDelete(id);
