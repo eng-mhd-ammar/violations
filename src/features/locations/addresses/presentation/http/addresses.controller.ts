@@ -1,18 +1,5 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    ParseIntPipe,
-    Patch,
-    Post,
-    Query,
-    Res,
-} from '@nestjs/common';
-
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from '@nestjs/common';
 import type { Response as ExpressResponse } from 'express';
-
 import { ResponseUtil } from '../../../../../shared/utils/response.js';
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
 import { AddressesService } from '../../application/addresses.service.js';
@@ -49,12 +36,8 @@ export class AddressesController {
     @Get()
     async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
         const result = await this.addressService.findAll(query);
-
         const isPaginated = 'items' in result;
-
-        const items = isPaginated
-            ? result.items
-            : result;
+        const items = isPaginated? result.items: result;
 
         const data = {
             items: AddressResource.collection(
@@ -95,11 +78,7 @@ export class AddressesController {
         const address = await this.addressService.update(id, dto);
         const data = AddressResource.make(address);
 
-        return new ResponseUtil(res).success(
-            data,
-            'Address updated successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'Address updated successfully', ResponseUtil.HTTP_OK);
     }
 
     /**

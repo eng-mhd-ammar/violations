@@ -2,9 +2,11 @@ import { State } from "../../states/domain/state.model";
 
 export type AddressAttributes = {
     id?: number;
+    
     stateId: number;
     city: string;
     street: string;
+
     createdAt?: string;
     updatedAt?: string;
     deletedAt?: string | null;

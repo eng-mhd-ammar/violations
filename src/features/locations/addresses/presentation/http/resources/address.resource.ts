@@ -1,5 +1,4 @@
 import { StateResource } from '../../../../states/presentation/http/resources/state.resource.js';
-
 import { Address } from '../../../domain/address.model.js';
 
 export interface AddressResourceData {
@@ -7,7 +6,6 @@ export interface AddressResourceData {
     city: string;
     street: string;
     state?: ReturnType<typeof StateResource.make> | null;
-
 }
 
 export class AddressResource {
@@ -26,7 +24,6 @@ export class AddressResource {
     }
 
     static collection(addresses: Address[], includes: string[] = []): AddressResourceData[] {
-
         return addresses.map(
             (address) =>
                 this.make(
@@ -34,7 +31,5 @@ export class AddressResource {
                     includes,
                 ),
         );
-
     }
-
 }

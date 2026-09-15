@@ -1,9 +1,4 @@
-import {
-    IsInt,
-    IsNotEmpty,
-    IsString,
-    Length,
-} from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, Length } from 'class-validator';
 import { Exists } from '../../../../../../core/validation/decorators/exists.decorator.js';
 
 export class UpdateAddressDto {
