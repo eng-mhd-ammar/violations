@@ -9,9 +9,7 @@ import { UserRepository } from '../domain/user.repository.js';
 export class UserPrismaRepository extends BaseRepository<User, UserAttributes> implements UserRepository
 {
     constructor(private readonly prisma: PrismaService) {
-        super(
-            prisma.db.orm.public.User,
-        );
+        super(prisma.db.orm.public.User);
     }
 
     // ============================================================
@@ -34,7 +32,9 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
     }
 
     protected allowedIncludes(): string[] {
-        return [];
+        return [
+            'userRoles',
+        ];
     }
 
     protected allowedFields(): string[] {
@@ -47,32 +47,17 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
         ];
     }
 
-    // ============================================================
-    // Create
-    // ============================================================
-
     async create(user: User): Promise<User> {
         const data = user.toAttributes();
 
         return this.createRecord(data);
     }
 
-    // ============================================================
-    // Read
-    // ============================================================
-
     async all(options: QueryOptions = {}): Promise<any> {
         const builder = this.createQuery(options);
         const records = await builder.all();
 
         let users = records.map((record: UserAttributes) => this.toDomain(record));
-
-        // if (
-        //     options.include?.includes(
-        //         'users',
-        //     )
-        // ) {
-        // }
 
         // ========================================================
         // Pagination
@@ -106,7 +91,6 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
         };
     }
 
-
     async find(id: number, options: QueryOptions = {}): Promise<User | null> {
         return super.find(id, options);
     }
@@ -118,10 +102,6 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
     async first(options: QueryOptions = {}): Promise<User | null> {
         return super.first(options);
     }
-
-    // ============================================================
-    // Update
-    // ============================================================
 
     async update(id: number, data: Partial<UserAttributes>): Promise<User> {
         const updated = await this.updateRecord(id, this.toPrismaUpdateData(data));
@@ -135,10 +115,6 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
         return updated;
     }
 
-    // ============================================================
-    // Delete
-    // ============================================================
-
     async delete(id: number): Promise<User> {
         const deleted = await this.softDeleteRecord(id);
 
@@ -150,10 +126,6 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
 
         return deleted;
     }
-
-    // ============================================================
-    // Restore
-    // ============================================================
 
     async restore(id: number): Promise<User> {
         const restored = await this.restoreRecord(id);
@@ -167,11 +139,6 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
         return restored;
     }
 
-
-    // ============================================================
-    // Force Delete
-    // ============================================================
-
     async forceDelete(id: number): Promise<User> {
         const deleted = await this.forceDeleteRecord(id);
 
@@ -183,10 +150,6 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
 
         return deleted;
     }
-
-    // ============================================================
-    // Mapping
-    // ============================================================
 
     protected toDomain(data: UserAttributes): User {
         return new User(data);

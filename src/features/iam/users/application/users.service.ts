@@ -111,9 +111,7 @@ export class UsersService {
         const user = await this.userRepository.find(id, { trashed: 'only' });
 
         if (!user) {
-            throw new NotFoundException(
-                `User with id ${id} not found`,
-            );
+            throw new NotFoundException(`User with id ${id} not found`);
         }
 
         if (!user.deletedAt) {
@@ -128,9 +126,7 @@ export class UsersService {
             });
 
         if (activeUserByUserName) {
-            throw new ConflictException(
-                `Cannot restore user "${user.username}" because an active user with the same username already exists.`,
-            );
+            throw new ConflictException(`Cannot restore user "${user.username}" because an active user with the same username already exists.`);
         }
 
         // Check active user with the same phone
@@ -141,9 +137,7 @@ export class UsersService {
             });
 
         if (activeUserByPhone) {
-            throw new ConflictException(
-                `Cannot restore user "${user.phone}" because an active user with the same phone already exists.`,
-            );
+            throw new ConflictException(`Cannot restore user "${user.phone}" because an active user with the same phone already exists.`);
         }
 
         return this.userRepository.restore(id);

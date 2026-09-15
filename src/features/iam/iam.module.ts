@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-
 import { UsersModule } from './users/users.module.js';
 import { PermissionsModule } from './permissions/permissions.module.js';
 import { RolesModule } from './roles/roles.module.js';
@@ -15,4 +14,5 @@ import { RolePermissionsModule } from './role-permissions/role-permissions.modul
         RolePermissionsModule,
     ],
 })
+    
 export class IamModule {}

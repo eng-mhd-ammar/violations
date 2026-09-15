@@ -9,4 +9,5 @@ import { AddressesModule } from './addresses/addresses.module.js';
         AddressesModule,
     ],
 })
+    
 export class LocationModule {}

@@ -24,4 +24,5 @@ import { UserRolesModule } from '../user-roles/user-roles.module.js';
         UserRolesModule,
     ]
 })
+
 export class UsersModule {}

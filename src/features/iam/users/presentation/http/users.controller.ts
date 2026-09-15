@@ -1,7 +1,5 @@
 import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res} from '@nestjs/common';
-
 import { UsersService } from '../../application/users.service.js';
-
 import { CreateUserDto } from './dto/create-user.dto.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { UserResource } from './resources/user.resource.js';
@@ -9,6 +7,7 @@ import { ResponseUtil } from '../../../../../shared/utils/response.js';
 import type { Response as ExpressResponse } from 'express';
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
 import { QueryDto } from '../../../../../core/database/repositories/query.dto.js';
+
 @Controller('/api/v1/users')
 export class UsersController {
     constructor(
