@@ -1,40 +1,12 @@
-import {
-    ConflictException,
-    Inject,
-    Injectable,
-    NotFoundException,
-} from '@nestjs/common';
-
-import {
-    Role,
-} from '../domain/role.model.js';
-
-import type {
-    RoleAttributes,
-} from '../domain/role.model.js';
-
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Role } from '../domain/role.model.js';
+import type { RoleAttributes } from '../domain/role.model.js';
 import { ROLE_REPOSITORY } from '../domain/role.repository.js';
-
-import type {
-    RoleRepository,
-} from '../domain/role.repository.js';
-
-import {
-    CreateRoleDto,
-} from '../presentation/http/dto/create-role.dto.js';
-
-import {
-    UpdateRoleDto,
-} from '../presentation/http/dto/update-role.dto.js';
-
-import type {
-    QueryOptions,
-} from '../../../../core/database/repositories/query.types.js';
-
-import {
-    ROLE_PERMISSION_REPOSITORY,
-    type RolePermissionRepository,
-} from '../../role-permissions/domain/role-permission.repository.js';
+import type { RoleRepository } from '../domain/role.repository.js';
+import { CreateRoleDto } from '../presentation/http/dto/create-role.dto.js';
+import { UpdateRoleDto } from '../presentation/http/dto/update-role.dto.js';
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
+import { ROLE_PERMISSION_REPOSITORY, type RolePermissionRepository } from '../../role-permissions/domain/role-permission.repository.js';
 
 @Injectable()
 export class RolesService {
@@ -145,14 +117,11 @@ export class RolesService {
         return this.roleRepository.delete(id);
     }
 
-
     async restore(id: number): Promise<Role> {
         const role = await this.roleRepository.find(id, { trashed: 'only' });
 
         if (!role) {
-            throw new NotFoundException(
-                `Role with id ${id} not found`,
-            );
+            throw new NotFoundException(`Role with id ${id} not found`);
         }
 
         if (!role.deletedAt) {
@@ -167,9 +136,7 @@ export class RolesService {
             });
 
         if (activeRoleByName) {
-            throw new ConflictException(
-                `Cannot restore role "${role.slug}" because an active role with the same name already exists.`,
-            );
+            throw new ConflictException(`Cannot restore role "${role.slug}" because an active role with the same name already exists.`);
         }
 
         // Check active role with the same slug
@@ -180,19 +147,13 @@ export class RolesService {
             });
 
         if (activeRoleBySlug) {
-            throw new ConflictException(
-                `Cannot restore role "${role.slug}" because an active role with the same slug already exists.`,
-            );
+            throw new ConflictException(`Cannot restore role "${role.slug}" because an active role with the same slug already exists.`);
         }
 
         return this.roleRepository.restore(id);
     }
 
-
-    async forceDelete(
-        id: number,
-    ): Promise<Role> {
-
+    async forceDelete(id: number): Promise<Role> {
         await this.findById(id);
 
         return this.roleRepository.forceDelete(id);

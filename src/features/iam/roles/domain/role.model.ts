@@ -16,7 +16,6 @@ export type RoleAttributes = {
 
     permissions?: Permission[];
     userRoles?: UserRole[];
-
 }
 
 export class Role {
@@ -68,7 +67,6 @@ export class Role {
         return this.attributes.deletedAt ?? null;
     }
 
-
     // ============================================================
     // Relations
     // ============================================================
@@ -80,7 +78,6 @@ export class Role {
     get userRoles(): UserRole[] {
         return this.attributes.userRoles ?? [];
     }
-
 
     // ============================================================
     // Mutations
@@ -106,7 +103,6 @@ export class Role {
         this.attributes.isActive = false;
     }
 
-
     // ============================================================
     // State
     // ============================================================
@@ -118,7 +114,6 @@ export class Role {
     isActiveRole(): boolean {
         return this.isActive;
     }
-
 
     // ============================================================
     // Serialization

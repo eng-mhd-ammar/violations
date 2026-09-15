@@ -9,12 +9,7 @@ export interface RoleResourceData {
 }
 
 export class RoleResource {
-
-    static make(
-        role: Role,
-        includes: string[] = [],
-    ): RoleResourceData {
-
+    static make(role: Role, includes: string[] = []): RoleResourceData {
         const resource: RoleResourceData = {
             id: role.id,
             name: role.name,
@@ -26,11 +21,7 @@ export class RoleResource {
         return resource;
     }
 
-    static collection(
-        roles: Role[],
-        includes: string[] = [],
-    ): RoleResourceData[] {
-
+    static collection(roles: Role[], includes: string[] = []): RoleResourceData[] {
         return roles.map(
             (role) =>
                 this.make(
