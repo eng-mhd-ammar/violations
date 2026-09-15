@@ -13,9 +13,7 @@ export class UserRoleResource {
 
         const resource: UserRoleResourceData = {
             id: userRole.id,
-
             user: userRole.user? UserResource.make(userRole.user, includes): null,
-
             role: userRole.role? RoleResource.make(userRole.role, includes) : null,
         };
 

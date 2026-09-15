@@ -1,21 +1,7 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    ParseIntPipe,
-    Patch,
-    Post,
-    Query,
-    Res,
-} from '@nestjs/common';
-
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res } from '@nestjs/common';
 import type { Response as ExpressResponse } from 'express';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto.js';
-
 import { ResponseUtil } from '../../../../../shared/utils/response.js';
-
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
 import { UserRolesService } from '../../application/user-roles.service.js';
 import { CreateUserRoleDto } from './dto/create-user-role.dto.js';
@@ -24,40 +10,27 @@ import { QueryDto } from '../../../../../core/database/repositories/query.dto.js
 
 @Controller('/api/v1/user-roles')
 export class UserRolesController {
-
-    constructor(
-        private readonly userRolesService: UserRolesService,
-    ) {}
+    constructor(private readonly userRolesService: UserRolesService) {}
 
     /**
-     * Create a new user role
-     *
-     * POST /user-roles
-     */
+    * Create a new user role
+    *
+    * POST /user-roles
+    */
     @Can('user_roles_create')
     @Post()
-    async create(
-        @Body() dto: CreateUserRoleDto,
-        @Res() res: ExpressResponse,
-    ) {
-        const userRole =
-            await this.userRolesService.create(dto);
+    async create(@Body() dto: CreateUserRoleDto, @Res() res: ExpressResponse) {
+        const userRole = await this.userRolesService.create(dto);
+        const data = UserRoleResource.make(userRole);
 
-        const data =
-            UserRoleResource.make(userRole);
-
-        return new ResponseUtil(res).success(
-            data,
-            'User role created successfully',
-            ResponseUtil.HTTP_CREATED,
-        );
+        return new ResponseUtil(res).success(data, 'User role created successfully', ResponseUtil.HTTP_CREATED);
     }
 
     /**
-     * Get all user roles
-     *
-     * GET /user-roles
-     */
+    * Get all user roles
+    *
+    * GET /user-roles
+    */
     @Can('user_roles_index')
     @Get()
     async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
@@ -85,117 +58,73 @@ export class UserRolesController {
     }
 
     /**
-     * Get a single user role
-     *
-     * GET /user-roles/:id
-     */
+    * Get a single user role
+    *
+    * GET /user-roles/:id
+    */
     @Can('user_roles_show')
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const userRole = await this.userRolesService.findById(id);
         const data = UserRoleResource.make(userRole, query.include ?? []);
 
-        return new ResponseUtil(res).success(
-            data,
-            'User role retrieved successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'User role retrieved successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
-     * Update a user role
-     *
-     * PATCH /user-roles/:id
-     */
+    * Update a user role
+    *
+    * PATCH /user-roles/:id
+    */
     @Can('user_roles_update')
     @Patch(':id')
-    async update(
-        @Param('id', ParseIntPipe) id: number,
-        @Body() dto: UpdateUserRoleDto,
-        @Res() res: ExpressResponse,
-    ) {
-        const userRole =
-            await this.userRolesService.update(id, dto);
-
-        const data =
-            UserRoleResource.make(userRole);
-
-        return new ResponseUtil(res).success(
-            data,
-            'User role updated successfully',
-            ResponseUtil.HTTP_OK,
-        );
+    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserRoleDto, @Res() res: ExpressResponse) {
+        const userRole = await this.userRolesService.update(id, dto);
+        const data = UserRoleResource.make(userRole);
+        
+        return new ResponseUtil(res).success(data, 'User role updated successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
-     * Soft delete a user role
-     *
-     * DELETE /user-roles/:id
-     */
+    * Soft delete a user role
+    *
+    * DELETE /user-roles/:id
+    */
     @Can('user_roles_delete')
     @Delete(':id')
-    async delete(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
-        const userRole =
-            await this.userRolesService.delete(id);
+    async delete(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
+        const userRole = await this.userRolesService.delete(id);
+        const data = UserRoleResource.make(userRole);
 
-        const data =
-            UserRoleResource.make(userRole);
-
-        return new ResponseUtil(res).success(
-            data,
-            'User role deleted successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'User role deleted successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
-     * Restore a soft-deleted user role
-     *
-     * POST /user-roles/:id/restore
-     */
+    * Restore a soft-deleted user role
+    *
+    * POST /user-roles/:id/restore
+    */
     @Can('user_roles_restore')
     @Get(':id/restore')
-    async restore(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
-        const userRole =
-            await this.userRolesService.restore(id);
+    async restore(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
+        const userRole = await this.userRolesService.restore(id);
+        const data = UserRoleResource.make(userRole);
 
-        const data =
-            UserRoleResource.make(userRole);
-
-        return new ResponseUtil(res).success(
-            data,
-            'User role restored successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'User role restored successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
-     * Force delete a user role
-     *
-     * DELETE /user-roles/:id/force-delete
-     */
+    * Force delete a user role
+    *
+    * DELETE /user-roles/:id/force-delete
+    */
     @Can('user_roles_force_delete')
     @Delete(':id/force-delete')
-    async forceDelete(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
-        const userRole =
-            await this.userRolesService.forceDelete(id);
+    async forceDelete(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
+        const userRole = await this.userRolesService.forceDelete(id);
 
-        const data =
-            UserRoleResource.make(userRole);
-
-        return new ResponseUtil(res).success(
-            data,
-            'User role force deleted successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        const data = UserRoleResource.make(userRole);
+        
+        return new ResponseUtil(res).success(data, 'User role force deleted successfully', ResponseUtil.HTTP_OK);
     }
 }

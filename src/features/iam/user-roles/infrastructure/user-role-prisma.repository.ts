@@ -43,12 +43,10 @@ export class UserRolePrismaRepository extends BaseRepository<UserRole, UserRoleA
     }
 
     protected defaultSort(): string[] {
-        return [];
+        return [
+            '-createdAt'
+        ];
     }
-
-    // ============================================================
-    // Create
-    // ============================================================
 
     async create(userRole: UserRole): Promise<UserRole> {
         const data = userRole.toAttributes();
@@ -56,22 +54,11 @@ export class UserRolePrismaRepository extends BaseRepository<UserRole, UserRoleA
         return this.createRecord(data);
     }
 
-    // ============================================================
-    // Read
-    // ============================================================
-
     async all(options: QueryOptions = {}): Promise<any> {
         const builder = this.createQuery(options);
         const records = await builder.all();
         console.log(records);
         let userRoles = records.map((record: UserRoleAttributes) => this.toDomain(record));
-
-        // if (
-        //     options.include?.includes(
-        //         '', // model
-        //     )
-        // ) {
-        // }
 
         // ========================================================
         // Pagination
@@ -117,10 +104,6 @@ export class UserRolePrismaRepository extends BaseRepository<UserRole, UserRoleA
         return super.first(options);
     }
 
-    // ============================================================
-    // Update
-    // ============================================================
-
     async update(id: number, data: Partial<UserRoleAttributes>): Promise<UserRole> {
         const updated = await this.updateRecord(id, this.toPrismaUpdateData(data));
 
@@ -130,10 +113,6 @@ export class UserRolePrismaRepository extends BaseRepository<UserRole, UserRoleA
 
         return updated;
     }
-
-    // ============================================================
-    // Delete
-    // ============================================================
 
     async delete(id: number): Promise<UserRole> {
         const deleted = await this.softDeleteRecord(id);
@@ -145,10 +124,6 @@ export class UserRolePrismaRepository extends BaseRepository<UserRole, UserRoleA
         return deleted;
     }
 
-    // ============================================================
-    // Restore
-    // ============================================================
-
     async restore(id: number): Promise<UserRole> {
         const restored = await this.restoreRecord(id);
 
@@ -159,11 +134,6 @@ export class UserRolePrismaRepository extends BaseRepository<UserRole, UserRoleA
         return restored;
     }
 
-
-    // ============================================================
-    // Force Delete
-    // ============================================================
-
     async forceDelete(id: number): Promise<UserRole> {
         const deleted = await this.forceDeleteRecord(id);
 
@@ -173,10 +143,6 @@ export class UserRolePrismaRepository extends BaseRepository<UserRole, UserRoleA
 
         return deleted;
     }
-
-    // ============================================================
-    // Mapping
-    // ============================================================
 
     protected toDomain(data: UserRoleAttributes): UserRole {
         return new UserRole(data);

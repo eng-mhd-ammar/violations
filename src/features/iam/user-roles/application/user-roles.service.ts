@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRole } from '../domain/user-role.model.js';
 import type { UserRoleAttributes } from '../domain/user-role.model.js';
 import { USER_ROLE_REPOSITORY } from '../domain/user-role.repository.js';
@@ -67,9 +67,8 @@ export class UserRolesService {
     }
 
     async forceDelete(id: number): Promise<UserRole> {
-
         await this.findById(id);
-
+        
         return this.userRoleRepository.forceDelete(id);
     }
 }
