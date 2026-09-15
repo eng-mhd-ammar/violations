@@ -92,11 +92,9 @@ export class RolesController {
     @Get(':id')
     async findOne(
         @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
-        const role = await this.rolesService.findById(id);
-
-        const data = RoleResource.make(role);
+        @Res() res: ExpressResponse, @Query() query: QueryDto) {
+        const service = await this.rolesService.findById(id);
+        const data = RoleResource.make(service, query.include ?? []);
 
         return new ResponseUtil(res).success(
             data,

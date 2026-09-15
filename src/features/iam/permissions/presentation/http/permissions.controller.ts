@@ -65,10 +65,10 @@ export class PermissionsController {
      */
     @Can('permissions_show')
     @Get(':id')
-    async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
+    async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const permission = await this.permissionsService.findById(id);
-        const data = PermissionResource.make(permission);
-
+        const data = PermissionResource.make(permission, query.include ?? []);
+        
         return new ResponseUtil(res).success(data, 'Permission retrieved successfully', ResponseUtil.HTTP_OK);
     }
 

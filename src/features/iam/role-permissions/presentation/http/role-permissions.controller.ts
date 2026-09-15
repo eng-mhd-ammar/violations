@@ -89,21 +89,11 @@ export class RolePermissionsController {
      */
     @Can('role_permissions_show')
     @Get(':id')
-    async findOne(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
-        const rolePermission =
-            await this.rolePermissionsService.findById(id);
+    async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
+        const rolePermission = await this.rolePermissionsService.findById(id);
+        const data = RolePermissionResource.make(rolePermission, query.include ?? []);
 
-        const data =
-            RolePermissionResource.make(rolePermission);
-
-        return new ResponseUtil(res).success(
-            data,
-            'Role permission retrieved successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'Role permission retrieved successfully', ResponseUtil.HTTP_OK);
     }
 
     /**

@@ -66,9 +66,9 @@ export class UsersController {
     */
     @Can('users_show')
     @Get(':id')
-    async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
-        const user = await this.usersService.findById(id);
-        const data = UserResource.make(user);
+    async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
+            const user = await this.usersService.findById(id);
+            const data = UserResource.make(user, query.include ?? []);
 
         return new ResponseUtil(res).success(data, 'Users retrieved successfully', ResponseUtil.HTTP_OK);
     }

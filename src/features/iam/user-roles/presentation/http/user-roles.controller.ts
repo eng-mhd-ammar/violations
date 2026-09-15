@@ -91,15 +91,9 @@ export class UserRolesController {
      */
     @Can('user_roles_show')
     @Get(':id')
-    async findOne(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
-        const userRole =
-            await this.userRolesService.findById(id);
-
-        const data =
-            UserRoleResource.make(userRole);
+    async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
+        const userRole = await this.userRolesService.findById(id);
+        const data = UserRoleResource.make(userRole, query.include ?? []);
 
         return new ResponseUtil(res).success(
             data,
