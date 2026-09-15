@@ -1,9 +1,5 @@
 import { BaseQueryBuilder } from './base-query-builder.js';
-
-import type {
-    PaginatedResult,
-    QueryOptions,
-} from './query.types.js';
+import type { PaginatedResult, QueryOptions } from './query.types.js';
 
 export abstract class BaseRepository<TDomain, TAttributes> {
     protected readonly model: any;
@@ -165,9 +161,7 @@ export abstract class BaseRepository<TDomain, TAttributes> {
     }
     
     async findOneBy(
-        conditions: Record<string, unknown>,
-        options: QueryOptions = {},
-    ): Promise<TDomain | null> {
+        conditions: Record<string, unknown>, options: QueryOptions = {}): Promise<TDomain | null> {
     
         const query = this.createQuery(options);
     
@@ -183,19 +177,14 @@ export abstract class BaseRepository<TDomain, TAttributes> {
         return this.toDomain(record);
     }
 
-    protected async createRecord(
-        data: Record<string, unknown>,
-    ): Promise<TDomain> {
+    protected async createRecord(data: Record<string, unknown>): Promise<TDomain> {
         const record =
             await this.model.create(data);
 
         return this.toDomain(record);
     }
 
-    protected async updateRecord(
-        id: number,
-        data: Record<string, unknown>,
-    ): Promise<TDomain | null> {
+    protected async updateRecord(id: number, data: Record<string, unknown>): Promise<TDomain | null> {
         const record =
             await this.model
                 .where({
@@ -246,10 +235,7 @@ export abstract class BaseRepository<TDomain, TAttributes> {
     }
 
     protected async forceDeleteRecord(id: number): Promise<TDomain | null> {
-        const record =
-            await this.model
-                .where({ id })
-                .delete();
+        const record = await this.model.where({ id }).delete();
 
         if (!record) {
             return null;

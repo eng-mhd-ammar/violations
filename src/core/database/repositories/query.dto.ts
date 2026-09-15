@@ -1,13 +1,5 @@
 import { Transform } from 'class-transformer';
-import {
-    Allow,
-    IsArray,
-    IsBoolean,
-    IsInt,
-    IsIn,
-    IsOptional,
-    IsString,
-    Min,
+import { Allow, IsArray, IsBoolean, IsInt, IsIn, IsOptional, IsString, Min
 } from 'class-validator';
 
 function toArray(value: unknown): string[] | undefined {

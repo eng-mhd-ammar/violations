@@ -51,11 +51,7 @@ export class BaseQueryBuilder {
         return this;
     }
 
-    protected applyOrderBy(
-        column: string,
-        descending: boolean,
-    ): void {
-
+    protected applyOrderBy(column: string, descending: boolean): void {
         this.query =
             this.query.orderBy(
                 (record: any) =>
@@ -63,80 +59,55 @@ export class BaseQueryBuilder {
                         ? record[column].desc()
                         : record[column].asc(),
             );
-
     }
 
     // ============================================================
     // Includes
     // ============================================================
 
-    applyIncludes(
-        options: QueryOptions,
-        allowedIncludes: string[],
-    ): this {
+    applyIncludes(options: QueryOptions, allowedIncludes: string[]): this {
 
-        const includes =
-            options.include ?? [];
+        const includes = options.include ?? [];
 
         for (const include of includes) {
-
-            if (
-                !allowedIncludes.includes(
-                    include,
-                )
-            ) {
-
+            if (!allowedIncludes.includes(include,)) {
                 continue;
-
             }
 
-            this.query =
-                this.query.include(
-                    include,
-                );
-
+            this.query = this.query.include(include);
         }
 
         return this;
-
     }
 
     // ============================================================
     // Soft Deletes
     // ============================================================
 
-    applySoftDeletes(
-        options: QueryOptions,
-    ): this {
+    applySoftDeletes(options: QueryOptions): this {
 
-        const trashed =
-            options.trashed ?? 'not';
+        const trashed = options.trashed ?? 'not';
 
         if (trashed === 'not') {
-
             this.query =
                 this.query.where({
                     deletedAt: null,
                 });
-
+            
             return this;
-
         }
 
         if (trashed === 'only') {
-
             this.query =
                 this.query.where(
                     (record: any) =>
                         record.deletedAt.isNotNull(),
                 );
-
+            
             return this;
-
         }
 
         return this;
-
     }
 
     // ============================================================
@@ -144,21 +115,14 @@ export class BaseQueryBuilder {
     // ============================================================
 
     getQuery(): any {
-
         return this.query;
-
     }
 
     async all(): Promise<any[]> {
-
         return this.query.all();
-
     }
 
     async first(): Promise<any | null> {
-
         return this.query.first();
-
     }
-
 }
