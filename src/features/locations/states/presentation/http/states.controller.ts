@@ -77,9 +77,9 @@ export class StatesController {
      */
     @Can('states_show')
     @Get(':id')
-    async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
-        const state = await this.statesService.findById(id);
-        const data = StateResource.make(state);
+    async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
+        const user = await this.statesService.findById(id);
+        const data = StateResource.make(user, query.include ?? []);
 
         return new ResponseUtil(res).success(data, 'State retrieved successfully', ResponseUtil.HTTP_OK);
     }
