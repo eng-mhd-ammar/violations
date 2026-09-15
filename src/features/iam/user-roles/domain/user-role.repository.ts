@@ -26,4 +26,6 @@ export abstract class UserRoleRepository {
     abstract sync(roleId: number, permissionIds: number[]): Promise<void>;
 
     abstract findByRoleId(roleId: number, options?: QueryOptions): Promise<UserRole[]>;
+
+    abstract findByUserId(userId: number, options?: QueryOptions): Promise<UserRole[]>;
 }

@@ -1,4 +1,4 @@
-import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Length, Matches, Min } from 'class-validator';
+import {IsArray, IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Length, Matches, Min } from 'class-validator';
 import { UniqueNotDeleted } from '../../../../../../core/validation/decorators/unique-not-deleted.decorator.js';
 import { Exists } from '../../../../../../core/validation/decorators/exists.decorator.js';
 
@@ -40,4 +40,10 @@ export class CreateUserDto {
     @IsOptional()
     @IsInt()
     branchId?: number;
+    
+    @IsOptional()
+    @IsArray()
+    @IsInt({ each: true })
+    @Exists('Role', 'id', { each: true })
+    roles?: number[];
 }

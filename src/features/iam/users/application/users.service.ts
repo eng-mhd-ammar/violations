@@ -5,10 +5,11 @@ import { USER_REPOSITORY, type UserRepository } from '../domain/user.repository.
 import { CreateUserDto } from '../presentation/http/dto/create-user.dto.js';
 import { UpdateUserDto } from '../presentation/http/dto/update-user.dto.js';
 import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
+import { USER_ROLE_REPOSITORY, UserRoleRepository } from '../../user-roles/domain/user-role.repository.js';
 
 @Injectable()
 export class UsersService {
-    constructor(@Inject(USER_REPOSITORY) private readonly userRepository: UserRepository) {}
+    constructor(@Inject(USER_REPOSITORY) private readonly userRepository: UserRepository, @Inject(USER_ROLE_REPOSITORY) private readonly userRoleRepository: UserRoleRepository) {}
 
     async create(dto: CreateUserDto): Promise<User> {
         const user = new User({
@@ -21,7 +22,14 @@ export class UsersService {
             branchId: dto.branchId,
         });
 
-        return this.userRepository.create(user);
+        let createdUser = await this.userRepository.create(user);
+
+                // Sync roles only whe permissions was provided.
+        if (dto.roles !== undefined && createdUser.id !== undefined) {
+            await this.userRoleRepository.sync(createdUser.id, dto.roles);
+        }
+
+        return createdUser;
     }
 
     async findAll(options: QueryOptions = {}) {
@@ -82,7 +90,13 @@ export class UsersService {
             branchId: user.branchId,
         };
 
-        return this.userRepository.update(id, data);
+        let updatedUser = this.userRepository.update(id, data);
+
+        if (dto.roles !== undefined) {
+            await this.userRoleRepository.sync(id, dto.roles);
+        }
+
+        return updatedUser;
     }
 
 

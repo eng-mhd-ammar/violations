@@ -4,6 +4,7 @@ import { UsersController } from './presentation/http/users.controller.js';
 import { UsersService } from './application/users.service.js';
 import { USER_REPOSITORY } from './domain/user.repository.js';
 import { UserPrismaRepository } from './infrastructure/user-prisma.repository.js';
+import { UserRolesModule } from '../user-roles/user-roles.module.js';
 
 @Module({
     controllers: [
@@ -18,5 +19,9 @@ import { UserPrismaRepository } from './infrastructure/user-prisma.repository.js
             useClass: UserPrismaRepository,
         },
     ],
+    
+    imports: [
+        UserRolesModule,
+    ]
 })
 export class UsersModule {}

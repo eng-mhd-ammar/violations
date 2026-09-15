@@ -190,83 +190,111 @@ export class UserRolePrismaRepository extends BaseRepository<UserRole, UserRoleA
         };
     }
 
-    async sync(roleId: number, userIds: number[]): Promise<void> {
-        // Remove all permissions.
-        if (userIds.length === 0) {
-            const existingRelations = await this.findByRoleId(roleId, { trashed: 'not' });
+    async sync(userId: number, roleIds: number[]): Promise<void> {
+        // Remove all roles.
+        if (roleIds.length === 0) {
+
+            const existingRelations = await this.findByUserId(userId, { trashed: 'not' });
 
             const ids = existingRelations
-                .map((relation) => relation.id)
-                .filter((id): id is number => id !== undefined);
+                .map(
+                    (relation) =>
+                        relation.id,
+                )
+                .filter(
+                    (id): id is number =>
+                        id !== undefined,
+                );
 
             await this.deleteMany(ids);
 
             return;
         }
 
-        // Remove duplicated permission IDs.
-        const uniquePermissionIds = [
-            ...new Set(userIds),
+        // Remove duplicated role IDs.
+        const uniqueRoleIds = [
+            ...new Set(roleIds),
         ];
 
-        const requestedPermissionIds = new Set(
-            uniquePermissionIds,
-        );
+        const requestedRoleIds = new Set(uniqueRoleIds);
 
         // Get all existing relations including trashed ones.
-        const existingRelations = await this.findByRoleId(
-            roleId,
-            {
-                trashed: 'with',
-            },
-        );
+        const existingRelations =
+            await this.findByUserId(
+                userId,
+                {
+                    trashed: 'with',
+                },
+            );
 
-        // Existing permission IDs.
-        const existingPermissionIds = new Set(
+        // Existing role IDs.
+        const existingRoleIds = new Set(
             existingRelations
-                .map((relation) => relation.userId)
+                .map(
+                    (relation) =>
+                        relation.roleId,
+                )
                 .filter(
-                    (userId): userId is number =>
-                        userId !== undefined,
+                    (roleId): roleId is number =>
+                        roleId !== undefined,
                 ),
         );
 
         // Restore deleted relations.
-        const relationsToRestore = existingRelations
-            .filter(
-                (relation) =>
-                    relation.deletedAt !== null &&
-                    relation.userId !== undefined &&
-                    requestedPermissionIds.has(
-                        relation.userId,
-                    ),
-            )
-            .map((relation) => relation.id)
-            .filter((id): id is number => id !== undefined);
+        const relationsToRestore =
+            existingRelations
+                .filter(
+                    (relation) =>
+                        relation.deletedAt !== null &&
+                        relation.roleId !== undefined &&
+                        requestedRoleIds.has(
+                            relation.roleId,
+                        ),
+                )
+                .map(
+                    (relation) =>
+                        relation.id,
+                )
+                .filter(
+                    (id): id is number =>
+                        id !== undefined,
+                );
 
         // Create new relations.
-        const relationsToCreate = uniquePermissionIds
-            .filter(
-                (userId) =>
-                    !existingPermissionIds.has(userId),
-            )
-            .map((userId) => ({
-                roleId,
-                userId,
-            }));
+        const relationsToCreate =
+            uniqueRoleIds
+                .filter(
+                    (roleId) =>
+                        !existingRoleIds.has(
+                            roleId,
+                        ),
+                )
+                .map(
+                    (roleId) => ({
+                        userId,
+                        roleId,
+                    }),
+                );
 
-        // Remove existing permissions that are not requested anymore.
-        const relationsToDelete = existingRelations
-            .filter(
-                (relation) =>
-                    relation.deletedAt === null &&
-                    relation.userId !== undefined &&
-                    !requestedPermissionIds.has(
-                        relation.userId,
-                    ),
-            )
-            .map((relation) => relation.id)
-            .filter((id): id is number => id !== undefined);
+        // Remove existing roles that are not requested anymore.
+        const relationsToDelete =
+            existingRelations
+                .filter(
+                    (relation) =>
+                        relation.deletedAt === null &&
+                        relation.roleId !== undefined &&
+                        !requestedRoleIds.has(
+                            relation.roleId,
+                        ),
+                )
+                .map(
+                    (relation) =>
+                        relation.id,
+                )
+                .filter(
+                    (id): id is number =>
+                        id !== undefined,
+                );
 
         // Restore existing relations.
         await this.restoreMany(relationsToRestore);
@@ -276,6 +304,17 @@ export class UserRolePrismaRepository extends BaseRepository<UserRole, UserRoleA
 
         // Delete removed relations.
         await this.deleteMany(relationsToDelete);
+    }
+
+    async findByUserId(userId: number, options: QueryOptions = {}): Promise<UserRole[]> {
+        const query = this.createQuery(options);
+
+        const records = await query.getQuery().where({ userId }).all();
+
+        return records.map(
+            (record: UserRoleAttributes) =>
+                this.toDomain(record),
+        );
     }
 
     async findByRoleId(roleId: number, options: QueryOptions = {}): Promise<UserRole[]> {
