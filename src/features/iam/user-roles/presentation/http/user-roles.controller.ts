@@ -62,24 +62,25 @@ export class UserRolesController {
     @Get()
     async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
         const result = await this.userRolesService.findAll(query);
-
+        
         const isPaginated = 'items' in result;
-
+        
         const items = isPaginated
-            ? result.items
-            : result;
-
+        ? result.items
+        : result;
+        
         const data = {
             items: UserRoleResource.collection(
                 items,
                 query.include ?? [],
             ),
-
+            
             ...(isPaginated && {
                 pagination: result.pagination,
             }),
         };
-
+        
+        console.log("TEST: " + data.items + data.pagination)
         return new ResponseUtil(res).success(data, 'Roles retrieved successfully', ResponseUtil.HTTP_OK);
     }
 

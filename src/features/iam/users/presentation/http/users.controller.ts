@@ -37,8 +37,6 @@ export class UsersController {
     @Can('users_index')
     @Get()
     async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
-        console.log("TEST: ")
-
         const result = await this.usersService.findAll(query);
 
         const isPaginated = 'items' in result;

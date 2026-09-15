@@ -1,11 +1,9 @@
 import type { QueryOptions } from './query.types.js';
-import type { IncludeResolver } from './include-resolver.js';
 
 export class BaseQueryBuilder {
-
     protected query: any;
 
-    constructor(protected readonly model: any, protected readonly includeResolvers: Record<string, IncludeResolver> = {}) {
+    constructor(protected readonly model: any) {
         this.query = model;
     }
 
@@ -16,23 +14,12 @@ export class BaseQueryBuilder {
     applyFilters(options: QueryOptions): this {
         const filters = options.filter ?? {};
 
-        for (
-            const [column, value]
-            of Object.entries(filters)
-        ) {
-
-            if (
-                value === undefined ||
-                value === null ||
-                value === ''
-            ) {
+        for (const [column, value] of Object.entries(filters)) {
+            if (value === undefined || value === null || value === '') {
                 continue;
             }
 
-            this.query =
-                this.query.where({
-                    [column]: value,
-                });
+            this.query = this.query.where({ [column]: value });
         }
 
         return this;
@@ -50,30 +37,25 @@ export class BaseQueryBuilder {
                 : defaultSort;
 
         for (const sort of sorts) {
+            const descending = sort.startsWith('-');
 
-            const descending =
-                sort.startsWith('-');
+            const column = descending? sort.substring(1): sort;
 
-            const column = descending
-                ? sort.substring(1)
-                : sort;
-
-            if (
-                !allowedSorts.includes(column)
-            ) {
+            if (!allowedSorts.includes(column)) {
                 continue;
             }
 
-            this.applyOrderBy(
-                column,
-                descending,
-            );
+            this.applyOrderBy(column, descending);
         }
 
         return this;
     }
 
-    protected applyOrderBy(column: string, descending: boolean): void {
+    protected applyOrderBy(
+        column: string,
+        descending: boolean,
+    ): void {
+
         this.query =
             this.query.orderBy(
                 (record: any) =>
@@ -81,14 +63,20 @@ export class BaseQueryBuilder {
                         ? record[column].desc()
                         : record[column].asc(),
             );
+
     }
 
     // ============================================================
     // Includes
     // ============================================================
 
-    applyIncludes(options: QueryOptions, allowedIncludes: string[]): this {
-        const includes = options.include ?? [];
+    applyIncludes(
+        options: QueryOptions,
+        allowedIncludes: string[],
+    ): this {
+
+        const includes =
+            options.include ?? [];
 
         for (const include of includes) {
 
@@ -97,31 +85,32 @@ export class BaseQueryBuilder {
                     include,
                 )
             ) {
+
                 continue;
+
             }
 
-            this.applyInclude(include);
+            this.query =
+                this.query.include(
+                    include,
+                );
+
         }
 
         return this;
-    }
 
-    protected applyInclude(relation: string): void {
-        const resolver = this.includeResolvers[relation];
-
-        if (!resolver) {
-            return;
-        }
-
-        this.query = resolver(this.query);
     }
 
     // ============================================================
     // Soft Deletes
     // ============================================================
 
-    applySoftDeletes(options: QueryOptions): this {
-        const trashed = options.trashed ?? 'not';
+    applySoftDeletes(
+        options: QueryOptions,
+    ): this {
+
+        const trashed =
+            options.trashed ?? 'not';
 
         if (trashed === 'not') {
 
@@ -131,6 +120,7 @@ export class BaseQueryBuilder {
                 });
 
             return this;
+
         }
 
         if (trashed === 'only') {
@@ -142,9 +132,11 @@ export class BaseQueryBuilder {
                 );
 
             return this;
+
         }
 
         return this;
+
     }
 
     // ============================================================
@@ -152,14 +144,21 @@ export class BaseQueryBuilder {
     // ============================================================
 
     getQuery(): any {
+
         return this.query;
+
     }
 
     async all(): Promise<any[]> {
+
         return this.query.all();
+
     }
 
     async first(): Promise<any | null> {
+
         return this.query.first();
+
     }
+
 }

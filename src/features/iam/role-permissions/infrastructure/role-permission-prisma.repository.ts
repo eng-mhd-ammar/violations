@@ -26,13 +26,15 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
     protected allowedFilters(): string[] {
         return [
             'id',
-            'name',
-            'slug',
+            'permissionId',
+            'roleId',
         ];
     }
 
     protected allowedIncludes(): string[] {
-        return [];
+        return [
+            'role'
+        ];
     }
 
     protected allowedFields(): string[] {

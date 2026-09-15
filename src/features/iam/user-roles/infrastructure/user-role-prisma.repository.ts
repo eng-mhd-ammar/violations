@@ -32,7 +32,10 @@ export class UserRolePrismaRepository extends BaseRepository<UserRole, UserRoleA
     }
 
     protected allowedIncludes(): string[] {
-        return [];
+        return [
+            'user',
+            'role'
+        ];
     }
 
     protected allowedFields(): string[] {
@@ -60,7 +63,7 @@ export class UserRolePrismaRepository extends BaseRepository<UserRole, UserRoleA
     async all(options: QueryOptions = {}): Promise<any> {
         const builder = this.createQuery(options);
         const records = await builder.all();
-
+        console.log(records);
         let userRoles = records.map((record: UserRoleAttributes) => this.toDomain(record));
 
         // if (
