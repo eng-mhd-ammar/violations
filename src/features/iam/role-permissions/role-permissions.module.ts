@@ -22,4 +22,5 @@ import { RolePermissionsService } from './application/role-permissions.service.j
         ROLE_PERMISSION_REPOSITORY,
     ],
 })
+
 export class RolePermissionsModule {}

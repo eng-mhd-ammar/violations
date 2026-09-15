@@ -9,12 +9,7 @@ export interface RolePermissionResourceData {
 }
 
 export class RolePermissionResource {
-
-    static make(
-        rolePermission: RolePermission,
-        includes: string[] = [],
-    ): RolePermissionResourceData {
-
+    static make( rolePermission: RolePermission, includes: string[] = []): RolePermissionResourceData {
         const resource: RolePermissionResourceData = {
             id: rolePermission.id,
 
@@ -36,11 +31,7 @@ export class RolePermissionResource {
         return resource;
     }
 
-    static collection(
-        rolePermissions: RolePermission[],
-        includes: string[] = [],
-    ): RolePermissionResourceData[] {
-
+    static collection(rolePermissions: RolePermission[], includes: string[] = []): RolePermissionResourceData[] {
         return rolePermissions.map(
             (rolePermission) =>
                 this.make(

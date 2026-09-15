@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { RolePermission } from '../domain/role-permission.model.js';
 import type { RolePermissionAttributes } from '../domain/role-permission.model.js';
 import { ROLE_PERMISSION_REPOSITORY } from '../domain/role-permission.repository.js';

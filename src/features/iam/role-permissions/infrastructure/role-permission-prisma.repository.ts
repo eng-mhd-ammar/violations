@@ -8,11 +8,8 @@ import { RolePermissionRepository } from '../domain/role-permission.repository.j
 @Injectable()
 export class RolePermissionPrismaRepository extends BaseRepository<RolePermission, RolePermissionAttributes> implements RolePermissionRepository
 {
-
     constructor(private readonly prisma: PrismaService) {
-        super(
-            prisma.db.orm.public.RolePermission,
-        );
+        super(prisma.db.orm.public.RolePermission);
     }
 
     // ============================================================
@@ -33,7 +30,8 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
 
     protected allowedIncludes(): string[] {
         return [
-            'role'
+            'role',
+            'permission'
         ];
     }
 
@@ -42,22 +40,16 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
     }
 
     protected defaultSort(): string[] {
-        return [];
+        return [
+            '-createdAt'
+        ];
     }
-
-    // ============================================================
-    // Create
-    // ============================================================
 
     async create(rolePermission: RolePermission): Promise<RolePermission> {
         const data = rolePermission.toAttributes();
 
         return this.createRecord(data);
     }
-
-    // ============================================================
-    // Read
-    // ============================================================
 
     async all(options: QueryOptions = {}): Promise<any> {
         const builder = this.createQuery(options);
@@ -109,10 +101,6 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
         return super.first(options);
     }
 
-    // ============================================================
-    // Update
-    // ============================================================
-
     async update(id: number, data: Partial<RolePermissionAttributes>): Promise<RolePermission> {
         const updated = await this.updateRecord(id, this.toPrismaUpdateData(data));
 
@@ -122,10 +110,6 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
 
         return updated;
     }
-
-    // ============================================================
-    // Delete
-    // ============================================================
 
     async delete(id: number): Promise<RolePermission> {
         const deleted = await this.softDeleteRecord(id);
@@ -137,10 +121,6 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
         return deleted;
     }
 
-    // ============================================================
-    // Restore
-    // ============================================================
-
     async restore(id: number): Promise<RolePermission> {
         const restored = await this.restoreRecord(id);
 
@@ -151,11 +131,6 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
         return restored;
     }
 
-
-    // ============================================================
-    // Force Delete
-    // ============================================================
-
     async forceDelete(id: number): Promise<RolePermission> {
         const deleted = await this.forceDeleteRecord(id);
 
@@ -165,11 +140,6 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
 
         return deleted;
     }
-
-    // ============================================================
-    // Mapping
-    // ============================================================
-
     protected toDomain(data: RolePermissionAttributes): RolePermission {
         return new RolePermission(data);
     }
