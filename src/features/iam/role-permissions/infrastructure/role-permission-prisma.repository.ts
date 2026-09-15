@@ -309,4 +309,149 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
         };
     }
 
+    async sync(
+        roleId: number,
+        permissionIds: number[],
+    ): Promise<void> {
+
+        /*
+         * -1 means remove all permissions.
+         */
+        if (
+            permissionIds.length === 1 &&
+            permissionIds[0] === -1
+        ) {
+            const existingRelations =
+                await this.findByRoleId(
+                    roleId,
+                    {
+                        trashed: 'not',
+                    },
+                );
+
+            for (
+                const rolePermission
+                of existingRelations
+            ) {
+                if (rolePermission.id) {
+                    await this.delete(
+                        rolePermission.id,
+                    );
+                }
+            }
+
+            return;
+        }
+
+        /*
+         * Remove duplicated permission IDs.
+         */
+        const uniquePermissionIds =
+            [...new Set(permissionIds)];
+
+        /*
+         * Get all existing relations
+         * for THIS role only,
+         * including soft deleted ones.
+         */
+        const existingRelations =
+            await this.findByRoleId(
+                roleId,
+                {
+                    trashed: 'with',
+                },
+            );
+
+        /*
+         * Restore existing relations
+         * or create new ones.
+         */
+        for (
+            const permissionId
+            of uniquePermissionIds
+        ) {
+            const existing =
+                existingRelations.find(
+                    (relation) =>
+                        relation.permissionId ===
+                        permissionId,
+                );
+
+            /*
+             * No relation exists at all.
+             */
+            if (!existing) {
+                await this.create(
+                    new RolePermission({
+                        roleId,
+                        permissionId,
+                    }),
+                );
+
+                continue;
+            }
+
+            /*
+             * Relation exists but is soft deleted.
+             */
+            if (
+                existing.deletedAt !== null &&
+                existing.id
+            ) {
+                await this.restore(
+                    existing.id,
+                );
+            }
+        }
+
+        /*
+         * Remove existing permissions
+         * that are not requested anymore.
+         */
+        for (
+            const existing
+            of existingRelations
+        ) {
+            /*
+             * Ignore already deleted relations.
+             */
+            if (
+                existing.deletedAt !== null
+            ) {
+                continue;
+            }
+
+            /*
+             * Permission is no longer requested.
+             */
+            if (
+                !uniquePermissionIds.includes(
+                    existing.permissionId!,
+                )
+            ) {
+                if (existing.id) {
+                    await this.delete(
+                        existing.id,
+                    );
+                }
+            }
+        }
+    }
+
+    async findByRoleId(roleId: number, options: QueryOptions = {}): Promise<RolePermission[]> {
+        const query = this.createQuery(options);
+
+        const records = await query
+            .getQuery()
+            .where({
+                roleId,
+            })
+            .all();
+
+        return records.map(
+            (record: RolePermissionAttributes) =>
+                this.toDomain(record),
+        );
+    }
+
 }

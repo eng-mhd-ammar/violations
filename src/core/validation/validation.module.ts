@@ -6,6 +6,7 @@ import { ExistsValidator } from './validators/exists.validator.js';
 import { UniqueValidator } from './validators/unique.validator.js';
 import { UniqueNotDeletedValidator } from './validators/unique-not-deleted.validator.js';
 import { NotSoftDeletedValidator } from './validators/not-soft-deleted.validator.js';
+import { ExistsOrMinusOneValidator } from './validators/exists-or-minus-one.validator.js';
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { NotSoftDeletedValidator } from './validators/not-soft-deleted.validator
         UniqueValidator,
         UniqueNotDeletedValidator,
         NotSoftDeletedValidator,
+        ExistsOrMinusOneValidator,
     ],
 
     exports: [
@@ -24,6 +26,7 @@ import { NotSoftDeletedValidator } from './validators/not-soft-deleted.validator
         UniqueValidator,
         UniqueNotDeletedValidator,
         NotSoftDeletedValidator,
+        ExistsOrMinusOneValidator,
     ],
 })
 export class ValidationModule {}

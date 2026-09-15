@@ -31,19 +31,19 @@ import type {
     QueryOptions,
 } from '../../../../core/database/repositories/query.types.js';
 
+import {
+    ROLE_PERMISSION_REPOSITORY,
+    type RolePermissionRepository,
+} from '../../role-permissions/domain/role-permission.repository.js';
 
 @Injectable()
 export class RolesService {
 
-    constructor(
-        @Inject(ROLE_REPOSITORY)
-        private readonly roleRepository: RoleRepository,
-    ) {}
+    constructor(@Inject(ROLE_REPOSITORY) private readonly roleRepository: RoleRepository, @Inject(ROLE_PERMISSION_REPOSITORY) private readonly rolePermissionRepository: RolePermissionRepository) {}
 
+    async create(dto: CreateRoleDto): Promise<Role> {
 
-    async create(
-        dto: CreateRoleDto,
-    ): Promise<Role> {
+        console.log(dto);
 
         const existingRole =
             await this.roleRepository.findOneBy({
@@ -64,7 +64,29 @@ export class RolesService {
             isActive: dto.isActive ?? true,
         });
 
-        return this.roleRepository.create(role);
+        /*
+         * Create the role first.
+         */
+        const createdRole =
+            await this.roleRepository.create(
+                role,
+            );
+
+        /*
+         * Sync permissions only when
+         * permissions was provided.
+         */
+        if (
+            dto.permissions !== undefined &&
+            createdRole.id !== undefined
+        ) {
+            await this.rolePermissionRepository.sync(
+                createdRole.id,
+                dto.permissions,
+            );
+        }
+
+        return createdRole;
     }
 
     async findAll(options: QueryOptions = {}) {
@@ -91,17 +113,14 @@ export class RolesService {
         return role;
     }
 
+    async update(id: number, dto: UpdateRoleDto): Promise<Role> {
 
-    async update(
-        id: number,
-        dto: UpdateRoleDto,
-    ): Promise<Role> {
+        console.log(dto);
 
         const role =
             await this.findById(id);
 
-
-        /**
+        /*
          * Check slug uniqueness
          * only when slug is changed.
          */
@@ -109,7 +128,6 @@ export class RolesService {
             dto.slug !== undefined &&
             dto.slug !== role.slug
         ) {
-
             const existingRole =
                 await this.roleRepository.findOneBy({
                     slug: dto.slug,
@@ -128,28 +146,32 @@ export class RolesService {
             role.changeSlug(dto.slug);
         }
 
-
+        /*
+         * Update name.
+         */
         if (dto.name !== undefined) {
             role.changeName(dto.name);
         }
 
-
+        /*
+         * Update description.
+         */
         if (dto.description !== undefined) {
             role.changeDescription(
                 dto.description,
             );
         }
 
-
+        /*
+         * Update active status.
+         */
         if (dto.isActive !== undefined) {
-
             if (dto.isActive) {
                 role.activate();
             } else {
                 role.deactivate();
             }
         }
-
 
         const data: Partial<RoleAttributes> = {
             name: role.name,
@@ -158,13 +180,34 @@ export class RolesService {
             isActive: role.isActive,
         };
 
+        /*
+         * Update the role.
+         */
+        const updatedRole =
+            await this.roleRepository.update(
+                id,
+                data,
+            );
 
-        return this.roleRepository.update(
-            id,
-            data,
-        );
+        /*
+         * Sync permissions only when
+         * permissions was provided.
+         *
+         * `id` is the route parameter:
+         *
+         * PATCH /roles/:id
+         */
+        if (
+            dto.permissions !== undefined
+        ) {
+            await this.rolePermissionRepository.sync(
+                id,
+                dto.permissions,
+            );
+        }
+
+        return updatedRole;
     }
-
 
     async delete(
         id: number,

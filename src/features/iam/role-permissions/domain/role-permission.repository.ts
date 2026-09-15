@@ -6,7 +6,7 @@ export const ROLE_PERMISSION_REPOSITORY = Symbol('ROLE_PERMISSION_REPOSITORY');
 
 export abstract class RolePermissionRepository {
     abstract create(permission: RolePermission): Promise<RolePermission>;
-    
+
     abstract all(options?: QueryOptions): Promise<any>;
 
     abstract find(id: number, options?: QueryOptions): Promise<RolePermission | null>;
@@ -22,4 +22,8 @@ export abstract class RolePermissionRepository {
     abstract restore(id: number): Promise<RolePermission>;
 
     abstract forceDelete(id: number): Promise<RolePermission>;
+
+    abstract sync(roleId: number, permissionIds: number[]): Promise<void>;
+
+    abstract findByRoleId(roleId: number, options?: QueryOptions): Promise<RolePermission[]>;
 }
