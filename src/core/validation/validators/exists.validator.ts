@@ -9,10 +9,7 @@ export class ExistsValidator implements ValidatorConstraintInterface
     constructor(private readonly prisma: PrismaService) {}
 
     async validate(value: unknown, args: ValidationArguments): Promise<boolean> {
-        if (
-            value === null ||
-            value === undefined
-        ) {
+        if (value === null || value === undefined) {
             return true;
         }
 
@@ -21,9 +18,7 @@ export class ExistsValidator implements ValidatorConstraintInterface
         const delegate = (this.prisma.db.orm.public as any)[ model ];
 
         if (!delegate) {
-            throw new Error(
-                `Prisma model "${model}" does not exist.`,
-            );
+            throw new Error(`Prisma model "${model}" does not exist.`);
         }
 
         const record = await delegate.where({ [column]: value, deletedAt: null }).first();

@@ -1,11 +1,5 @@
 import { Injectable } from '@nestjs/common';
-
-import {
-    ValidationArguments,
-    ValidatorConstraint,
-    ValidatorConstraintInterface,
-} from 'class-validator';
-
+import {ValidationArguments,ValidatorConstraint,ValidatorConstraintInterface } from 'class-validator';
 import { PrismaService } from '../../database/prisma.service.js';
 
 @Injectable()
@@ -15,10 +9,7 @@ export class ExistsOrMinusOneValidator implements ValidatorConstraintInterface
     constructor(private readonly prisma: PrismaService) {}
 
     async validate(value: unknown, args: ValidationArguments): Promise<boolean> {
-        if (
-            value === null ||
-            value === undefined
-        ) {
+        if (value === null || value === undefined) {
             return true;
         }
 

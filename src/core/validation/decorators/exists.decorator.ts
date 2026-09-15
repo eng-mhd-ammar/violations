@@ -1,8 +1,4 @@
-import {
-    ValidationOptions,
-    registerDecorator,
-} from 'class-validator';
-
+import { ValidationOptions, registerDecorator} from 'class-validator';
 import { ExistsValidator } from '../validators/exists.validator.js';
 
 export function Exists(model: string, column: string = 'id', validationOptions?: ValidationOptions): PropertyDecorator {

@@ -1,17 +1,7 @@
-import {
-    registerDecorator,
-    ValidationOptions,
-} from 'class-validator';
+import { registerDecorator, ValidationOptions } from 'class-validator';
+import { ExistsOrMinusOneValidator } from '../validators/exists-or-minus-one.validator.js';
 
-import {
-    ExistsOrMinusOneValidator,
-} from '../validators/exists-or-minus-one.validator.js';
-
-export function ExistsOrMinusOne(
-    model: string,
-    column: string = 'id',
-    validationOptions?: ValidationOptions,
-): PropertyDecorator {
+export function ExistsOrMinusOne(model: string, column: string = 'id', validationOptions?: ValidationOptions): PropertyDecorator {
 
     return (
         object: object,

@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
-
 import { ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
-
 import { PrismaService } from '../../database/prisma.service.js';
 
 @Injectable()
@@ -24,9 +22,7 @@ export class NotSoftDeletedValidator implements ValidatorConstraintInterface
             ];
 
         if (!delegate) {
-            throw new Error(
-                `Prisma model "${model}" does not exist.`,
-            );
+            throw new Error(`Prisma model "${model}" does not exist.`);
         }
 
         const record =
@@ -40,9 +36,7 @@ export class NotSoftDeletedValidator implements ValidatorConstraintInterface
         return record !== null;
     }
 
-    defaultMessage(
-        args: ValidationArguments,
-    ): string {
+    defaultMessage(args: ValidationArguments): string {
         return `The requested ${args.property} has been deleted.`;
     }
 }
