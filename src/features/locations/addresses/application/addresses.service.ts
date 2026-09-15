@@ -1,53 +1,35 @@
-import {
-    Injectable,
-    NotFoundException,
-} from '@nestjs/common';
-
-
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
+import { ADDRESS_REPOSITORY, AddressRepository } from '../domain/address.repository.js';
 import { CreateAddressDto } from '../presentation/http/dto/create-address.dto.js';
-import { UpdateAddressDto } from '../presentation/http/dto/update-address.dto.js';
-import { AddressRepository } from '../domain/address.repository.js';
 import { Address, AddressAttributes } from '../domain/address.model.js';
+import { UpdateAddressDto } from '../presentation/http/dto/update-address.dto.js';
 
 @Injectable()
 export class AddressesService {
 
     constructor(
+        @Inject(ADDRESS_REPOSITORY)
         private readonly addressRepository: AddressRepository,
     ) {}
 
-    /**
-     * Create a new address
-     */
-    async create(
-        dto: CreateAddressDto,
-    ): Promise<Address> {
-
+    async create(dto: CreateAddressDto): Promise<Address> {
         const address = new Address({
-            stateId: dto.stateId,
             city: dto.city,
             street: dto.street,
+            stateId: dto.stateId,
         });
 
         return this.addressRepository.create(address);
     }
 
-    /**
-     * Get all addresses
-     */
-    async findAll(): Promise<Address[]> {
-        return this.addressRepository.findAll();
+    async findAll(options: QueryOptions = {}) {
+        return this.addressRepository.all(options);
     }
 
-    /**
-     * Get address by ID
-     */
-    async findById(
-        id: number,
-    ): Promise<Address> {
-
+    async findById(id: number, options: QueryOptions = {}): Promise<Address> {
         const address =
-            await this.addressRepository.findById(id);
+            await this.addressRepository.find(id, options);
 
         if (!address) {
             throw new NotFoundException(
@@ -58,22 +40,11 @@ export class AddressesService {
         return address;
     }
 
-    /**
-     * Update address
-     */
-    async update(
-        id: number,
-        dto: UpdateAddressDto,
-    ): Promise<Address> {
+    async update(id: number, dto: UpdateAddressDto): Promise<Address> {
+        const address = await this.findById(id);
 
-        const address =
-            await this.findById(id);
-
-        /**
-         * Apply domain mutations.
-         */
         if (dto.stateId !== undefined) {
-            address.changeState(dto.stateId);
+            address.changeStateId(dto.stateId);
         }
 
         if (dto.city !== undefined) {
@@ -84,72 +55,42 @@ export class AddressesService {
             address.changeStreet(dto.street);
         }
 
-        /**
-         * Persist the updated domain entity.
-         */
         const data: Partial<AddressAttributes> = {
             stateId: address.stateId,
             city: address.city,
             street: address.street,
         };
 
-        return this.addressRepository.update(
-            id,
-            data,
+        return this.addressRepository.update(id, data);
+    }
+
+    async delete(id: number): Promise<Address> {
+        await this.findById(id);
+
+        return this.addressRepository.delete(id);
+    }
+
+    async restore(id: number): Promise<Address> {
+    const address = await this.addressRepository.find(id, {
+        trashed: 'only',
+    });
+
+    if (!address) {
+        throw new NotFoundException(
+            `Address with id ${id} not found`,
         );
     }
 
-    /**
-     * Soft delete address
-     */
-    async delete(
-        id: number,
-    ): Promise<Address> {
-
-        const address =
-            await this.findById(id);
-
-        await this.addressRepository.delete(id);
-
+    if (!address.deletedAt) {
         return address;
     }
 
-    /**
-     * Restore soft-deleted address
-     */
-    async restore(
-        id: number,
-    ): Promise<Address> {
+    return this.addressRepository.restore(id);
+}
 
-        const address =
-            await this.addressRepository
-                .findByIdIncludingDeleted(id);
+    async forceDelete(id: number): Promise<Address> {
+        await this.findById(id);
 
-        if (!address) {
-            throw new NotFoundException(
-                `Address with id ${id} not found`,
-            );
-        }
-
-        if (!address.deletedAt) {
-            return address;
-        }
-
-        return this.addressRepository.restore(id);
-    }
-
-    /**
-     * Force delete address
-     */
-    async forceDelete(
-        id: number,
-    ): Promise<Address> {
-
-        const address =
-            await this.findById(id);
-
-        await this.addressRepository.forceDelete(id);
-
-        return address;
+        return this.addressRepository.forceDelete(id);
     }
 }

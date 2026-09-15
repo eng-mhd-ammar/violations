@@ -7,104 +7,92 @@ import {
     ParseIntPipe,
     Patch,
     Post,
+    Query,
     Res,
 } from '@nestjs/common';
 
-import { ResponseUtil } from '../../../../../shared/utils/response.js';
 import type { Response as ExpressResponse } from 'express';
 
+import { ResponseUtil } from '../../../../../shared/utils/response.js';
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
 import { AddressesService } from '../../application/addresses.service.js';
 import { CreateAddressDto } from './dto/create-address.dto.js';
 import { AddressResource } from './resources/address.resource.js';
 import { UpdateAddressDto } from './dto/update-address.dto.js';
+import { QueryDto } from '../../../../../core/database/repositories/query.dto.js';
 
 @Controller('/api/v1/addresses')
 export class AddressesController {
 
-    constructor(
-        private readonly addressesService: AddressesService,
-    ) {}
+    constructor(private readonly addressService: AddressesService) {}
 
     /**
      * Create a new address
      *
-     * POST /addresses
+     * POST /address
      */
-    @Can('addresses_create')
+    @Can('address_create')
     @Post()
-    async create(
-        @Body() dto: CreateAddressDto,
-        @Res() res: ExpressResponse,
-    ) {
-        const address = await this.addressesService.create(dto);
-
+    async create(@Body() dto: CreateAddressDto, @Res() res: ExpressResponse,) {
+        const address = await this.addressService.create(dto);
         const data = AddressResource.make(address);
 
-        return new ResponseUtil(res).success(
-            data,
-            'Address created successfully',
-            ResponseUtil.HTTP_CREATED,
-        );
+        return new ResponseUtil(res).success(data, 'Address created successfully', ResponseUtil.HTTP_CREATED);
     }
 
     /**
-     * Get all addresses
+     * Get all address
      *
-     * GET /addresses
+     * GET /address
      */
-    @Can('addresses_index')
+    @Can('address_index')
     @Get()
-    async findAll(
-        @Res() res: ExpressResponse,
-    ) {
-        const addresses = await this.addressesService.findAll();
+    async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
+        const result = await this.addressService.findAll(query);
 
-        const data = AddressResource.collection(addresses);
+        const isPaginated = 'items' in result;
 
-        return new ResponseUtil(res).success(
-            data,
-            'Addresses retrieved successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        const items = isPaginated
+            ? result.items
+            : result;
+
+        const data = {
+            items: AddressResource.collection(
+                items,
+                query.include ?? [],
+            ),
+
+            ...(isPaginated && {
+                pagination: result.pagination,
+            }),
+        };
+
+        return new ResponseUtil(res).success(data, 'Address retrieved successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
      * Get a single address
      *
-     * GET /addresses/:id
+     * GET /address/:id
      */
-    @Can('addresses_show')
+    @Can('address_show')
     @Get(':id')
-    async findOne(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
-        const address = await this.addressesService.findById(id);
+    async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
+        const address = await this.addressService.findById(id, query);
+        const data = AddressResource.make( address, query.include ?? []);
 
-        const data = AddressResource.make(address);
-
-        return new ResponseUtil(res).success(
-            data,
-            'Address retrieved successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'Address retrieved successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
-     * Update an address
+     * Update a address
      *
-     * PATCH /addresses/:id
+     * PATCH /address/:id
      */
-    @Can('addresses_update')
+    @Can('address_update')
     @Patch(':id')
-    async update(
-        @Param('id', ParseIntPipe) id: number,
-        @Body() dto: UpdateAddressDto,
-        @Res() res: ExpressResponse,
-    ) {
-        const address = await this.addressesService.update(id, dto);
-
+    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateAddressDto, @Res() res: ExpressResponse) {
+        const address = await this.addressService.update(id, dto);
         const data = AddressResource.make(address);
 
         return new ResponseUtil(res).success(
@@ -115,68 +103,44 @@ export class AddressesController {
     }
 
     /**
-     * Soft delete an address
+     * Soft delete a address
      *
-     * DELETE /addresses/:id
+     * DELETE /address/:id
      */
-    @Can('addresses_delete')
+    @Can('address_delete')
     @Delete(':id')
-    async delete(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
-        const address = await this.addressesService.delete(id);
-
+    async delete(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
+        const address = await this.addressService.delete(id);
         const data = AddressResource.make(address);
 
-        return new ResponseUtil(res).success(
-            data,
-            'Address deleted successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'Address deleted successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
      * Restore a soft-deleted address
      *
-     * POST /addresses/:id/restore
+     * POST /address/:id/restore
      */
-    @Can('addresses_restore')
+    @Can('address_restore')
     @Get(':id/restore')
-    async restore(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
-        const address = await this.addressesService.restore(id);
-
+    async restore(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
+        const address = await this.addressService.restore(id);
         const data = AddressResource.make(address);
 
-        return new ResponseUtil(res).success(
-            data,
-            'Address restored successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'Address restored successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
-     * Force delete an address
+     * Force delete a address
      *
-     * DELETE /addresses/:id/force-delete
+     * DELETE /address/:id/force-delete
      */
-    @Can('addresses_force_delete')
+    @Can('address_force_delete')
     @Delete(':id/force-delete')
-    async forceDelete(
-        @Param('id', ParseIntPipe) id: number,
-        @Res() res: ExpressResponse,
-    ) {
-        const address = await this.addressesService.forceDelete(id);
-
+    async forceDelete(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse) {
+        const address = await this.addressService.forceDelete(id);
         const data = AddressResource.make(address);
 
-        return new ResponseUtil(res).success(
-            data,
-            'Address force deleted successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        return new ResponseUtil(res).success(data, 'Address force deleted successfully', ResponseUtil.HTTP_OK);
     }
 }

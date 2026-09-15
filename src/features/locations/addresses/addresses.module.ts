@@ -1,7 +1,7 @@
+import { ADDRESS_REPOSITORY } from './domain/address.repository.js';
 import { Module } from '@nestjs/common';
 import { AddressesController } from './presentation/http/addresses.controller.js';
 import { AddressesService } from './application/addresses.service.js';
-import { AddressRepository } from './domain/address.repository.js';
 import { AddressPrismaRepository } from './infrastructure/address-prisma.repository.js';
 
 @Module({
@@ -13,7 +13,7 @@ import { AddressPrismaRepository } from './infrastructure/address-prisma.reposit
         AddressesService,
 
         {
-            provide: AddressRepository,
+            provide: ADDRESS_REPOSITORY,
             useClass: AddressPrismaRepository,
         },
     ],

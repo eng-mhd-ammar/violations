@@ -1,122 +1,177 @@
 import { Injectable } from '@nestjs/common';
 
-import { AddressRepository } from '../domain/address.repository.js';
-
 import { PrismaService } from '../../../../core/database/prisma.service.js';
+
+import { BaseRepository } from '../../../../core/database/repositories/base.repository.js';
+
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
 
 import {
     Address,
-    AddressAttributes,
+    type AddressAttributes,
 } from '../domain/address.model.js';
 
-import { State } from '../../states/domain/state.model.js';
+import { AddressRepository } from '../domain/address.repository.js';
 
 @Injectable()
 export class AddressPrismaRepository
+    extends BaseRepository<Address, AddressAttributes>
     implements AddressRepository
 {
     constructor(
         private readonly prisma: PrismaService,
-    ) {}
-
-    // ============================================================
-    // Create
-    // ============================================================
-
-    async create(address: Address): Promise<Address> {
-        const data = address.toAttributes();
-
-        const created =
-            await this.prisma.db.orm.public.Address.create({
-                stateId: data.stateId,
-                city: data.city,
-                street: data.street,
-            });
-
-        return this.toDomain(created);
-    }
-
-    // ============================================================
-    // Find All
-    // ============================================================
-
-    async findAll(): Promise<Address[]> {
-        const addresses =
-            await this.prisma.db.orm.public.Address
-                .where({
-                    deletedAt: null,
-                })
-                .include('state')
-                .all();
-
-        return addresses.map((address) =>
-            this.toDomain(address),
+    ) {
+        super(
+            prisma.db.orm.public.Address,
         );
     }
 
-    // ============================================================
-    // Find By ID
-    // ============================================================
-
-    async findById(
-        id: number,
-    ): Promise<Address | null> {
-        const address =
-            await this.prisma.db.orm.public.Address
-                .where({
-                    id,
-                    deletedAt: null,
-                })
-                .include('state')
-                .first();
-
-        if (!address) {
-            return null;
-        }
-
-        return this.toDomain(address);
+    protected allowedSorts(): string[] {
+        return [
+            'id',
+            'stateId',
+            'city',
+            'street',
+            'createdAt',
+            'updatedAt',
+        ];
     }
 
-    // ============================================================
-    // Find By ID Including Deleted
-    // ============================================================
-
-    async findByIdIncludingDeleted(
-        id: number,
-    ): Promise<Address | null> {
-        const address =
-            await this.prisma.db.orm.public.Address
-                .where({
-                    id,
-                })
-                .include('state')
-                .first();
-
-        if (!address) {
-            return null;
-        }
-
-        return this.toDomain(address);
+    protected allowedFilters(): string[] {
+        return [
+            'id',
+            'stateId',
+            'city',
+            'street',
+        ];
     }
 
-    // ============================================================
-    // Update
-    // ============================================================
+    protected allowedIncludes(): string[] {
+        return [
+            'state',
+        ];
+    }
+
+    protected allowedFields(): string[] {
+        return [];
+    }
+
+    protected defaultSort(): string[] {
+        return [
+            '-createdAt',
+        ];
+    }
+
+    async create(
+        address: Address,
+    ): Promise<Address> {
+
+        const data =
+            address.toAttributes();
+
+        return this.createRecord(data);
+    }
+
+    async all(
+        options: QueryOptions = {},
+    ): Promise<any> {
+
+        const builder =
+            this.createQuery(options);
+
+        const records =
+            await builder.all();
+
+        const addresses =
+            records.map(
+                (record: AddressAttributes) =>
+                    this.toDomain(record),
+            );
+
+        // ========================================================
+        // Pagination
+        // ========================================================
+
+        if (options.paginate === false) {
+            return addresses;
+        }
+
+        const page =
+            options.page ?? 1;
+
+        const perPage =
+            options.perPage ?? 10;
+
+        const total =
+            addresses.length;
+
+        const start =
+            (page - 1) * perPage;
+
+        const items =
+            addresses.slice(
+                start,
+                start + perPage,
+            );
+
+        return {
+            items,
+            pagination: {
+                currentPage: page,
+                perPage,
+                total,
+                lastPage:
+                    Math.ceil(
+                        total / perPage,
+                    ),
+            },
+        };
+    }
+
+    async first(
+        options: QueryOptions = {},
+    ): Promise<Address | null> {
+
+        return super.first(options);
+    }
+
+async find(
+    id: number,
+    options: QueryOptions = {},
+): Promise<Address | null> {
+
+    console.log('FIND OPTIONS:', options);
+
+    const builder =
+        this.createQuery(options);
+
+    const record =
+        await builder
+            .getQuery()
+            .where({
+                id,
+            })
+            .first();
+
+    console.log('RAW RECORD:', record);
+
+    if (!record) {
+        return null;
+    }
+
+    return this.toDomain(record);
+}
 
     async update(
         id: number,
         data: Partial<AddressAttributes>,
     ): Promise<Address> {
-        const updateData =
-            this.toPrismaUpdateData(data);
 
         const updated =
-            await this.prisma.db.orm.public.Address
-                .where({
-                    id,
-                    deletedAt: null,
-                })
-                .update(updateData);
+            await this.updateRecord(
+                id,
+                this.toPrismaUpdateData(data),
+            );
 
         if (!updated) {
             throw new Error(
@@ -124,31 +179,15 @@ export class AddressPrismaRepository
             );
         }
 
-        const address = await this.findById(id);
-
-        if (!address) {
-            throw new Error(
-                `Address with id ${id} not found`,
-            );
-        }
-
-        return address;
+        return updated;
     }
 
-    // ============================================================
-    // Soft Delete
-    // ============================================================
+    async delete(
+        id: number,
+    ): Promise<Address> {
 
-    async delete(id: number): Promise<Address> {
         const deleted =
-            await this.prisma.db.orm.public.Address
-                .where({
-                    id,
-                    deletedAt: null,
-                })
-                .update({
-                    deletedAt: new Date().toISOString(),
-                });
+            await this.softDeleteRecord(id);
 
         if (!deleted) {
             throw new Error(
@@ -156,22 +195,15 @@ export class AddressPrismaRepository
             );
         }
 
-        return this.toDomain(deleted);
+        return deleted;
     }
 
-    // ============================================================
-    // Restore
-    // ============================================================
+    async restore(
+        id: number,
+    ): Promise<Address> {
 
-    async restore(id: number): Promise<Address> {
         const restored =
-            await this.prisma.db.orm.public.Address
-                .where({
-                    id,
-                })
-                .update({
-                    deletedAt: null,
-                });
+            await this.restoreRecord(id);
 
         if (!restored) {
             throw new Error(
@@ -179,28 +211,15 @@ export class AddressPrismaRepository
             );
         }
 
-        const address = await this.findById(id);
-
-        if (!address) {
-            throw new Error(
-                `Address with id ${id} not found`,
-            );
-        }
-
-        return address;
+        return restored;
     }
 
-    // ============================================================
-    // Force Delete
-    // ============================================================
+    async forceDelete(
+        id: number,
+    ): Promise<Address> {
 
-    async forceDelete(id: number): Promise<Address> {
         const deleted =
-            await this.prisma.db.orm.public.Address
-                .where({
-                    id,
-                })
-                .delete();
+            await this.forceDeleteRecord(id);
 
         if (!deleted) {
             throw new Error(
@@ -208,96 +227,36 @@ export class AddressPrismaRepository
             );
         }
 
-        return this.toDomain(deleted);
+        return deleted;
     }
 
-    // ============================================================
-    // Prisma Update Data
-    // ============================================================
+    protected toDomain(
+        data: AddressAttributes,
+    ): Address {
+
+        return new Address(data);
+    }
 
     private toPrismaUpdateData(
         data: Partial<AddressAttributes>,
-    ): {
-        stateId?: number;
-        city?: string;
-        street?: string;
-        deletedAt?: string | null;
-    } {
+    ): Record<string, unknown> {
+
         return {
             ...(data.stateId !== undefined && {
                 stateId: data.stateId,
             }),
-        
+
             ...(data.city !== undefined && {
                 city: data.city,
             }),
-        
+
             ...(data.street !== undefined && {
                 street: data.street,
             }),
-        
+
             ...(data.deletedAt !== undefined && {
                 deletedAt: data.deletedAt,
             }),
         };
-    }
-
-    // ============================================================
-    // To Domain
-    // ============================================================
-
-    private toDomain(
-        data: {
-            id: number;
-            stateId: number;
-            city: string;
-            street: string;
-            createdAt: string;
-            updatedAt: string;
-            deletedAt: string | null;
-            state?: {
-                [key: string]: unknown;
-            } | null;
-        },
-    ): Address {
-        const state = data.state;
-
-        return new Address({
-            id: data.id,
-
-            stateId: data.stateId,
-
-            state:
-                state &&
-                typeof state.id === 'number' &&
-                typeof state.name === 'string'
-                    ? new State({
-                          id: state.id,
-                          name: state.name,
-                          createdAt:
-                              typeof state.createdAt ===
-                              'string'
-                                  ? state.createdAt
-                                  : undefined,
-                          updatedAt:
-                              typeof state.updatedAt ===
-                              'string'
-                                  ? state.updatedAt
-                                  : undefined,
-                          deletedAt:
-                              typeof state.deletedAt ===
-                              'string'
-                                  ? state.deletedAt
-                                  : null,
-                      })
-                    : null,
-
-            city: data.city,
-            street: data.street,
-
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-            deletedAt: data.deletedAt,
-        });
     }
 }

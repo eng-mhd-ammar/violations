@@ -1,27 +1,67 @@
-import { Address } from "../../../domain/address.model";
+import { StateResource } from '../../../../states/presentation/http/resources/state.resource.js';
+
+import { Address } from '../../../domain/address.model.js';
+
+export interface AddressResourceData {
+
+    id: number | undefined;
+
+    city: string;
+
+    street: string;
+
+    state?: ReturnType<
+        typeof StateResource.make
+    > | null;
+
+}
 
 export class AddressResource {
-    static make(address: Address) {
-        return {
+
+    static make(
+        address: Address,
+        includes: string[] = [],
+    ): AddressResourceData {
+
+        const resource: AddressResourceData = {
+
             id: address.id,
-            stateId: address.stateId,
+
             city: address.city,
+
             street: address.street,
 
-            state: address.state
-                ? {
-                      id: address.state.id,
-                      name: address.state.name,
-                  }
-                : null,
-
-            createdAt: address.createdAt,
-            updatedAt: address.updatedAt,
-            deletedAt: address.deletedAt,
         };
+
+        if (includes.includes('state')) {
+
+            resource.state =
+                address.state
+                    ? StateResource.make(
+                        address.state,
+                        includes,
+                    )
+                    : null;
+
+        }
+
+        return resource;
+
     }
 
-    static collection(addresses: Address[]) {
-        return addresses.map((address) => this.make(address));
+    static collection(
+        addresses: Address[],
+        includes: string[] = [],
+    ): AddressResourceData[] {
+
+        return addresses.map(
+            (address) =>
+                this.make(
+                    address,
+                    includes,
+                ),
+        );
+
     }
+
 }

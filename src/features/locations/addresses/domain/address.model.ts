@@ -1,27 +1,23 @@
-import { State } from '../../states/domain/state.model.js';
+import { State } from "../../states/domain/state.model";
 
-export interface AddressAttributes {
+export type AddressAttributes = {
     id?: number;
-
     stateId: number;
-    state?: State | null;
-
     city: string;
     street: string;
-
     createdAt?: string;
     updatedAt?: string;
     deletedAt?: string | null;
-}
+
+    state?: State;
+};
 
 export class Address {
     private attributes: AddressAttributes;
 
     constructor(attributes: AddressAttributes) {
         this.attributes = {
-            state: null,
             deletedAt: null,
-
             ...attributes,
         };
     }
@@ -36,10 +32,6 @@ export class Address {
 
     get stateId(): number {
         return this.attributes.stateId;
-    }
-
-    get state(): State | null {
-        return this.attributes.state ?? null;
     }
 
     get city(): string {
@@ -63,10 +55,18 @@ export class Address {
     }
 
     // ============================================================
+    // Relations
+    // ============================================================
+
+    get state(): State | undefined {
+        return this.attributes.state;
+    }
+
+    // ============================================================
     // Mutations
     // ============================================================
 
-    changeState(stateId: number): void {
+    changeStateId(stateId: number): void {
         this.attributes.stateId = stateId;
     }
 
@@ -79,7 +79,7 @@ export class Address {
     }
 
     // ============================================================
-    // State
+    // Address
     // ============================================================
 
     isDeleted(): boolean {
@@ -91,6 +91,12 @@ export class Address {
     // ============================================================
 
     toAttributes(): AddressAttributes {
+        return {
+            ...this.attributes,
+        };
+    }
+
+    toArray(): AddressAttributes {
         return {
             ...this.attributes,
         };

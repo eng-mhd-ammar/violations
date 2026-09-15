@@ -65,13 +65,6 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
 
         let rolePermissions = records.map((record: RolePermissionAttributes) => this.toDomain(record));
 
-        // if (
-        //     options.include?.includes(
-        //         '', // model
-        //     )
-        // ) {
-        // }
-
         // ========================================================
         // Pagination
         // ========================================================

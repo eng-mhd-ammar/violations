@@ -1,25 +1,24 @@
 import {
     IsInt,
     IsNotEmpty,
-    IsOptional,
     IsString,
     Length,
 } from 'class-validator';
+import { Exists } from '../../../../../../core/validation/decorators/exists.decorator.js';
 
 export class UpdateAddressDto {
-    @IsOptional()
     @IsInt()
-    stateId?: number;
+    @IsNotEmpty()
+    @Exists('State', 'id')
+    stateId: number;
 
-    @IsOptional()
     @IsString()
     @IsNotEmpty()
     @Length(2, 100)
-    city?: string;
+    city: string;
 
-    @IsOptional()
     @IsString()
     @IsNotEmpty()
-    @Length(2, 255)
-    street?: string;
+    @Length(2, 100)
+    street: string;
 }
