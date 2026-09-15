@@ -1,14 +1,15 @@
-export interface UserAttributes {
+export type UserAttributes = {
     id?: number;
 
     username: string;
     phone: string;
     password: string;
-
+    
     firstName: string;
     lastName: string;
 
     isActive?: boolean;
+
     branchId?: number | null;
 
     createdAt?: string;
@@ -89,16 +90,28 @@ export class User {
         this.attributes.lastName = lastName;
     }
 
-    changePhone(phone: string): void {
-        this.attributes.phone = phone;
+    changeFirstName(username: string): void {
+        this.attributes.username = username;
+    }
+
+    changeLastName(username: string): void {
+        this.attributes.username = username;
     }
 
     changeUsername(username: string): void {
         this.attributes.username = username;
     }
 
+    changePhone(phone: string): void {
+        this.attributes.phone = phone;
+    }
+
     changePassword(password: string): void {
         this.attributes.password = password;
+    }
+
+    changeIsActive(isActive: boolean): void {
+        this.attributes.isActive = isActive;
     }
 
     activate(): void {
@@ -107,6 +120,10 @@ export class User {
 
     deactivate(): void {
         this.attributes.isActive = false;
+    }
+
+    changeBranchId(branchId: number | null): void {
+        this.attributes.branchId = branchId;
     }
 
     assignBranch(branchId: number | null): void {
@@ -125,13 +142,13 @@ export class User {
         return this.deletedAt !== null;
     }
 
-  // ============================================================
-  // Serialization
-  // ============================================================
+    // ============================================================
+    // Serialization
+    // ============================================================
 
     toAttributes(): UserAttributes {
         return {
-            ...this.attributes,
+        ...this.attributes,
         };
     }
 }

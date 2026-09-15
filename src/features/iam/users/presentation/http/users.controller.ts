@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Res} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, Res} from '@nestjs/common';
 
 import { UsersService } from '../../application/users.service.js';
 
@@ -8,6 +8,7 @@ import { UserResource } from './resources/user.resource.js';
 import { ResponseUtil } from '../../../../../shared/utils/response.js';
 import type { Response as ExpressResponse } from 'express';
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
+import { QueryDto } from '../../../../../core/database/repositories/query.dto.js';
 @Controller('/api/v1/users')
 export class UsersController {
     constructor(
@@ -35,11 +36,29 @@ export class UsersController {
     */
     @Can('users_index')
     @Get()
-    async findAll(@Res() res: ExpressResponse) {
-        const users = await this.usersService.findAll();
-        const data = UserResource.collection(users);
+    async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
+        console.log("TEST: ")
 
-        return new ResponseUtil(res).success(data, 'Users retrieved successfully', ResponseUtil.HTTP_OK);
+        const result = await this.usersService.findAll(query);
+
+        const isPaginated = 'items' in result;
+
+        const items = isPaginated
+            ? result.items
+            : result;
+
+        const data = {
+            items: UserResource.collection(
+                items,
+                query.include ?? [],
+            ),
+
+            ...(isPaginated && {
+                pagination: result.pagination,
+            }),
+        };
+
+        return new ResponseUtil(res).success(data, 'Permissions retrieved successfully', ResponseUtil.HTTP_OK);
     }
 
     /**

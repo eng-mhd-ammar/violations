@@ -1,140 +1,144 @@
-import {ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-
-import { User, UserAttributes } from '../domain/user.model.js';
-import { UserRepository } from '../domain/user.repository.js';
-
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { User } from '../domain/user.model.js';
+import type { UserAttributes } from '../domain/user.model.js';
+import { USER_REPOSITORY, type UserRepository } from '../domain/user.repository.js';
 import { CreateUserDto } from '../presentation/http/dto/create-user.dto.js';
 import { UpdateUserDto } from '../presentation/http/dto/update-user.dto.js';
-
-import * as bcrypt from 'bcrypt';
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly userRepository: UserRepository) {}
+    constructor(@Inject(USER_REPOSITORY) private readonly userRepository: UserRepository) {}
 
-    /**
-    * Create a new user
-    */
     async create(dto: CreateUserDto): Promise<User> {
-        const existingUsername = await this.userRepository.findByUsername(dto.username);
-
-        if (existingUsername) {
-            throw new ConflictException('Username is already in use');
-        }
-
-        const existingPhone = await this.userRepository.findByPhone(dto.phone);
-
-        if (existingPhone) {
-            throw new ConflictException('Phone is already in use');
-        }
-
         const user = new User({
             username: dto.username,
             phone: dto.phone,
-            password: bcrypt.hashSync(dto.password, 10),
-
+            password: dto.password,
             firstName: dto.firstName,
             lastName: dto.lastName,
-
-            isActive: dto.isActive ?? true,
-
-            branchId: dto.branchId ?? null,
+            isActive: dto.isActive,
+            branchId: dto.branchId,
         });
 
         return this.userRepository.create(user);
     }
 
-    /**
-    * Get all users
-    */
-    async findAll(): Promise<User[]> {
-        return this.userRepository.findAll();
+    async findAll(options: QueryOptions = {}) {
+        return this.userRepository.all(options);
     }
 
-    /**
-    * Get user by ID
-    */
-    async findById(id: number): Promise<User> {
-        const user = await this.userRepository.findById(id);
+    async findById(id: number, options: QueryOptions = {}): Promise<User> {
+        const user = await this.userRepository.find(id, options);
 
         if (!user) {
-            throw new NotFoundException(`User with id ${id} not found`);
+            throw new NotFoundException(
+                `User with id ${id} not found`,
+            );
         }
 
         return user;
     }
 
-    /**
-    * Update user
-    */
     async update(id: number, dto: UpdateUserDto): Promise<User> {
+
         const user = await this.findById(id);
 
-        if (dto.username !== undefined && dto.username !== user.username) {
-            const existingUsername = await this.userRepository.findByUsername(dto.username);
-
-            if (existingUsername && existingUsername.id !== id) {
-                throw new ConflictException('Username is already in use');
-            }
+        if (dto.username !== undefined) {
+            user.changeUsername(dto.username);
         }
 
-        if (dto.phone !== undefined && dto.phone !== user.phone) {
-            const existingPhone = await this.userRepository.findByPhone(dto.phone);
+        if (dto.phone !== undefined) {
+            user.changePhone(dto.phone);
+        }
 
-            if (existingPhone && existingPhone.id !== id) {
-                throw new ConflictException('Phone is already in use');
-            }
+        if (dto.password !== undefined) {
+            user.changePassword(dto.password);
+        }
+
+        if (dto.firstName !== undefined) {
+            user.changeFirstName(dto.firstName);
+        }
+
+        if (dto.lastName !== undefined) {
+            user.changeLastName(dto.lastName);
+        }
+
+        if (dto.isActive !== undefined) {
+            user.changeIsActive(dto.isActive);
+        }
+
+        if (dto.branchId !== undefined) {
+            user.changeBranchId(dto.branchId);
         }
 
         const data: Partial<UserAttributes> = {
-            username: dto.username !== undefined? dto.username: user.username,
-            phone: dto.phone !== undefined? dto.phone: user.phone,
-            password: dto.password !== undefined? bcrypt.hashSync(dto.password, 10): user.password,
-
-            firstName: dto.firstName !== undefined? dto.firstName: user.firstName,
-            lastName: dto.lastName !== undefined? dto.lastName: user.lastName,
-
-            isActive: dto.isActive !== undefined? dto.isActive: user.isActive,
-            branchId: dto.branchId !== undefined? dto.branchId: user.branchId,
+            username: user.username,
+            phone: user.phone,
+            password: user.password,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            isActive: user.isActive,
+            branchId: user.branchId,
         };
 
         return this.userRepository.update(id, data);
     }
 
-    /**
-    * Soft delete user
-    */
-    async delete(id: number): Promise<User> {
-        let user = await this.findById(id);
-        await this.userRepository.delete(id);
 
-        return user;
+    async delete(id: number): Promise<User> {
+        const user = await this.findById(id);
+
+        return this.userRepository.delete(id);
     }
 
-    /**
-    * Restore soft-deleted user
-    */
+
     async restore(id: number): Promise<User> {
-        const user = await this.userRepository.findByIdIncludingDeleted(id);
+        const user = await this.userRepository.find(id, { trashed: 'only' });
 
         if (!user) {
-            throw new NotFoundException(`User with id ${id} not found`);
+            throw new NotFoundException(
+                `User with id ${id} not found`,
+            );
         }
 
         if (!user.deletedAt) {
             return user;
         }
 
+        // Check active user with the same username
+        const activeUserByUserName =
+            await this.userRepository.findOneBy({
+                username: user.username,
+                deletedAt: null,
+            });
+
+        if (activeUserByUserName) {
+            throw new ConflictException(
+                `Cannot restore user "${user.username}" because an active user with the same username already exists.`,
+            );
+        }
+
+        // Check active user with the same phone
+        const activeUserByPhone =
+            await this.userRepository.findOneBy({
+                phone: user.phone,
+                deletedAt: null,
+            });
+
+        if (activeUserByPhone) {
+            throw new ConflictException(
+                `Cannot restore user "${user.phone}" because an active user with the same phone already exists.`,
+            );
+        }
+
         return this.userRepository.restore(id);
     }
 
-    /**
-    * Force delete user
-    */
+
     async forceDelete(id: number): Promise<User> {
-        let user = await this.findById(id);
-        await this.userRepository.forceDelete(id);
-        
-        return user;
+        await this.findById(id);
+
+        return this.userRepository.forceDelete(id);
     }
 }

@@ -1,11 +1,15 @@
 import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Length, Matches, Min } from 'class-validator';
+import { UniqueNotDeleted } from '../../../../../../core/validation/decorators/unique-not-deleted.decorator.js';
+import { Exists } from '../../../../../../core/validation/decorators/exists.decorator.js';
 
 export class CreateUserDto {
     @IsString()
     @IsNotEmpty()
     @Length(3, 50)
+    @UniqueNotDeleted('User', 'username')
     username: string;
 
+    @UniqueNotDeleted('User', 'phone')
     @IsString()
     @IsNotEmpty()
     @Matches(/^\+?[0-9]{8,15}$/, {
@@ -32,8 +36,8 @@ export class CreateUserDto {
     @IsBoolean()
     isActive?: boolean;
 
+    @Exists('Branch', 'id')
     @IsOptional()
     @IsInt()
-    @Min(1)
     branchId?: number;
 }

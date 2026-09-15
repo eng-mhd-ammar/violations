@@ -1,8 +1,19 @@
 import { User } from '../../../domain/user.model.js';
 
+export interface UserResourceData {
+    id: number | undefined;
+    username: string;
+    phone: string;
+    first_name: string;
+    last_name: string;
+    full_name: string;
+    is_active: boolean;
+    branch_id: number | null;
+}
+
 export class UserResource {
-    static make(user: User) {
-        return {
+    static make(user: User, includes: string[] = []): UserResourceData {
+        const resource: UserResourceData = {
             id: user.id,
             username: user.username,
             phone: user.phone,
@@ -12,9 +23,17 @@ export class UserResource {
             is_active: user.isActive,
             branch_id: user.branchId,
         };
+
+        return resource;
     }
 
-    static collection(users: User[]) {
-        return users.map((user) => this.make(user));
+    static collection(users: User[], includes: string[] = []): UserResourceData[] {
+        return users.map(
+            (user) =>
+                this.make(
+                    user,
+                    includes,
+                ),
+        );
     }
 }

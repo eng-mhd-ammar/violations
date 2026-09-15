@@ -1,12 +1,17 @@
 import {IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Length, Matches, Min} from 'class-validator';
+import { UniqueNotDeleted } from '../../../../../../core/validation/decorators/unique-not-deleted.decorator.js';
+import { Exists } from '../../../../../../core/validation/decorators/exists.decorator.js';
+import { route } from '../../../../../../core/http/helpers/route.helper.js';
 
 export class UpdateUserDto {
+    @UniqueNotDeleted('User', 'username', route('id'))
     @IsOptional()
     @IsString()
     @IsNotEmpty()
     @Length(3, 50)
     username?: string;
 
+    @UniqueNotDeleted('User', 'phone',  route('id'))
     @IsOptional()
     @IsString()
     @IsNotEmpty()
@@ -37,8 +42,8 @@ export class UpdateUserDto {
     @IsBoolean()
     isActive?: boolean;
 
+    @Exists('Branch', 'id')
     @IsOptional()
     @IsInt()
-    @Min(1)
     branchId?: number | null;
 }   

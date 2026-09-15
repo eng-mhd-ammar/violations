@@ -1,179 +1,226 @@
 import { Injectable } from '@nestjs/common';
-
-import {User, UserAttributes } from '../domain/user.model.js';
-
-import { UserRepository } from '../domain/user.repository.js';
 import { PrismaService } from '../../../../core/database/prisma.service.js';
+import { BaseRepository } from '../../../../core/database/repositories/base.repository.js';
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
+import { User, type UserAttributes } from '../domain/user.model.js';
+import { UserRepository } from '../domain/user.repository.js';
 
 @Injectable()
-export class UserPrismaRepository implements UserRepository {
-    constructor(private readonly prisma: PrismaService) {}
+export class UserPrismaRepository extends BaseRepository<User, UserAttributes> implements UserRepository
+{
+    constructor(private readonly prisma: PrismaService) {
+        super(
+            prisma.db.orm.public.User,
+        );
+    }
+
+    // ============================================================
+    // Query configuration
+    // ============================================================
+
+    protected allowedSorts(): string[] {
+        return [];
+    }
+
+    protected allowedFilters(): string[] {
+        return [
+            'id',
+            'username',
+            'firstName',
+            'lastName',
+            'phone',
+            'isActive',
+        ];
+    }
+
+    protected allowedIncludes(): string[] {
+        return [];
+    }
+
+    protected allowedFields(): string[] {
+        return [];
+    }
+
+    protected defaultSort(): string[] {
+        return [
+            '-createdAt',
+        ];
+    }
+
+    // ============================================================
+    // Create
+    // ============================================================
 
     async create(user: User): Promise<User> {
         const data = user.toAttributes();
 
-        const created =
-            await this.prisma.db.orm.public.User.create({
-                username: data.username,
-                phone: data.phone,
-                password: data.password,
-                firstName: data.firstName,
-                lastName: data.lastName,
-                isActive: data.isActive ?? true,
-                branchId: data.branchId ?? null,
-            });
-
-        return this.toDomain(created);
+        return this.createRecord(data);
     }
 
-    async findAll(): Promise<User[]> {
-        const users = await this.prisma.db.orm.public.User.where({ deletedAt: null }).all();
+    // ============================================================
+    // Read
+    // ============================================================
 
-        return users.map((user) => this.toDomain(user));
-    }
+    async all(options: QueryOptions = {}): Promise<any> {
+        const builder = this.createQuery(options);
+        const records = await builder.all();
 
-    async findById(id: number): Promise<User | null> {
-        const user = await this.prisma.db.orm.public.User.where({ id, deletedAt: null }).first();
+        let users = records.map((record: UserAttributes) => this.toDomain(record));
 
-        if (!user) {
-            return null;
+        // if (
+        //     options.include?.includes(
+        //         'users',
+        //     )
+        // ) {
+        // }
+
+        // ========================================================
+        // Pagination
+        // ========================================================
+
+        if (options.paginate === false) {
+            return users;
         }
 
-        return this.toDomain(user);
+        const page = options.page ?? 1;
+
+        const perPage = options.perPage ?? 10;
+
+        const total = users.length;
+
+        const start = (page - 1) * perPage;
+
+        const items = users.slice(start, start + perPage);
+
+        return {
+            items,
+            pagination: {
+                currentPage: page,
+                perPage,
+                total,
+                lastPage:
+                    Math.ceil(
+                        total / perPage,
+                    ),
+            },
+        };
     }
 
-    async findByIdIncludingDeleted(id: number): Promise<User | null> {
-        const user = await this.prisma.db.orm.public.User.where({id}).first();
 
-        if (!user) {
-            return null;
-        }
-
-        return this.toDomain(user);
+    async find(id: number, options: QueryOptions = {}): Promise<User | null> {
+        return super.find(id, options);
     }
 
-    async findByUsername(username: string): Promise<User | null> {
-        const user = await this.prisma.db.orm.public.User.where({ username, deletedAt: null }).first();
-
-        if (!user) {
-            return null;
-        }
-
-        return this.toDomain(user);
+    async findOneBy(conditions: Record<string, unknown>, options: QueryOptions = {},): Promise<User | null> {
+        return super.findOneBy(conditions, options);
     }
 
-    async findByPhone(phone: string): Promise<User | null> {
-        const user = await this.prisma.db.orm.public.User.where({ phone,deletedAt: null }).first();
-
-        if (!user) {
-            return null;
-        }
-
-        return this.toDomain(user);
+    async first(options: QueryOptions = {}): Promise<User | null> {
+        return super.first(options);
     }
+
+    // ============================================================
+    // Update
+    // ============================================================
 
     async update(id: number, data: Partial<UserAttributes>): Promise<User> {
-        const updateData = this.toPrismaUpdateData(data);
-        const updated = await this.prisma.db.orm.public.User.where({ id, deletedAt: null }).update(updateData);
+        const updated = await this.updateRecord(id, this.toPrismaUpdateData(data));
 
         if (!updated) {
-            throw new Error(`User with id ${id} not found`);
+            throw new Error(
+                `User with id ${id} not found`,
+            );
         }
 
-        return this.toDomain(updated);
+        return updated;
     }
+
+    // ============================================================
+    // Delete
+    // ============================================================
 
     async delete(id: number): Promise<User> {
-        const deleted = await this.prisma.db.orm.public.User.where({ id, deletedAt: null }).update({ deletedAt: new Date().toISOString() });
+        const deleted = await this.softDeleteRecord(id);
 
         if (!deleted) {
-            throw new Error(`User with id ${id} not found`);
+            throw new Error(
+                `User with id ${id} not found`,
+            );
         }
 
-        return this.toDomain(deleted);
+        return deleted;
     }
+
+    // ============================================================
+    // Restore
+    // ============================================================
 
     async restore(id: number): Promise<User> {
-        const restored = await this.prisma.db.orm.public.User.where({ id }).update({ deletedAt: null });
-        
+        const restored = await this.restoreRecord(id);
+
         if (!restored) {
-            throw new Error(`User with id ${id} not found`);
+            throw new Error(
+                `User with id ${id} not found`,
+            );
         }
-    
-        return this.toDomain(restored);
+
+        return restored;
     }
+
+
+    // ============================================================
+    // Force Delete
+    // ============================================================
 
     async forceDelete(id: number): Promise<User> {
-        const deleted = await this.prisma.db.orm.public.User.where({ id }).delete();
+        const deleted = await this.forceDeleteRecord(id);
 
         if (!deleted) {
-            throw new Error(`User with id ${id} not found`);
+            throw new Error(
+                `User with id ${id} not found`,
+            );
         }
 
-        return this.toDomain(deleted);
+        return deleted;
     }
 
-    private toPrismaUpdateData(data: Partial<UserAttributes>): Partial<UserAttributes> {
+    // ============================================================
+    // Mapping
+    // ============================================================
+
+    protected toDomain(data: UserAttributes): User {
+        return new User(data);
+    }
+
+    private toPrismaUpdateData(
+        data: Partial<UserAttributes>,
+    ): Record<string, unknown> {
         return {
             ...(data.username !== undefined && {
                 username: data.username,
             }),
-
             ...(data.phone !== undefined && {
                 phone: data.phone,
             }),
-
             ...(data.password !== undefined && {
                 password: data.password,
             }),
-
             ...(data.firstName !== undefined && {
                 firstName: data.firstName,
             }),
-
             ...(data.lastName !== undefined && {
                 lastName: data.lastName,
             }),
-
             ...(data.isActive !== undefined && {
                 isActive: data.isActive,
             }),
-
             ...(data.branchId !== undefined && {
                 branchId: data.branchId,
             }),
-
             ...(data.deletedAt !== undefined && {
-                deletedAt: data.deletedAt,
+                deletedAt:
+                    data.deletedAt,
             }),
         };
-    }
-
-    private toDomain(data: {
-        id: number;
-        username: string;
-        phone: string;
-        password: string;
-        firstName: string;
-        lastName: string;
-        isActive: boolean;
-        branchId: number | null;
-        createdAt: string;
-        updatedAt: string;
-        deletedAt: string | null;
-    }): User {
-        return new User({
-            id: data.id,
-            username: data.username,
-            phone: data.phone,
-            password: data.password,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            isActive: data.isActive,
-            branchId: data.branchId,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-            deletedAt: data.deletedAt,
-        });
     }
 }

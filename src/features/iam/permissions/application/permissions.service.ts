@@ -45,18 +45,6 @@ export class PermissionsService {
         dto: CreatePermissionDto,
     ): Promise<Permission> {
 
-        const existingPermission =
-            await this.permissionRepository.findOneBy({
-                slug: dto.slug,
-                deletedAt: null,
-            });
-
-        if (existingPermission) {
-            throw new ConflictException(
-                `Permission with slug "${dto.slug}" already exists.`,
-            );
-        }
-
         const permission = new Permission({
             name: dto.name,
             slug: dto.slug,
@@ -99,39 +87,9 @@ export class PermissionsService {
         const permission =
             await this.findById(id);
 
-
-        /**
-         * Check slug uniqueness
-         * only when slug is changed.
-         */
-        if (
-            dto.slug !== undefined &&
-            dto.slug !== permission.slug
-        ) {
-
-            const existingPermission =
-                await this.permissionRepository.findOneBy({
-                    slug: dto.slug,
-                    deletedAt: null,
-                });
-
-            if (
-                existingPermission &&
-                existingPermission.id !== id
-            ) {
-                throw new ConflictException(
-                    `Permission with slug "${dto.slug}" already exists.`,
-                );
-            }
-
-            permission.changeSlug(dto.slug);
-        }
-
-
         if (dto.name !== undefined) {
             permission.changeName(dto.name);
         }
-
 
         if (dto.description !== undefined) {
             permission.changeDescription(
@@ -139,13 +97,11 @@ export class PermissionsService {
             );
         }
 
-
         const data: Partial<PermissionAttributes> = {
             name: permission.name,
             slug: permission.slug,
             description: permission.description,
         };
-
 
         return this.permissionRepository.update(
             id,
