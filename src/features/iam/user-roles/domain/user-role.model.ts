@@ -1,33 +1,26 @@
-import { User } from '../../users/domain/user.model.js';
 import { Role } from '../../roles/domain/role.model.js';
+import { User } from '../../users/domain/user.model.js';
 
-export interface UserRoleAttributes {
-
+export type UserRoleAttributes = {
     id?: number;
 
-    userId: number;
-
-    roleId: number;
-
-    user?: User;
-
-    role?: Role;
+    userId?: number;
+    roleId?: number;
 
     createdAt?: string;
-
     updatedAt?: string;
-
     deletedAt?: string | null;
-}
+
+    user?: User;
+    role?: Role;
+};
 
 export class UserRole {
 
-    private readonly attributes: UserRoleAttributes;
+    private attributes: UserRoleAttributes;
 
     constructor(attributes: UserRoleAttributes) {
-
         this.attributes = {
-            deletedAt: null,
             ...attributes,
         };
     }
@@ -40,20 +33,12 @@ export class UserRole {
         return this.attributes.id;
     }
 
-    get userId(): number {
+    get userId(): number | undefined {
         return this.attributes.userId;
     }
 
-    get roleId(): number {
+    get roleId(): number | undefined {
         return this.attributes.roleId;
-    }
-
-    get user(): User | undefined {
-        return this.attributes.user;
-    }
-
-    get role(): Role | undefined {
-        return this.attributes.role;
     }
 
     get createdAt(): string | undefined {
@@ -69,15 +54,15 @@ export class UserRole {
     }
 
     // ============================================================
-    // Mutations
+    // Relations
     // ============================================================
 
-    changeUser(userId: number): void {
-        this.attributes.userId = userId;
+    get user(): User | undefined {
+        return this.attributes.user;
     }
 
-    changeRole(roleId: number): void {
-        this.attributes.roleId = roleId;
+    get role(): Role | undefined {
+        return this.attributes.role;
     }
 
     // ============================================================
@@ -93,6 +78,12 @@ export class UserRole {
     // ============================================================
 
     toAttributes(): UserRoleAttributes {
+        return {
+            ...this.attributes,
+        };
+    }
+
+    toArray(): UserRoleAttributes {
         return {
             ...this.attributes,
         };

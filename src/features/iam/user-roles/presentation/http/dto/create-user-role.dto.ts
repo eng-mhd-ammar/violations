@@ -1,14 +1,14 @@
-import { IsInt, IsOptional } from 'class-validator';
+import { IsInt, IsNotEmpty } from 'class-validator';
 import { Exists } from '../../../../../../core/validation/decorators/exists.decorator.js';
 
-export class UpdateUserRoleDto {
+export class CreateUserRoleDto {
     @Exists('User', 'id')
-    @IsOptional()
     @IsInt()
+    @IsNotEmpty()
     userId: number;
 
     @Exists('Role', 'id')
-    @IsOptional()
     @IsInt()
-    roleId?: number;
+    @IsNotEmpty()
+    roleId: number;
 }

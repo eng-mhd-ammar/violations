@@ -1,14 +1,7 @@
 import { Injectable } from '@nestjs/common';
-
 import { PrismaService } from '../../../../core/database/prisma.service.js';
-
-import {
-    BaseRepository,
-} from '../../../../core/database/repositories/base.repository.js';
-
-import type {
-    QueryOptions,
-} from '../../../../core/database/repositories/query.types.js';
+import { BaseRepository } from '../../../../core/database/repositories/base.repository.js';
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
 import { RolePermission, RolePermissionAttributes } from '../domain/role-permission.model.js';
 import { RolePermissionRepository } from '../domain/role-permission.repository.js';
 
@@ -27,14 +20,7 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
     // ============================================================
 
     protected allowedSorts(): string[] {
-        return [
-            // 'id',
-            // 'name',
-            // 'slug',
-            // 'isActive',
-            // 'createdAt',
-            // 'updatedAt',
-        ];
+        return [];
     }
 
     protected allowedFilters(): string[] {
@@ -46,36 +32,23 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
     }
 
     protected allowedIncludes(): string[] {
-        return [
-            // 'rolepermissions',
-            // 'userRolePermissions',
-        ];
+        return [];
     }
 
     protected allowedFields(): string[] {
-        return [
-            // 'id',
-            // 'name',
-            // 'slug',
-            // 'description',
-            // 'createdAt',
-            // 'updatedAt',
-            // 'deletedAt',
-        ];
+        return [];
     }
 
     protected defaultSort(): string[] {
-        return [
-            // '-createdAt',
-        ];
+        return [];
     }
 
     // ============================================================
     // Create
     // ============================================================
 
-    async create(rolepermission: RolePermission): Promise<RolePermission> {
-        const data = rolepermission.toAttributes();
+    async create(rolePermission: RolePermission): Promise<RolePermission> {
+        const data = rolePermission.toAttributes();
 
         return this.createRecord(data);
     }
@@ -88,65 +61,32 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
         const builder = this.createQuery(options);
         const records = await builder.all();
 
-        let rolepermissions = records.map((record: RolePermissionAttributes) => this.toDomain(record));
+        let rolePermissions = records.map((record: RolePermissionAttributes) => this.toDomain(record));
 
-        /*
-         * ========================================================
-         * INCLUDE: rolepermissions
-         * ========================================================
-         *
-         * إذا BaseRepository عندك حاليًا لا يدعم العلاقات
-         * تلقائيًا، يمكنك مؤقتًا تحميلها هنا.
-         */
-
-        if (
-            options.include?.includes(
-                'rolepermissions',
-            )
-        ) {
-
-            // سنضيفها بعد تثبيت RolePermission relation.
-        }
-
-        /*
-         * ========================================================
-         * INCLUDE: userRolePermissions
-         * ========================================================
-         */
-
-        if (
-            options.include?.includes(
-                'userRolePermissions',
-            )
-        ) {
-            // سنضيفها بعد تثبيت UserRolePermission relation.
-        }
+        // if (
+        //     options.include?.includes(
+        //         '', // model
+        //     )
+        // ) {
+        // }
 
         // ========================================================
         // Pagination
         // ========================================================
 
         if (options.paginate === false) {
-            return rolepermissions;
+            return rolePermissions;
         }
 
-        const page =
-            options.page ?? 1;
+        const page = options.page ?? 1;
 
-        const perPage =
-            options.perPage ?? 10;
+        const perPage = options.perPage ?? 10;
 
-        const total =
-            rolepermissions.length;
+        const total = rolePermissions.length;
 
-        const start =
-            (page - 1) * perPage;
+        const start = (page - 1) * perPage;
 
-        const items =
-            rolepermissions.slice(
-                start,
-                start + perPage,
-            );
+        const items = rolePermissions.slice(start, start + perPage);
 
         return {
             items,
@@ -162,58 +102,27 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
         };
     }
 
-
-    async find(
-        id: number,
-        options: QueryOptions = {},
-    ): Promise<RolePermission | null> {
-        return super.find(
-            id,
-            options,
-        );
+    async find(id: number, options: QueryOptions = {}): Promise<RolePermission | null> {
+        return super.find(id, options);
     }
 
-    async findOneBy(
-        conditions: Record<string, unknown>,
-        options: QueryOptions = {},
-    ): Promise<RolePermission | null> {
-
-        return super.findOneBy(
-            conditions,
-            options,
-        );
-
+    async findOneBy(conditions: Record<string, unknown>, options: QueryOptions = {}): Promise<RolePermission | null> {
+        return super.findOneBy(conditions, options);
     }
 
-    async first(
-        options: QueryOptions = {},
-    ): Promise<RolePermission | null> {
-        return super.first(
-            options,
-        );
+    async first(options: QueryOptions = {}): Promise<RolePermission | null> {
+        return super.first(options);
     }
 
     // ============================================================
     // Update
     // ============================================================
 
-    async update(
-        id: number,
-        data: Partial<RolePermissionAttributes>,
-    ): Promise<RolePermission> {
-
-        const updated =
-            await this.updateRecord(
-                id,
-                this.toPrismaUpdateData(
-                    data,
-                ),
-            );
+    async update(id: number, data: Partial<RolePermissionAttributes>): Promise<RolePermission> {
+        const updated = await this.updateRecord(id, this.toPrismaUpdateData(data));
 
         if (!updated) {
-            throw new Error(
-                `RolePermission with id ${id} not found`,
-            );
+            throw new Error(`Role permission with id ${id} not found`);
         }
 
         return updated;
@@ -223,19 +132,11 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
     // Delete
     // ============================================================
 
-    async delete(
-        id: number,
-    ): Promise<RolePermission> {
-
-        const deleted =
-            await this.softDeleteRecord(
-                id,
-            );
+    async delete(id: number): Promise<RolePermission> {
+        const deleted = await this.softDeleteRecord(id);
 
         if (!deleted) {
-            throw new Error(
-                `RolePermission with id ${id} not found`,
-            );
+            throw new Error(`Role permission with id ${id} not found`);
         }
 
         return deleted;
@@ -245,19 +146,11 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
     // Restore
     // ============================================================
 
-    async restore(
-        id: number,
-    ): Promise<RolePermission> {
-
-        const restored =
-            await this.restoreRecord(
-                id,
-            );
+    async restore(id: number): Promise<RolePermission> {
+        const restored = await this.restoreRecord(id);
 
         if (!restored) {
-            throw new Error(
-                `RolePermission with id ${id} not found`,
-            );
+            throw new Error(`RolePermission with id ${id} not found`);
         }
 
         return restored;
@@ -268,19 +161,11 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
     // Force Delete
     // ============================================================
 
-    async forceDelete(
-        id: number,
-    ): Promise<RolePermission> {
-
-        const deleted =
-            await this.forceDeleteRecord(
-                id,
-            );
+    async forceDelete(id: number): Promise<RolePermission> {
+        const deleted = await this.forceDeleteRecord(id);
 
         if (!deleted) {
-            throw new Error(
-                `RolePermission with id ${id} not found`,
-            );
+            throw new Error(`Role permission with id ${id} not found`);
         }
 
         return deleted;
@@ -290,152 +175,104 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
     // Mapping
     // ============================================================
 
-    protected toDomain(
-        data: RolePermissionAttributes,
-    ): RolePermission {
-        return new RolePermission(
-            data,
-        );
+    protected toDomain(data: RolePermissionAttributes): RolePermission {
+        return new RolePermission(data);
     }
 
-    private toPrismaUpdateData(
-        data: Partial<RolePermissionAttributes>,
-    ): Record<string, unknown> {
+    private toPrismaUpdateData(data: Partial<RolePermissionAttributes>): Record<string, unknown> {
         return {
             ...(data.deletedAt !== undefined && {
-                deletedAt:
-                    data.deletedAt,
+                deletedAt: data.deletedAt,
             }),
         };
     }
 
-    async sync(
-        roleId: number,
-        permissionIds: number[],
-    ): Promise<void> {
+    async sync(roleId: number, permissionIds: number[]): Promise<void> {
+        // Remove all permissions.
+        if (permissionIds.length === 0) {
+            const existingRelations = await this.findByRoleId(roleId, { trashed: 'not' });
 
-        /*
-         * -1 means remove all permissions.
-         */
-        if (
-            permissionIds.length === 1 &&
-            permissionIds[0] === -1
-        ) {
-            const existingRelations =
-                await this.findByRoleId(
-                    roleId,
-                    {
-                        trashed: 'not',
-                    },
-                );
+            const ids = existingRelations
+                .map((relation) => relation.id)
+                .filter((id): id is number => id !== undefined);
 
-            for (
-                const rolePermission
-                of existingRelations
-            ) {
-                if (rolePermission.id) {
-                    await this.delete(
-                        rolePermission.id,
-                    );
-                }
-            }
+            await this.deleteMany(ids);
 
             return;
         }
 
-        /*
-         * Remove duplicated permission IDs.
-         */
-        const uniquePermissionIds =
-            [...new Set(permissionIds)];
+        // Remove duplicated permission IDs.
+        const uniquePermissionIds = [
+            ...new Set(permissionIds),
+        ];
 
-        /*
-         * Get all existing relations
-         * for THIS role only,
-         * including soft deleted ones.
-         */
-        const existingRelations =
-            await this.findByRoleId(
+        const requestedPermissionIds = new Set(
+            uniquePermissionIds,
+        );
+
+        // Get all existing relations including trashed ones.
+        const existingRelations = await this.findByRoleId(
+            roleId,
+            {
+                trashed: 'with',
+            },
+        );
+
+        // Existing permission IDs.
+        const existingPermissionIds = new Set(
+            existingRelations
+                .map((relation) => relation.permissionId)
+                .filter(
+                    (permissionId): permissionId is number =>
+                        permissionId !== undefined,
+                ),
+        );
+
+        // Restore deleted relations.
+        const relationsToRestore = existingRelations
+            .filter(
+                (relation) =>
+                    relation.deletedAt !== null &&
+                    relation.permissionId !== undefined &&
+                    requestedPermissionIds.has(
+                        relation.permissionId,
+                    ),
+            )
+            .map((relation) => relation.id)
+            .filter((id): id is number => id !== undefined);
+
+        // Create new relations.
+        const relationsToCreate = uniquePermissionIds
+            .filter(
+                (permissionId) =>
+                    !existingPermissionIds.has(permissionId),
+            )
+            .map((permissionId) => ({
                 roleId,
-                {
-                    trashed: 'with',
-                },
-            );
+                permissionId,
+            }));
 
-        /*
-         * Restore existing relations
-         * or create new ones.
-         */
-        for (
-            const permissionId
-            of uniquePermissionIds
-        ) {
-            const existing =
-                existingRelations.find(
-                    (relation) =>
-                        relation.permissionId ===
-                        permissionId,
-                );
+        // Remove existing permissions that are not requested anymore.
+        const relationsToDelete = existingRelations
+            .filter(
+                (relation) =>
+                    relation.deletedAt === null &&
+                    relation.permissionId !== undefined &&
+                    !requestedPermissionIds.has(
+                        relation.permissionId,
+                    ),
+            )
+            .map((relation) => relation.id)
+            .filter((id): id is number => id !== undefined);
 
-            /*
-             * No relation exists at all.
-             */
-            if (!existing) {
-                await this.create(
-                    new RolePermission({
-                        roleId,
-                        permissionId,
-                    }),
-                );
+        // Restore existing relations.
+        await this.restoreMany(relationsToRestore);
 
-                continue;
-            }
+        // Create new relations.
+        await this.createMany(relationsToCreate);
 
-            /*
-             * Relation exists but is soft deleted.
-             */
-            if (
-                existing.deletedAt !== null &&
-                existing.id
-            ) {
-                await this.restore(
-                    existing.id,
-                );
-            }
-        }
-
-        /*
-         * Remove existing permissions
-         * that are not requested anymore.
-         */
-        for (
-            const existing
-            of existingRelations
-        ) {
-            /*
-             * Ignore already deleted relations.
-             */
-            if (
-                existing.deletedAt !== null
-            ) {
-                continue;
-            }
-
-            /*
-             * Permission is no longer requested.
-             */
-            if (
-                !uniquePermissionIds.includes(
-                    existing.permissionId!,
-                )
-            ) {
-                if (existing.id) {
-                    await this.delete(
-                        existing.id,
-                    );
-                }
-            }
-        }
+        // Delete removed relations.
+        await this.deleteMany(relationsToDelete);
     }
 
     async findByRoleId(roleId: number, options: QueryOptions = {}): Promise<RolePermission[]> {
@@ -454,4 +291,35 @@ export class RolePermissionPrismaRepository extends BaseRepository<RolePermissio
         );
     }
 
+    async createMany(relations: Array<{ roleId: number; permissionId: number }>): Promise<void> {
+        if (relations.length === 0) {
+            return;
+        }
+
+        await this.prisma.db.orm.public.RolePermission.createAll(relations);
+    }
+
+    async restoreMany(ids: number[]): Promise<void> {
+        if (ids.length === 0) {
+            return;
+        }
+
+        await this.prisma.db.orm.public.RolePermission
+            .where((rolePermission) => rolePermission.id.in(ids))
+            .updateAll({
+                deletedAt: null,
+            });
+    }
+    
+    async deleteMany(ids: number[]): Promise<void> {
+        if (ids.length === 0) {
+            return;
+        }
+
+        await this.prisma.db.orm.public.RolePermission
+            .where((rolePermission) => rolePermission.id.in(ids))
+            .updateAll({
+                deletedAt: new Date().toISOString(),
+            });
+    }
 }

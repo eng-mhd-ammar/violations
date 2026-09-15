@@ -1,64 +1,28 @@
-import {
-    Injectable,
-    NotFoundException,
-} from '@nestjs/common';
-
-import {
-    UserRole,
-} from '../domain/user-role.model.js';
-
-import {
-    UserRoleRepository,
-} from '../domain/user-role.repository.js';
-
-import {
-    UpdateUserRoleDto,
-} from '../presentation/http/dto/update-user-role.dto.js';
-import { CreateUserRoleDto } from '../presentation/http/dto/create.user-role.dto.js';
+import { ConflictException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { UserRole } from '../domain/user-role.model.js';
+import type { UserRoleAttributes } from '../domain/user-role.model.js';
+import { USER_ROLE_REPOSITORY } from '../domain/user-role.repository.js';
+import type { UserRoleRepository } from '../domain/user-role.repository.js';
+import { UpdateUserRoleDto } from '../presentation/http/dto/update-user-role.dto.js';
+import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
+import { CreateUserRoleDto } from '../presentation/http/dto/create-user-role.dto.js';
 
 @Injectable()
 export class UserRolesService {
+    constructor(@Inject(USER_ROLE_REPOSITORY) private readonly userRoleRepository: UserRoleRepository) {}
 
-    constructor(
-        private readonly userRoleRepository: UserRoleRepository,
-    ) {}
+    async create(dto: CreateUserRoleDto): Promise<UserRole> {
+        const userRole = new UserRole({ userId: dto.userId, roleId: dto.roleId });
 
-    // ============================================================
-    // Create
-    // ============================================================
-
-    async create(
-        dto: CreateUserRoleDto,
-    ): Promise<UserRole> {
-
-        const userRole = new UserRole({
-            userId: dto.userId,
-            roleId: dto.roleId,
-        });
-
-        return this.userRoleRepository.create(
-            userRole,
-        );
+        return this.userRoleRepository.create(userRole);
     }
 
-    // ============================================================
-    // Find All
-    // ============================================================
-
-    async findAll(): Promise<UserRole[]> {
-        return this.userRoleRepository.findAll();
+    async findAll(options: QueryOptions = {}) {
+        return this.userRoleRepository.all(options);
     }
 
-    // ============================================================
-    // Find By ID
-    // ============================================================
-
-    async findById(
-        id: number,
-    ): Promise<UserRole> {
-
-        const userRole =
-            await this.userRoleRepository.findById(id);
+    async findById(id: number, options: QueryOptions = {}): Promise<UserRole> {
+        const userRole = await this.userRoleRepository.find(id, options);
 
         if (!userRole) {
             throw new NotFoundException(
@@ -69,47 +33,25 @@ export class UserRolesService {
         return userRole;
     }
 
-    // ============================================================
-    // Update
-    // ============================================================
+    async update(id: number, dto: UpdateUserRoleDto): Promise<UserRole> {
+        const userRole = await this.findById(id);
 
-    async update(
-        id: number,
-        dto: UpdateUserRoleDto,
-    ): Promise<UserRole> {
+        const data: Partial<UserRoleAttributes> = {
+            roleId: userRole.roleId,
+            userId: userRole.userId,
+        };
 
-        await this.findById(id);
-
-        return this.userRoleRepository.update(
-            id,
-            dto,
-        );
+        return this.userRoleRepository.update(id, data);
     }
 
-    // ============================================================
-    // Soft Delete
-    // ============================================================
-
-    async delete(
-        id: number,
-    ): Promise<UserRole> {
-
-        await this.findById(id);
+    async delete(id: number): Promise<UserRole> {
+        const userRole = await this.findById(id);
 
         return this.userRoleRepository.delete(id);
     }
 
-    // ============================================================
-    // Restore
-    // ============================================================
-
-    async restore(
-        id: number,
-    ): Promise<UserRole> {
-
-        const userRole =
-            await this.userRoleRepository
-                .findByIdIncludingDeleted(id);
+    async restore(id: number): Promise<UserRole> {
+        const userRole = await this.userRoleRepository.find(id, { trashed: 'only'});
 
         if (!userRole) {
             throw new NotFoundException(
@@ -124,23 +66,9 @@ export class UserRolesService {
         return this.userRoleRepository.restore(id);
     }
 
-    // ============================================================
-    // Force Delete
-    // ============================================================
+    async forceDelete(id: number): Promise<UserRole> {
 
-    async forceDelete(
-        id: number,
-    ): Promise<UserRole> {
-
-        const userRole =
-            await this.userRoleRepository
-                .findByIdIncludingDeleted(id);
-
-        if (!userRole) {
-            throw new NotFoundException(
-                `UserRole with id ${id} not found`,
-            );
-        }
+        await this.findById(id);
 
         return this.userRoleRepository.forceDelete(id);
     }

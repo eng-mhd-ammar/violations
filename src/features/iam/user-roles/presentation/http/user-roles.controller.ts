@@ -7,6 +7,7 @@ import {
     ParseIntPipe,
     Patch,
     Post,
+    Query,
     Res,
 } from '@nestjs/common';
 
@@ -17,8 +18,9 @@ import { ResponseUtil } from '../../../../../shared/utils/response.js';
 
 import { Can } from '../../../../../core/authorization/decorators/can.decorator.js';
 import { UserRolesService } from '../../application/user-roles.service.js';
-import { CreateUserRoleDto } from './dto/create.user-role.dto.js';
+import { CreateUserRoleDto } from './dto/create-user-role.dto.js';
 import { UserRoleResource } from './resources/user-role.resource.js';
+import { QueryDto } from '../../../../../core/database/repositories/query.dto.js';
 
 @Controller('/api/v1/user-roles')
 export class UserRolesController {
@@ -58,20 +60,27 @@ export class UserRolesController {
      */
     @Can('user_roles_index')
     @Get()
-    async findAll(
-        @Res() res: ExpressResponse,
-    ) {
-        const userRoles =
-            await this.userRolesService.findAll();
+    async findAll(@Res() res: ExpressResponse, @Query() query: QueryDto) {
+        const result = await this.userRolesService.findAll(query);
 
-        const data =
-            UserRoleResource.collection(userRoles);
+        const isPaginated = 'items' in result;
 
-        return new ResponseUtil(res).success(
-            data,
-            'User roles retrieved successfully',
-            ResponseUtil.HTTP_OK,
-        );
+        const items = isPaginated
+            ? result.items
+            : result;
+
+        const data = {
+            items: UserRoleResource.collection(
+                items,
+                query.include ?? [],
+            ),
+
+            ...(isPaginated && {
+                pagination: result.pagination,
+            }),
+        };
+
+        return new ResponseUtil(res).success(data, 'Roles retrieved successfully', ResponseUtil.HTTP_OK);
     }
 
     /**
