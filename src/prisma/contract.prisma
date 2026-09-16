@@ -154,3 +154,20 @@ model Currency {
 
   @@map("currencies")
 }
+
+model ViolationType {
+  id          Int      @id @default(autoincrement())
+
+  name        String
+  description String?
+  isActive    Boolean  @default(true)
+  defaultFine Decimal
+
+  violations     Violation[]
+
+  createdAt   TimestamptzString @default(now())
+  updatedAt   TimestamptzString @default(now())
+  deletedAt   TimestamptzString?
+
+  @@map("violation_types")
+}

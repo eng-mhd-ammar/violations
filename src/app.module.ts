@@ -21,6 +21,7 @@ import { NotSoftDeletedValidator } from './core/validation/validators/not-soft-d
 import { RequestContextMiddleware } from './core/http/middleware/request-context.middleware.js';
 import { BranchesModule } from './features/branches/branches.module.js';
 import { PaymentsModule } from './features/payments/payments.module.js';
+import { ViolationModule } from './features/violations/violations.module.js';
 
 @Module({
     imports: [
@@ -34,6 +35,7 @@ import { PaymentsModule } from './features/payments/payments.module.js';
         LocationModule,
         PaymentsModule,
         BranchesModule,
+        ViolationModule,
     ],
 
     providers: [
@@ -52,6 +54,7 @@ import { PaymentsModule } from './features/payments/payments.module.js';
         NotSoftDeletedValidator,
     ],
 })
+    
 export class AppModule implements NestModule {
     configure(
         consumer: MiddlewareConsumer,
