@@ -22,6 +22,7 @@ import { RequestContextMiddleware } from './core/http/middleware/request-context
 import { BranchesModule } from './features/branches/branches.module.js';
 import { PaymentsModule } from './features/payments/payments.module.js';
 import { ViolationModule } from './features/violations/violations.module.js';
+import { CitizensModule } from './features/citizens/citizens.module.js';
 
 @Module({
     imports: [
@@ -36,6 +37,7 @@ import { ViolationModule } from './features/violations/violations.module.js';
         PaymentsModule,
         BranchesModule,
         ViolationModule,
+        CitizensModule,
     ],
 
     providers: [
