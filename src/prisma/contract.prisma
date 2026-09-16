@@ -98,10 +98,11 @@ model Branch {
   name      String
   phone     String
   code      String
-  addressId    Int
+
+  addressId Int
+  address   Address @relation(fields: [addressId], references: [id])
 
   users     User[]
-  address    Address? @relation(fields: [addressId], references: [id])
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
@@ -125,13 +126,15 @@ model State {
 }
 
 model Address {
-  id        Int      @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
 
   stateId   Int
   city      String
   street    String
 
-  state     State    @relation(fields: [stateId], references: [id])
+  state     State     @relation(fields: [stateId], references: [id])
+  branches  Branch[]
+  citizens  Citizen[]
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
@@ -170,4 +173,28 @@ model ViolationType {
   deletedAt   TimestamptzString?
 
   @@map("violation_types")
+}
+
+model Citizen {
+  id          Int    @id @default(autoincrement())
+
+  nationalId  String
+  firstName   String
+  lastName    String
+  fatherName  String
+  motherName  String
+  dateOfBirth String
+  phone       String
+
+  addressId   Int
+  address     Address @relation(fields: [addressId], references: [id])
+
+  violations     Violation[]
+  payments     Payment[]
+
+  createdAt   TimestamptzString @default(now())
+  updatedAt   TimestamptzString @default(now())
+  deletedAt   TimestamptzString?
+
+  @@map("citizens")
 }
