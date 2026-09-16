@@ -1,9 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
-
 import { PrismaModule } from './core/database/prisma.module.js';
 
 import { AuthModule } from './features/auth/auth.module.js';
@@ -22,6 +19,7 @@ import { UniqueNotDeletedValidator } from './core/validation/validators/unique-n
 import { NotSoftDeletedValidator } from './core/validation/validators/not-soft-deleted.validator.js';
 
 import { RequestContextMiddleware } from './core/http/middleware/request-context.middleware.js';
+import { BranchesModule } from './features/branches/branches.module.js';
 
 @Module({
     imports: [
@@ -31,6 +29,7 @@ import { RequestContextMiddleware } from './core/http/middleware/request-context
         IamModule,
         LocationModule,
         ValidationModule,
+        BranchesModule,
     ],
 
     providers: [

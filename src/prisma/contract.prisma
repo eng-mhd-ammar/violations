@@ -19,8 +19,8 @@ model User {
   userRoles UserRole[]
 
   createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString() @default(now())
-  deletedAt TimestamptzString? @default(null)
+  updatedAt TimestamptzString @default(now())
+  deletedAt TimestamptzString?
 
   @@map("users")
 }
@@ -38,8 +38,8 @@ model Role {
   rolePermissions RolePermission[]
 
   createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString() @default(now())
-  deletedAt TimestamptzString? @default(null)
+  updatedAt TimestamptzString @default(now())
+  deletedAt TimestamptzString?
 
   @@map("roles")
 }
@@ -54,8 +54,8 @@ model Permission {
   rolePermissions RolePermission[]
 
   createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString() @default(now())
-  deletedAt TimestamptzString? @default(null)
+  updatedAt TimestamptzString @default(now())
+  deletedAt TimestamptzString?
 
   @@map("permissions")
 }
@@ -70,10 +70,8 @@ model UserRole {
   role      Role @relation(fields: [roleId], references: [id])
 
   createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString() @default(now())
-  deletedAt TimestamptzString? @default(null)
-
-  @@unique([userId, roleId])
+  updatedAt TimestamptzString @default(now())
+  deletedAt TimestamptzString?
 
   @@map("user_roles")
 }
@@ -88,10 +86,8 @@ model RolePermission {
   permission   Permission @relation(fields: [permissionId], references: [id])
 
   createdAt    TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString() @default(now())
-  deletedAt TimestamptzString? @default(null)
-
-  @@unique([roleId, permissionId])
+  updatedAt TimestamptzString @default(now())
+  deletedAt TimestamptzString?
 
   @@map("role_permissions")
 }
@@ -100,13 +96,16 @@ model Branch {
   id        Int    @id @default(autoincrement())
 
   name      String
-  code      String @unique
+  phone     String
+  code      String
+  addressId    Int
 
   users     User[]
+  address    Address? @relation(fields: [addressId], references: [id])
 
   createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString() @default(now())
-  deletedAt TimestamptzString? @default(null)
+  updatedAt TimestamptzString @default(now())
+  deletedAt TimestamptzString?
 
   @@map("branches")
 }
@@ -119,8 +118,8 @@ model State {
   addresses Address[]
 
   createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString() @default(now())
-  deletedAt TimestamptzString? @default(null)
+  updatedAt TimestamptzString @default(now())
+  deletedAt TimestamptzString?
 
   @@map("states")
 }
@@ -135,8 +134,8 @@ model Address {
   state     State    @relation(fields: [stateId], references: [id])
 
   createdAt TimestamptzString @default(now())
-  updatedAt temporal.updatedAtString() @default(now())
-  deletedAt TimestamptzString? @default(null)
+  updatedAt TimestamptzString @default(now())
+  deletedAt TimestamptzString?
 
   @@map("addresses")
 }

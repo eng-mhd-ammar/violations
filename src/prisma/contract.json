@@ -140,6 +140,13 @@
           },
           "Branch": {
             "fields": {
+              "addressId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
               "code": {
                 "nullable": false,
                 "type": {
@@ -175,6 +182,13 @@
                   "kind": "scalar"
                 }
               },
+              "phone": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "updatedAt": {
                 "nullable": false,
                 "type": {
@@ -184,6 +198,21 @@
               }
             },
             "relations": {
+              "address": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "addressId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Address",
+                  "namespace": "public"
+                }
+              },
               "users": {
                 "cardinality": "1:N",
                 "on": {
@@ -202,6 +231,9 @@
             },
             "storage": {
               "fields": {
+                "addressId": {
+                  "column": "addressId"
+                },
                 "code": {
                   "column": "code"
                 },
@@ -216,6 +248,9 @@
                 },
                 "name": {
                   "column": "name"
+                },
+                "phone": {
+                  "column": "phone"
                 },
                 "updatedAt": {
                   "column": "updatedAt"
@@ -928,6 +963,10 @@
                 },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
                   "nativeType": "timestamptz",
                   "nullable": false
                 }
@@ -969,6 +1008,11 @@
             },
             "branches": {
               "columns": {
+                "addressId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
                 "code": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -1002,26 +1046,55 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "phone": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
                   "nativeType": "timestamptz",
                   "nullable": false
                 }
               },
-              "foreignKeys": [],
-              "indexes": [],
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "addressId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "branches"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "addresses"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "addressId"
+                  ],
+                  "name": "branches_addressId_idx_a5ddb548",
+                  "prefix": "branches_addressId_idx",
+                  "unique": false
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "code"
-                  ]
-                }
-              ]
+              "uniques": []
             },
             "permissions": {
               "columns": {
@@ -1065,6 +1138,10 @@
                 },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
                   "nativeType": "timestamptz",
                   "nullable": false
                 }
@@ -1076,13 +1153,7 @@
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "slug"
-                  ]
-                }
-              ]
+              "uniques": []
             },
             "role_permissions": {
               "columns": {
@@ -1121,6 +1192,10 @@
                 },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
                   "nativeType": "timestamptz",
                   "nullable": false
                 }
@@ -1182,14 +1257,7 @@
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "roleId",
-                    "permissionId"
-                  ]
-                }
-              ]
+              "uniques": []
             },
             "roles": {
               "columns": {
@@ -1242,6 +1310,10 @@
                 },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
                   "nativeType": "timestamptz",
                   "nullable": false
                 }
@@ -1253,13 +1325,7 @@
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "slug"
-                  ]
-                }
-              ]
+              "uniques": []
             },
             "states": {
               "columns": {
@@ -1293,6 +1359,10 @@
                 },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
                   "nativeType": "timestamptz",
                   "nullable": false
                 }
@@ -1304,13 +1374,7 @@
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "name"
-                  ]
-                }
-              ]
+              "uniques": []
             },
             "user_roles": {
               "columns": {
@@ -1344,6 +1408,10 @@
                 },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
@@ -1410,14 +1478,7 @@
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "userId",
-                    "roleId"
-                  ]
-                }
-              ]
+              "uniques": []
             },
             "users": {
               "columns": {
@@ -1480,6 +1541,10 @@
                 },
                 "updatedAt": {
                   "codecId": "pg/timestamptz-string@1",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
@@ -1522,18 +1587,7 @@
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "username"
-                  ]
-                },
-                {
-                  "columns": [
-                    "phone"
-                  ]
-                }
-              ]
+              "uniques": []
             }
           }
         },
@@ -1541,134 +1595,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "59b5f0352a8da8ce4654bce0168552cce70563881b2a48acc4cd69abd1eeac00"
-  },
-  "execution": {
-    "executionHash": "d957738d60aec0decd558d7debc7776077f38fbd5fa080a206c8ab48848a2ead",
-    "mutations": {
-      "defaults": [
-        {
-          "onCreate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "onUpdate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "updatedAt",
-            "namespace": "public",
-            "table": "addresses"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "onUpdate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "updatedAt",
-            "namespace": "public",
-            "table": "branches"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "onUpdate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "updatedAt",
-            "namespace": "public",
-            "table": "permissions"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "onUpdate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "updatedAt",
-            "namespace": "public",
-            "table": "role_permissions"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "onUpdate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "updatedAt",
-            "namespace": "public",
-            "table": "roles"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "onUpdate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "updatedAt",
-            "namespace": "public",
-            "table": "states"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "onUpdate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "updatedAt",
-            "namespace": "public",
-            "table": "user_roles"
-          }
-        },
-        {
-          "onCreate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "onUpdate": {
-            "id": "timestampNow",
-            "kind": "generator"
-          },
-          "ref": {
-            "column": "updatedAt",
-            "namespace": "public",
-            "table": "users"
-          }
-        }
-      ]
-    }
+    "storageHash": "f983fff7073e2a3ee40e6fd393ec37fa310940653c4bce7f69b8bc7ecf5e189c"
   },
   "capabilities": {
     "postgres": {

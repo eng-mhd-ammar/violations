@@ -136,7 +136,7 @@ export class RolesService {
             });
 
         if (activeRoleByName) {
-            throw new ConflictException(`Cannot restore role "${role.slug}" because an active role with the same name already exists.`);
+            throw new ConflictException(`Cannot restore role "${role.name}" because an active role with the same name already exists.`);
         }
 
         // Check active role with the same slug
