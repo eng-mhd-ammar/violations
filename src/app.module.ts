@@ -20,15 +20,19 @@ import { NotSoftDeletedValidator } from './core/validation/validators/not-soft-d
 
 import { RequestContextMiddleware } from './core/http/middleware/request-context.middleware.js';
 import { BranchesModule } from './features/branches/branches.module.js';
+import { PaymentsModule } from './features/payments/payments.module.js';
 
 @Module({
     imports: [
         PrismaModule,
+        
         AuthModule,
         AuthorizationModule,
+        ValidationModule,
+        
         IamModule,
         LocationModule,
-        ValidationModule,
+        PaymentsModule,
         BranchesModule,
     ],
 

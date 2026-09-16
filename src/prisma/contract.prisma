@@ -139,3 +139,18 @@ model Address {
 
   @@map("addresses")
 }
+
+model Currency {
+  id        Int    @id @default(autoincrement())
+
+  name      String
+  code      String
+
+  payments     Payment[]
+
+  createdAt TimestamptzString @default(now())
+  updatedAt TimestamptzString @default(now())
+  deletedAt TimestamptzString?
+
+  @@map("currencies")
+}

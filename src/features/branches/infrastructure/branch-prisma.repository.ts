@@ -20,6 +20,7 @@ export class BranchPrismaRepository extends BaseRepository<Branch, BranchAttribu
         return [
             'id',
             'name',
+            'code',
             'createdAt',
             'updatedAt',
         ];
@@ -28,7 +29,6 @@ export class BranchPrismaRepository extends BaseRepository<Branch, BranchAttribu
     protected allowedFilters(): string[] {
         return [
             'id',
-            'branchId',
             'name',
             'code',
             'phone',
@@ -37,7 +37,7 @@ export class BranchPrismaRepository extends BaseRepository<Branch, BranchAttribu
 
     protected allowedIncludes(): string[] {
         return [
-            'branch',
+            'address',
             'users',
         ];
     }
