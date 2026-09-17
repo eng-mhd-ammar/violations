@@ -3,7 +3,7 @@
 model User {
   id        Int      @id @default(autoincrement())
 
-  username  String 
+  username  String
   phone     String
   password  String
 
@@ -17,6 +17,8 @@ model User {
   branch    Branch? @relation(fields: [branchId], references: [id])
 
   userRoles UserRole[]
+
+  violationsAsOfficer Violation[] @relation("ViolationOfficer")
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
@@ -86,8 +88,8 @@ model RolePermission {
   permission   Permission @relation(fields: [permissionId], references: [id])
 
   createdAt    TimestamptzString @default(now())
-  updatedAt TimestamptzString @default(now())
-  deletedAt TimestamptzString?
+  updatedAt    TimestamptzString @default(now())
+  deletedAt    TimestamptzString?
 
   @@map("role_permissions")
 }
@@ -100,9 +102,12 @@ model Branch {
   code      String
 
   addressId Int
+
   address   Address @relation(fields: [addressId], references: [id])
 
   users     User[]
+
+  violations Violation[] @relation("BranchViolations")
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
@@ -149,7 +154,8 @@ model Currency {
   name      String
   code      String
 
-  payments     Payment[]
+  violations Violation[] @relation("CurrencyViolations")
+  // payments     Payment[]
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
@@ -166,11 +172,11 @@ model ViolationType {
   isActive    Boolean  @default(true)
   defaultFine Decimal
 
-  violations     Violation[]
+  violations Violation[] @relation("ViolationTypeViolations")
 
-  createdAt   TimestamptzString @default(now())
-  updatedAt   TimestamptzString @default(now())
-  deletedAt   TimestamptzString?
+  createdAt TimestamptzString @default(now())
+  updatedAt TimestamptzString @default(now())
+  deletedAt  TimestamptzString?
 
   @@map("violation_types")
 }
@@ -187,14 +193,60 @@ model Citizen {
   phone       String
 
   addressId   Int
+
   address     Address @relation(fields: [addressId], references: [id])
 
-  violations     Violation[]
-  payments     Payment[]
+  violations Violation[] @relation("CitizenViolations")
+  // payments     Payment[]
 
-  createdAt   TimestamptzString @default(now())
-  updatedAt   TimestamptzString @default(now())
-  deletedAt   TimestamptzString?
+  createdAt TimestamptzString @default(now())
+  updatedAt TimestamptzString @default(now())
+  deletedAt TimestamptzString?
 
   @@map("citizens")
+}
+
+model Violation {
+  id               Int      @id @default(autoincrement())
+
+  violationNumber  String
+
+  citizenId        Int
+  violationTypeId  Int
+  branchId         Int
+  officerId        Int
+
+  // Vehicle snapshot
+  plateNumber      String
+  plateCode        String
+  plateCategory    String
+  vehicleType      String
+  make             String
+  model            String
+  color            String
+  manufactureYear  Int
+
+  status           String
+
+  fineAmount       Decimal
+
+  paidCurrencyId   Int?
+
+  violationDate    TimestamptzString
+
+  location         String?
+
+  cancelledAt      TimestamptzString?
+
+  citizen          Citizen       @relation("CitizenViolations", fields: [citizenId], references: [id])
+  violationType    ViolationType @relation("ViolationTypeViolations", fields: [violationTypeId], references: [id])
+  branch           Branch        @relation("BranchViolations", fields: [branchId], references: [id])
+  officer          User          @relation("ViolationOfficer", fields: [officerId], references: [id])
+  paidCurrency     Currency?     @relation("CurrencyViolations", fields: [paidCurrencyId], references: [id])
+
+  createdAt        TimestamptzString @default(now())
+  updatedAt        TimestamptzString @default(now())
+  deletedAt        TimestamptzString?
+
+  @@map("violations")
 }
