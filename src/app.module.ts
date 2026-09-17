@@ -21,8 +21,8 @@ import { NotSoftDeletedValidator } from './core/validation/validators/not-soft-d
 import { RequestContextMiddleware } from './core/http/middleware/request-context.middleware.js';
 import { BranchesModule } from './features/branches/branches.module.js';
 import { PaymentsModule } from './features/payments/payments.module.js';
-import { ViolationModule } from './features/violations/violations.module.js';
 import { CitizensModule } from './features/citizens/citizens.module.js';
+import { ViolationsModule } from './features/violations/violations.module.js';
 
 @Module({
     imports: [
@@ -36,7 +36,7 @@ import { CitizensModule } from './features/citizens/citizens.module.js';
         LocationModule,
         PaymentsModule,
         BranchesModule,
-        ViolationModule,
+        ViolationsModule,
         CitizensModule,
     ],
 
