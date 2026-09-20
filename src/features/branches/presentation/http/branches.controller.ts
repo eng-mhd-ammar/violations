@@ -10,7 +10,6 @@ import { QueryDto } from '../../../../core/database/repositories/query.dto.js';
 
 @Controller('/api/v1/branches')
 export class BranchesController {
-
     constructor(private readonly branchService: BranchesService) {}
 
     /**

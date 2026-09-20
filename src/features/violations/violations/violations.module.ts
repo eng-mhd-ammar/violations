@@ -1,22 +1,22 @@
-import { CITIZEN_REPOSITORY } from './domain/citizen.repository.js';
 import { Module } from '@nestjs/common';
-import { CitizensController } from './presentation/http/citizens.controller.js';
-import { CitizensService } from './application/citizens.service.js';
-import { CitizenPrismaRepository } from './infrastructure/citizen-prisma.repository.js';
+import { ViolationsController } from './../violations/presentation/http/violations.controller.js';
+import { ViolationsService } from './../violations/application/violations.service.js';
+import { VIOLATION_REPOSITORY } from './../violations/domain/violation.repository.js';
+import { ViolationPrismaRepository } from '.././violations/infrastructure/violation-prisma.repository.js';
 
 @Module({
     controllers: [
-        CitizensController,
+        ViolationsController,
     ],
 
     providers: [
-        CitizensService,
+        ViolationsService,
 
         {
-            provide: CITIZEN_REPOSITORY,
-            useClass: CitizenPrismaRepository,
+            provide: VIOLATION_REPOSITORY,
+            useClass: ViolationPrismaRepository,
         },
     ],
 })
     
-export class CitizensModule {}
+export class ViolationsModule {}

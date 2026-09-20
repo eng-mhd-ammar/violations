@@ -29,7 +29,9 @@ export abstract class BaseRepository<TDomain, TAttributes> {
     }
 
     protected defaultSort(): string[] {
-        return [];
+        return [
+            '-createdAt'
+        ];
     }
 
     protected createQuery(options: QueryOptions = {}): BaseQueryBuilder {
