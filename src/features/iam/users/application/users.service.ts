@@ -145,7 +145,7 @@ export class UsersService {
 
 
     async forceDelete(id: number): Promise<User> {
-        await this.findById(id);
+        // await this.findById(id);
 
         return this.userRepository.forceDelete(id);
     }

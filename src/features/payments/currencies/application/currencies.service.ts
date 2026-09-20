@@ -94,7 +94,7 @@ export class CurrenciesService {
     }
 
     async forceDelete(id: number): Promise<Currency> {
-        await this.findById(id);
+        // await this.findById(id);
 
         return this.currencyRepository.forceDelete(id);
     }

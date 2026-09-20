@@ -22,8 +22,7 @@ export class CitizensService {
     }
 
     async findById(id: number, options: QueryOptions = {}): Promise<Citizen> {
-        const citizen =
-            await this.citizenRepository.find(id, options);
+        const citizen = await this.citizenRepository.find(id, options);
 
         if (!citizen) {
             throw new NotFoundException(`Citizen with id ${id} not found`);
@@ -110,7 +109,7 @@ export class CitizensService {
     }
 
     async forceDelete(id: number): Promise<Citizen> {
-        await this.findById(id);
+        // await this.findById(id);
 
         return this.citizenRepository.forceDelete(id);
     }

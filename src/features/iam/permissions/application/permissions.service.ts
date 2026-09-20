@@ -105,7 +105,7 @@ export class PermissionsService {
 
 
     async forceDelete(id: number): Promise<Permission> {
-        await this.findById(id);
+        // await this.findById(id);
 
         return this.permissionRepository.forceDelete(id);
     }

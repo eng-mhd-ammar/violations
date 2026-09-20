@@ -58,7 +58,7 @@ export class ObjectionsService {
     }
 
     async forceDelete(id: number): Promise<Objection> {
-        await this.findById(id);
+        // await this.findById(id);
 
         return this.objectionRepository.forceDelete(id);
     }

@@ -75,7 +75,7 @@ export class StatesService {
     }
 
     async forceDelete(id: number): Promise<State> {
-        await this.findById(id);
+        // await this.findById(id);
 
         return this.stateRepository.forceDelete(id);
     }

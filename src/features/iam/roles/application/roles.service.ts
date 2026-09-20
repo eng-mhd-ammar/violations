@@ -154,7 +154,7 @@ export class RolesService {
     }
 
     async forceDelete(id: number): Promise<Role> {
-        await this.findById(id);
+        // await this.findById(id);
 
         return this.roleRepository.forceDelete(id);
     }

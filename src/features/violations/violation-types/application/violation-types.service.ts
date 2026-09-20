@@ -95,7 +95,7 @@ export class ViolationTypesService {
     }
 
     async forceDelete(id: number): Promise<ViolationType> {
-        await this.findById(id);
+        // await this.findById(id);
 
         return this.violationTypesRepository.forceDelete(id);
     }

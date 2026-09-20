@@ -78,7 +78,7 @@ export class AddressesService {
     }
 
     async forceDelete(id: number): Promise<Address> {
-        await this.findById(id);
+        // await this.findById(id);
 
         return this.addressRepository.forceDelete(id);
     }

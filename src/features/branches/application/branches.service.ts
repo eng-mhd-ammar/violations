@@ -117,7 +117,7 @@ export class BranchesService {
     }
 
     async forceDelete(id: number): Promise<Branch> {
-        await this.findById(id);
+        // await this.findById(id);
 
         return this.branchRepository.forceDelete(id);
     }
