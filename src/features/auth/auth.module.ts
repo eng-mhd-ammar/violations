@@ -1,36 +1,12 @@
 import { Module } from '@nestjs/common';
-
-import {
-  JwtModule,
-} from '@nestjs/jwt';
-
-import type {
-  SignOptions,
-} from 'jsonwebtoken';
-
-import {
-  PassportModule,
-} from '@nestjs/passport';
-
-import {
-  AuthService,
-} from './application/auth.service.js';
-
-import {
-  AUTH_REPOSITORY,
-} from './domain/auth.repository.js';
-
-import {
-  AuthPrismaRepository,
-} from './infrastructure/auth-prisma.repository.js';
-
-import {
-  AuthController,
-} from './presentation/http/auth.controller.js';
-
-import {
-  JwtStrategy,
-} from './presentation/http/strategies/jwt.strategy.js';
+import { JwtModule } from '@nestjs/jwt';
+import type { SignOptions } from 'jsonwebtoken';
+import { PassportModule } from '@nestjs/passport';
+import { AuthService } from './application/auth.service.js';
+import { AUTH_REPOSITORY } from './domain/auth.repository.js';
+import { AuthPrismaRepository } from './infrastructure/auth-prisma.repository.js';
+import { AuthController } from './presentation/http/auth.controller.js';
+import { JwtStrategy } from './presentation/http/strategies/jwt.strategy.js';
 
 @Module({
   imports: [
@@ -41,7 +17,7 @@ import {
 
       signOptions: {
         expiresIn:
-          (process.env.JWT_EXPIRES_IN ??
+          (process.env.JWT_ACCESS_TOKEN_EXPIRES_IN ??
             '1h') as SignOptions['expiresIn'],
       },
     }),
@@ -69,4 +45,5 @@ import {
     JwtModule,
   ],
 })
+  
 export class AuthModule {}

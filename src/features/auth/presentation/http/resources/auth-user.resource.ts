@@ -8,7 +8,7 @@ export class AuthUserResource {
   first_name: string;
   last_name: string;
   branch_id: number | null;
-  roles: AuthRoleResource[];
+  // roles: AuthRoleResource[];
 
   constructor(user: AuthUser) {
     this.id = user.id;
@@ -18,8 +18,8 @@ export class AuthUserResource {
     this.last_name = user.lastName;
     this.branch_id = user.branchId;
 
-    this.roles = user.roles.map(
-      (role) => new AuthRoleResource(role),
-    );
+    // this.roles = user.roles.map(
+    //   (role) => new AuthRoleResource(role),
+    // );
   }
 }

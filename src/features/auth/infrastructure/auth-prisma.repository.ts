@@ -1,25 +1,17 @@
 import { Injectable } from '@nestjs/common';
-
 import { or } from '@prisma/orm-postgres/orm-client';
-
 import { PrismaService } from '../../../core/database/prisma.service.js';
-
-import {
-  AuthRepository,
-  AuthUser,
-} from '../domain/auth.repository.js';
+import { AuthRepository, AuthUser } from '../domain/auth.repository.js';
 
 @Injectable()
-export class AuthPrismaRepository
-  implements AuthRepository
+export class AuthPrismaRepository implements AuthRepository
 {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findUserForLogin(identifier: string): Promise<AuthUser | null> {
-    console.log('LOGIN IDENTIFIER:', identifier);
-    const user = await this.prisma.db.orm.public.User
+
+    const user =
+      await this.prisma.db.orm.public.User
         .where((user) =>
           or(
             user.username.eq(identifier),
@@ -43,11 +35,45 @@ export class AuthPrismaRepository
         )
         .first();
 
-      console.dir(user, { depth: null });
+    if (!user) {
+      return null;
+    }
+
+    return this.toAuthUser(user);
+  }
+
+  async findUserById(id: number): Promise<AuthUser | null> {
+
+    const user =
+      await this.prisma.db.orm.public.User
+        .where({
+          id,
+        })
+        .include(
+          'userRoles',
+          (userRoles) =>
+            userRoles.include(
+              'role',
+              (role) =>
+                role.include(
+                  'rolePermissions',
+                  (rolePermissions) =>
+                    rolePermissions.include(
+                      'permission',
+                    ),
+                ),
+            ),
+        )
+        .first();
 
     if (!user) {
       return null;
     }
+
+    return this.toAuthUser(user);
+  }
+
+  private toAuthUser(user: any): AuthUser {
 
     return {
       id: user.id,
@@ -58,35 +84,32 @@ export class AuthPrismaRepository
       lastName: user.lastName,
       isActive: user.isActive,
       branchId: user.branchId,
-
       roles: user.userRoles
         .filter(
-          (userRole) =>
+          (userRole: any) =>
             userRole.role.isActive === true,
         )
-        .map((userRole) => ({
-          id: userRole.role.id,
-          name: userRole.role.name,
-          slug: userRole.role.slug,
-          createdAt: userRole.role.createdAt,
-
-          permissions:
-            userRole.role.rolePermissions.map(
-              (rolePermission) => ({
-                id:
-                  rolePermission.permission.id,
-
-                name:
-                  rolePermission.permission.name,
-
-                slug:
-                  rolePermission.permission.slug,
-
-                createdAt:
-                  rolePermission.permission.createdAt,
-              }),
-            ),
-        })),
+        .map(
+          (userRole: any) => ({
+            id: userRole.role.id,
+            name: userRole.role.name,
+            slug: userRole.role.slug,
+            createdAt: userRole.role.createdAt,
+            permissions:
+              userRole.role.rolePermissions.map(
+                (rolePermission: any) => ({
+                  id:
+                    rolePermission.permission.id,
+                  name:
+                    rolePermission.permission.name,
+                  slug:
+                    rolePermission.permission.slug,
+                  createdAt:
+                    rolePermission.permission.createdAt,
+                }),
+              ),
+          }),
+        ),
     };
   }
 }
