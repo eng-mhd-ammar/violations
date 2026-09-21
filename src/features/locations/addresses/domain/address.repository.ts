@@ -9,17 +9,17 @@ export abstract class AddressRepository {
 
     abstract all(options?: QueryOptions): Promise<any>;
 
-    abstract find(id: number, options?: QueryOptions): Promise<Address | null>;
+    abstract find(id: number | undefined, options?: QueryOptions): Promise<Address | null>;
 
     abstract findOneBy(conditions: Record<string, unknown>, options?: QueryOptions): Promise<Address | null>;
 
     abstract first(options?: QueryOptions): Promise<Address | null>;
 
-    abstract update(id: number, data: Partial<AddressAttributes>): Promise<Address>;
+    abstract update(id: number | undefined, data: Partial<AddressAttributes>): Promise<Address>;
 
-    abstract delete(id: number): Promise<Address>;
+    abstract delete(id: number | undefined): Promise<Address>;
 
-    abstract restore(id: number): Promise<Address>;
+    abstract restore(id: number | undefined): Promise<Address>;
 
-    abstract forceDelete(id: number): Promise<Address>;
+    abstract forceDelete(id: number | undefined): Promise<Address>;
 }

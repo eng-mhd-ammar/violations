@@ -38,7 +38,7 @@ export class BranchesService {
         if (!branch) {
             throw new NotFoundException(`Branch with id ${id} not found`);
         }
-
+    
         return branch;
     }
 
@@ -57,8 +57,21 @@ export class BranchesService {
             branch.changeCode(dto.code);
         }
 
-        if (dto.addressId !== undefined) {
-            branch.changeAddressId(dto.addressId);
+        if (dto.address !== undefined && branch.addressId != null) {
+            await this.addressRepository.update(
+                branch.addressId,
+                {
+                    ...(dto.address.stateId !== undefined && {
+                        stateId: dto.address.stateId,
+                    }),
+                    ...(dto.address.city !== undefined && {
+                        city: dto.address.city,
+                    }),
+                    ...(dto.address.street !== undefined && {
+                        street: dto.address.street,
+                    }),
+                },
+            );
         }
 
         const data: Partial<BranchAttributes> = {
@@ -72,9 +85,13 @@ export class BranchesService {
     }
 
     async delete(id: number): Promise<Branch> {
-        await this.findById(id);
+        const branch = await this.findById(id);
 
-        return this.branchRepository.delete(id);
+        await this.branchRepository.delete(id);
+
+        await this.addressRepository.delete(branch.addressId);
+
+        return branch;
     }
 
     async restore(id: number): Promise<Branch> {
@@ -87,8 +104,7 @@ export class BranchesService {
         if (!branch.deletedAt) {
             return branch;
         }
-        
-        // Check active branch with the same name
+
         const activeBranchByName =
             await this.branchRepository.findOneBy({
                 name: branch.name,
@@ -98,8 +114,7 @@ export class BranchesService {
         if (activeBranchByName) {
             throw new ConflictException(`Cannot restore branch "${branch.name}" because an active branch with the same name already exists.`);
         }
-        
-        // Check active branch with the same name
+
         const activeBranchByPhone =
             await this.branchRepository.findOneBy({
                 phone: branch.phone,
@@ -109,11 +124,10 @@ export class BranchesService {
         if (activeBranchByPhone) {
             throw new ConflictException(`Cannot restore branch "${branch.phone}" because an active branch with the same phone already exists.`);
         }
-        
-        // Check active branch with the same name
+
         const activeBranchByCode =
             await this.branchRepository.findOneBy({
-                name: branch.name,
+                code: branch.code,
                 deletedAt: null,
             });
 
@@ -121,12 +135,30 @@ export class BranchesService {
             throw new ConflictException(`Cannot restore branch "${branch.code}" because an active branch with the same code already exists.`);
         }
 
+        const address = await this.addressRepository.find(branch.addressId, { trashed: 'only' });
+
+        if (!address) {
+            throw new NotFoundException(`Address with id ${branch.addressId} not found`);
+        }
+
+        await this.addressRepository.restore(branch.addressId);
+
         return this.branchRepository.restore(id);
     }
 
     async forceDelete(id: number): Promise<Branch> {
-        // await this.findById(id);
+        const branch = await this.branchRepository.find(id, { trashed: 'with' });
 
-        return this.branchRepository.forceDelete(id);
+        if (!branch) {
+            throw new NotFoundException(`Branch with id ${id} not found`);
+        }
+
+        const deletedBranch = await this.branchRepository.forceDelete(id);
+
+        await this.addressRepository.forceDelete(
+            branch.addressId,
+        );
+
+        return deletedBranch;
     }
 }
