@@ -23,9 +23,11 @@ model User {
   objectionsAsApplicant Objection[] @relation("ObjectionApplicant")
   objectionsAsReviewer  Objection[] @relation("ObjectionReviewer")
 
+  paymentsAsAccountant Payment[] @relation("PaymentAccountant")
+
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt TimestamptzString?
+  deletedAt Timestamptz?
 
   @@index([branchId])
   @@index([isActive])
@@ -47,7 +49,7 @@ model Role {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt       TimestamptzString?
+  deletedAt       Timestamptz?
 
   @@unique([slug])
   @@index([isActive])
@@ -66,7 +68,7 @@ model Permission {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt       TimestamptzString?
+  deletedAt       Timestamptz?
 
   @@unique([slug])
 
@@ -124,16 +126,17 @@ model Branch {
 
   address   Address @relation(fields: [addressId], references: [id])
 
-  users     User[]
-
+  users      User[]
   violations Violation[] @relation("BranchViolations")
+  payments   Payment[]
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt TimestamptzString?
+  deletedAt Timestamptz?
 
   @@index([addressId])
   @@index([code])
+
   @@map("branches")
 }
 
@@ -146,7 +149,7 @@ model State {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt TimestamptzString?
+  deletedAt Timestamptz?
 
   @@map("states")
 }
@@ -164,9 +167,10 @@ model Address {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt TimestamptzString?
+  deletedAt Timestamptz?
 
   @@index([stateId])
+
   @@map("addresses")
 }
 
@@ -177,10 +181,11 @@ model Currency {
   code      String
 
   violations Violation[] @relation("CurrencyViolations")
+  payments   Payment[]
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt TimestamptzString?
+  deletedAt Timestamptz?
 
   @@unique([code])
 
@@ -199,9 +204,10 @@ model ViolationType {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt  TimestamptzString?
+  deletedAt  Timestamptz?
 
   @@index([isActive])
+
   @@map("violation_types")
 }
 
@@ -224,7 +230,7 @@ model Citizen {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt TimestamptzString?
+  deletedAt Timestamptz?
 
   @@index([addressId])
   @@index([phone])
@@ -264,17 +270,43 @@ model Violation {
 
   cancelledAt      TimestamptzString?
 
-  citizen          Citizen       @relation("CitizenViolations", fields: [citizenId], references: [id])
-  violationType    ViolationType @relation("ViolationTypeViolations", fields: [violationTypeId], references: [id])
-  branch           Branch        @relation("BranchViolations", fields: [branchId], references: [id])
-  officer          User          @relation("ViolationOfficer", fields: [officerId], references: [id])
-  paidCurrency     Currency?     @relation("CurrencyViolations", fields: [paidCurrencyId], references: [id])
+  citizen          Citizen       @relation(
+    "CitizenViolations",
+    fields: [citizenId],
+    references: [id]
+  )
 
-  objections      Objection[]    @relation("ViolationObjections")
+  violationType    ViolationType @relation(
+    "ViolationTypeViolations",
+    fields: [violationTypeId],
+    references: [id]
+  )
+
+  branch           Branch        @relation(
+    "BranchViolations",
+    fields: [branchId],
+    references: [id]
+  )
+
+  officer          User          @relation(
+    "ViolationOfficer",
+    fields: [officerId],
+    references: [id]
+  )
+
+  paidCurrency     Currency?     @relation(
+    "CurrencyViolations",
+    fields: [paidCurrencyId],
+    references: [id]
+  )
+
+  objections      Objection[] @relation("ViolationObjections")
+  payments        Payment[]
+  attachments     Attachment[]
 
   createdAt        TimestamptzString @default(now())
   updatedAt        TimestamptzString @default(now())
-  deletedAt        TimestamptzString?
+  deletedAt        Timestamptz?
 
   @@index([citizenId])
   @@index([violationTypeId])
@@ -323,9 +355,11 @@ model Objection {
     references: [id]
   )
 
+  attachments Attachment[]
+
   createdAt    TimestamptzString @default(now())
   updatedAt    TimestamptzString @default(now())
-  deletedAt    TimestamptzString?
+  deletedAt    Timestamptz?
 
   @@index([violationId])
   @@index([applicantId])
@@ -333,4 +367,89 @@ model Objection {
   @@index([status])
 
   @@map("objections")
+}
+
+model Payment {
+  id             Int      @id @default(autoincrement())
+
+  receiptNumber  String
+
+  accountantId   Int
+  branchId       Int
+  violationId    Int
+  currencyId     Int
+
+  amount         Decimal
+
+  status         String
+
+  paidAt         TimestamptzString
+
+  notes          String?
+
+  accountant     User @relation(
+    "PaymentAccountant",
+    fields: [accountantId],
+    references: [id]
+  )
+
+  branch         Branch @relation(
+    fields: [branchId],
+    references: [id]
+  )
+
+  violation      Violation @relation(
+    fields: [violationId],
+    references: [id]
+  )
+
+  currency       Currency @relation(
+    fields: [currencyId],
+    references: [id]
+  )
+
+  createdAt      TimestamptzString @default(now())
+  updatedAt      TimestamptzString @default(now())
+  deletedAt      Timestamptz?
+
+  @@index([accountantId])
+  @@index([branchId])
+  @@index([violationId])
+  @@index([currencyId])
+  @@index([status])
+  @@index([paidAt])
+
+  @@map("payments")
+}
+
+model Attachment {
+  id           Int      @id @default(autoincrement())
+
+  fileName     String
+  originalName String
+  mimeType     String
+  size         Int
+  path         String
+
+  objectionId  Int?
+  violationId  Int?
+
+  objection    Objection? @relation(
+    fields: [objectionId],
+    references: [id]
+  )
+
+  violation    Violation? @relation(
+    fields: [violationId],
+    references: [id]
+  )
+
+  createdAt    TimestamptzString @default(now())
+  updatedAt    TimestamptzString @default(now())
+  deletedAt    Timestamptz?
+
+  @@index([objectionId])
+  @@index([violationId])
+
+  @@map("attachments")
 }
