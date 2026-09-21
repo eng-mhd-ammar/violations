@@ -10,7 +10,6 @@ export interface CitizenResourceData {
     motherName: string;
     dateOfBirth: string;
     phone: string;
-    address?: ReturnType<typeof AddressResource.make>;
 }
 
 export class CitizenResource {
@@ -30,13 +29,6 @@ export class CitizenResource {
             dateOfBirth: citizen.dateOfBirth,
             phone: citizen.phone,
         };
-
-        if (includes.includes('address') && citizen.address) {
-            resource.address = AddressResource.make(
-                citizen.address,
-                includes,
-            );
-        }
 
         return resource;
     }

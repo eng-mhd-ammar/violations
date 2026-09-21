@@ -22,7 +22,6 @@ export class CitizenPrismaRepository extends BaseRepository<Citizen, CitizenAttr
             'lastName',
             'fatherName',
             'motherName',
-            'addressId',
             'dateOfBirth',
             'createdAt',
             'updatedAt',
@@ -37,7 +36,6 @@ export class CitizenPrismaRepository extends BaseRepository<Citizen, CitizenAttr
             'lastName',
             'fatherName',
             'motherName',
-            'addressId',
             'dateOfBirth',
             'createdAt',
         ];
@@ -45,7 +43,7 @@ export class CitizenPrismaRepository extends BaseRepository<Citizen, CitizenAttr
 
     protected allowedIncludes(): string[] {
         return [
-            'address',
+            // 'address',
         ];
     }
 
@@ -201,10 +199,6 @@ export class CitizenPrismaRepository extends BaseRepository<Citizen, CitizenAttr
             
             ...(data.motherName !== undefined && {
                 motherName: data.motherName,
-            }),
-            
-            ...(data.addressId !== undefined && {
-                addressId: data.addressId,
             }),
             
             ...(data.dateOfBirth !== undefined && {

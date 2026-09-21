@@ -4,11 +4,6 @@ import { route } from '../../../../../core/http/helpers/route.helper.js';
 import { Exists } from '../../../../../core/validation/decorators/exists.decorator.js';
 
 export class UpdateCitizenDto {
-    @IsInt()
-    @IsOptional()
-    @Exists('Address', 'id')
-    addressId: number;
-
     @UniqueNotDeleted('Citizen', 'nationalId', route('id'))
     @IsOptional()
     @IsString()

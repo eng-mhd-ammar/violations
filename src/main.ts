@@ -15,7 +15,8 @@ async function bootstrap() {
     );
 
     app.enableCors({
-        origin: '*',
+        origin: 'http://localhost:5173',
+        // origin: '*',
     });
 
     app.set('query parser', 'extended');

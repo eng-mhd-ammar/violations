@@ -54,10 +54,6 @@ export class CitizensService {
             citizen.changeMotherName(dto.motherName);
         }
 
-        if (dto.addressId !== undefined) {
-            citizen.changeAddressId(dto.addressId);
-        }
-
         if (dto.dateOfBirth !== undefined) {
             citizen.changeDateOfBirth(dto.dateOfBirth);
         }
@@ -72,7 +68,6 @@ export class CitizensService {
             lastName: citizen.lastName,
             fatherName: citizen.fatherName,
             motherName: citizen.motherName,
-            addressId: citizen.addressId,
             dateOfBirth: citizen.dateOfBirth,
             phone: citizen.phone,
         };

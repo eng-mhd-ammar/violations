@@ -10,13 +10,11 @@ export type CitizenAttributes = {
     motherName: string;
     dateOfBirth: string;
     phone: string;
-    addressId: number;
 
     createdAt?: string;
     updatedAt?: string;
     deletedAt?: string | null;
 
-    address?: Address;
     // violation: Violation[];
     // payments: Payment[];
 };
@@ -59,10 +57,6 @@ export class Citizen {
         return this.attributes.motherName;
     }
 
-    get addressId(): number {
-        return this.attributes.addressId;
-    }
-
     get dateOfBirth(): string {
         return this.attributes.dateOfBirth;
     }
@@ -87,9 +81,9 @@ export class Citizen {
     // Relations
     // ============================================================
 
-    get address(): Address | undefined {
-        return this.attributes.address;
-    }
+    // get address(): Address | undefined {
+    //     return this.attributes.address;
+    // }
 
     // get violations(): Violation[] {
     //     return this.attributes.violations?? [];

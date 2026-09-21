@@ -3,11 +3,6 @@ import { UniqueNotDeleted } from '../../../../../core/validation/decorators/uniq
 import { Exists } from '../../../../../core/validation/decorators/exists.decorator.js';
 
 export class CreateCitizenDto {
-    @IsInt()
-    @IsNotEmpty()
-    @Exists('Address', 'id')
-    addressId: number;
-
     @UniqueNotDeleted('Citizen', 'nationalId')
     @IsString()
     @IsNotEmpty()

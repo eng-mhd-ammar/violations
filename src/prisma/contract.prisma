@@ -158,7 +158,6 @@ model Address {
 
   state     State     @relation(fields: [stateId], references: [id])
   branches  Branch[]
-  citizens  Citizen[]
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
@@ -216,10 +215,6 @@ model Citizen {
   motherName  String
   dateOfBirth String
   phone       String
-
-  addressId   Int
-
-  address     Address @relation(fields: [addressId], references: [id])
 
   violations Violation[] @relation("CitizenViolations")
 
