@@ -222,7 +222,6 @@ model Citizen {
   updatedAt TimestamptzString @default(now())
   deletedAt TimestamptzString?
 
-  @@index([addressId])
   @@index([phone])
 
   @@map("citizens")

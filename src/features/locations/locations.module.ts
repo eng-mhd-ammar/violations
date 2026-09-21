@@ -8,6 +8,10 @@ import { AddressesModule } from './addresses/addresses.module.js';
         StatesModule,
         AddressesModule,
     ],
+
+    exports: [
+        AddressesModule,
+    ]
 })
     
 export class LocationModule {}

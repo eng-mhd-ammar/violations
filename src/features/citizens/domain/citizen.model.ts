@@ -117,9 +117,9 @@ export class Citizen {
         this.attributes.motherName = motherName;
     }
     
-    changeAddressId(addressId: number): void {
-        this.attributes.addressId = addressId;
-    }
+    // changeAddressId(addressId: number): void {
+    //     this.attributes.addressId = addressId;
+    // }
     
     changeDateOfBirth(dateOfBirth: string): void {
         this.attributes.dateOfBirth = dateOfBirth;

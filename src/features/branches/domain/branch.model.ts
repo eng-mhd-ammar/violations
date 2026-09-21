@@ -3,11 +3,11 @@ import { Address } from "../../locations/addresses/domain/address.model";
 
 export type BranchAttributes = {
     id?: number;
-    
+
     name: string;
     phone: string;
     code: string;
-    addressId: number
+    addressId?: number;
 
     createdAt?: string;
     updatedAt?: string;
@@ -47,7 +47,7 @@ export class Branch {
         return this.attributes.code;
     }
 
-    get addressId(): number {
+    get addressId(): number | undefined {
         return this.attributes.addressId;
     }
 

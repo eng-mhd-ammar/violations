@@ -1,12 +1,14 @@
-import { IsInt, IsNotEmpty, IsString, Length, Matches } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString, Length, Matches, ValidateNested } from 'class-validator';
 import { Exists } from '../../../../../core/validation/decorators/exists.decorator.js';
 import { UniqueNotDeleted } from '../../../../../core/validation/decorators/unique-not-deleted.decorator.js';
+import { Type } from 'class-transformer';
+import { CreateAddressDto } from '../../../../locations/addresses/presentation/http/dto/create-address.dto.js';
 
 export class CreateBranchDto {
-    @IsInt()
-    @IsNotEmpty()
-    @Exists('Address', 'id')
-    addressId: number;
+    // @IsInt()
+    // @IsOptional()
+    // @Exists('Address', 'id')
+    // addressId: number;
 
     @UniqueNotDeleted('Branch', 'name')
     @IsString()
@@ -27,4 +29,9 @@ export class CreateBranchDto {
         message: 'phone must be a valid phone number',
     })
     phone: string;
+
+    @ValidateNested()
+    @Type(() => CreateAddressDto)
+    @IsNotEmpty()
+    address: CreateAddressDto;
 }

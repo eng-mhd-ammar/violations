@@ -17,6 +17,10 @@ import { AddressPrismaRepository } from './infrastructure/address-prisma.reposit
             useClass: AddressPrismaRepository,
         },
     ],
+    
+    exports: [
+        ADDRESS_REPOSITORY,
+    ],
 })
 
 export class AddressesModule {}

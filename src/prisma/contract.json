@@ -137,21 +137,6 @@
                   "namespace": "public"
                 }
               },
-              "citizens": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "addressId"
-                  ]
-                },
-                "to": {
-                  "model": "Citizen",
-                  "namespace": "public"
-                }
-              },
               "state": {
                 "cardinality": "N:1",
                 "on": {
@@ -502,13 +487,6 @@
           },
           "Citizen": {
             "fields": {
-              "addressId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/int4@1",
-                  "kind": "scalar"
-                }
-              },
               "createdAt": {
                 "nullable": false,
                 "type": {
@@ -588,21 +566,6 @@
               }
             },
             "relations": {
-              "address": {
-                "cardinality": "N:1",
-                "on": {
-                  "localFields": [
-                    "addressId"
-                  ],
-                  "targetFields": [
-                    "id"
-                  ]
-                },
-                "to": {
-                  "model": "Address",
-                  "namespace": "public"
-                }
-              },
               "violations": {
                 "cardinality": "1:N",
                 "on": {
@@ -621,9 +584,6 @@
             },
             "storage": {
               "fields": {
-                "addressId": {
-                  "column": "addressId"
-                },
                 "createdAt": {
                   "column": "createdAt"
                 },
@@ -2662,11 +2622,6 @@
             },
             "citizens": {
               "columns": {
-                "addressId": {
-                  "codecId": "pg/int4@1",
-                  "nativeType": "int4",
-                  "nullable": false
-                },
                 "createdAt": {
                   "codecId": "pg/timestamptz-string@1",
                   "default": {
@@ -2735,33 +2690,8 @@
                   "nullable": false
                 }
               },
-              "foreignKeys": [
-                {
-                  "source": {
-                    "columns": [
-                      "addressId"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "citizens"
-                  },
-                  "target": {
-                    "columns": [
-                      "id"
-                    ],
-                    "namespaceId": "public",
-                    "tableName": "addresses"
-                  }
-                }
-              ],
+              "foreignKeys": [],
               "indexes": [
-                {
-                  "columns": [
-                    "addressId"
-                  ],
-                  "name": "citizens_addressId_idx_a5ddb548",
-                  "prefix": "citizens_addressId_idx",
-                  "unique": false
-                },
                 {
                   "columns": [
                     "phone"
@@ -4088,7 +4018,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "fb0583981156d28b66ee9ebc6c80ef3dc3a4551660aeaf4026a1567fa7f911ce"
+    "storageHash": "2026eb23f890049183b701570b59d4e15562bed91c9e556778d70ad38d9cf7bb"
   },
   "capabilities": {
     "postgres": {

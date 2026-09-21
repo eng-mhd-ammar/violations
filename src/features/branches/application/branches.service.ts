@@ -4,20 +4,28 @@ import { BRANCH_REPOSITORY, BranchRepository } from '../domain/branch.repository
 import { Branch, BranchAttributes } from '../domain/branch.model.js';
 import { UpdateBranchDto } from '../presentation/http/dto/update-branch.dto.js';
 import { CreateBranchDto } from '../presentation/http/dto/create-branch.dto.js';
+import { ADDRESS_REPOSITORY, AddressRepository } from '../../locations/addresses/domain/address.repository.js';
+import { Address } from '../../locations/addresses/domain/address.model.js';
 
 @Injectable()
 export class BranchesService {
-    constructor(@Inject(BRANCH_REPOSITORY) private readonly branchRepository: BranchRepository) {}
+    constructor(@Inject(BRANCH_REPOSITORY) private readonly branchRepository: BranchRepository, @Inject(ADDRESS_REPOSITORY) private readonly addressRepository: AddressRepository) {}
 
     async create(dto: CreateBranchDto): Promise<Branch> {
+        const address = await this.addressRepository.create(new Address({ stateId: dto.address.stateId, city: dto.address.city, street: dto.address.street }));
+        console.log("Address:" + address.id);
         const branch = new Branch({
             name: dto.name,
             phone: dto.phone,
             code: dto.code,
-            addressId: dto.addressId,
+            addressId: address.id, 
         });
 
-        return this.branchRepository.create(branch);
+        const createdBranch = this.branchRepository.create(branch);
+
+        console.log("Branch: " + createdBranch);
+
+        return createdBranch;
     }
 
     async findAll(options: QueryOptions = {}) {

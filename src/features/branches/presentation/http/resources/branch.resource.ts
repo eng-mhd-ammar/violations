@@ -7,7 +7,7 @@ export interface BranchResourceData {
     name: string;
     phone: string;
     code: string;
-    addressId: number;
+    addressId: number | undefined;
     createdAt: string | undefined;
     updatedAt: string | undefined;
     deletedAt: string | null;
