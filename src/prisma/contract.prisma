@@ -27,7 +27,7 @@ model User {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt Timestamptz?
+  deletedAt TimestamptzString?
 
   @@index([branchId])
   @@index([isActive])
@@ -49,9 +49,8 @@ model Role {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt       Timestamptz?
+  deletedAt       TimestamptzString?
 
-  @@unique([slug])
   @@index([isActive])
 
   @@map("roles")
@@ -67,10 +66,8 @@ model Permission {
   rolePermissions RolePermission[]
 
   createdAt TimestamptzString @default(now())
-  updatedAt TimestamptzString @default(now())
-  deletedAt       Timestamptz?
-
-  @@unique([slug])
+  updatedAt       TimestamptzString @default(now())
+  deletedAt       TimestamptzString?
 
   @@map("permissions")
 }
@@ -90,7 +87,6 @@ model UserRole {
 
   @@index([userId])
   @@index([roleId])
-  @@unique([userId, roleId])
 
   @@map("user_roles")
 }
@@ -110,7 +106,6 @@ model RolePermission {
 
   @@index([roleId])
   @@index([permissionId])
-  @@unique([roleId, permissionId])
 
   @@map("role_permissions")
 }
@@ -132,7 +127,7 @@ model Branch {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt Timestamptz?
+  deletedAt TimestamptzString?
 
   @@index([addressId])
   @@index([code])
@@ -149,7 +144,7 @@ model State {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt Timestamptz?
+  deletedAt TimestamptzString?
 
   @@map("states")
 }
@@ -167,7 +162,7 @@ model Address {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt Timestamptz?
+  deletedAt TimestamptzString?
 
   @@index([stateId])
 
@@ -185,9 +180,9 @@ model Currency {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt Timestamptz?
+  deletedAt TimestamptzString?
 
-  @@unique([code])
+  @@index([code])
 
   @@map("currencies")
 }
@@ -204,7 +199,7 @@ model ViolationType {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt  Timestamptz?
+  deletedAt  TimestamptzString?
 
   @@index([isActive])
 
@@ -230,7 +225,7 @@ model Citizen {
 
   createdAt TimestamptzString @default(now())
   updatedAt TimestamptzString @default(now())
-  deletedAt Timestamptz?
+  deletedAt TimestamptzString?
 
   @@index([addressId])
   @@index([phone])
@@ -306,7 +301,7 @@ model Violation {
 
   createdAt        TimestamptzString @default(now())
   updatedAt        TimestamptzString @default(now())
-  deletedAt        Timestamptz?
+  deletedAt        TimestamptzString?
 
   @@index([citizenId])
   @@index([violationTypeId])
@@ -359,7 +354,7 @@ model Objection {
 
   createdAt    TimestamptzString @default(now())
   updatedAt    TimestamptzString @default(now())
-  deletedAt    Timestamptz?
+  deletedAt    TimestamptzString?
 
   @@index([violationId])
   @@index([applicantId])
@@ -410,7 +405,7 @@ model Payment {
 
   createdAt      TimestamptzString @default(now())
   updatedAt      TimestamptzString @default(now())
-  deletedAt      Timestamptz?
+  deletedAt      TimestamptzString?
 
   @@index([accountantId])
   @@index([branchId])
@@ -446,7 +441,7 @@ model Attachment {
 
   createdAt    TimestamptzString @default(now())
   updatedAt    TimestamptzString @default(now())
-  deletedAt    Timestamptz?
+  deletedAt    TimestamptzString?
 
   @@index([objectionId])
   @@index([violationId])

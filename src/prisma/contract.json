@@ -88,7 +88,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -208,7 +208,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -374,7 +374,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -526,7 +526,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -681,7 +681,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -783,7 +783,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -996,7 +996,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -1170,7 +1170,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -1267,7 +1267,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -1491,7 +1491,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -1575,7 +1575,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -1910,7 +1910,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -2251,7 +2251,7 @@
               "deletedAt": {
                 "nullable": true,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -2365,7 +2365,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -2445,7 +2445,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -2584,7 +2584,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -2682,7 +2682,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -2795,7 +2795,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -2824,19 +2824,22 @@
                 }
               },
               "foreignKeys": [],
-              "indexes": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "code"
+                  ],
+                  "name": "currencies_code_idx_8e43b86b",
+                  "prefix": "currencies_code_idx",
+                  "unique": false
+                }
+              ],
               "primaryKey": {
                 "columns": [
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "code"
-                  ]
-                }
-              ]
+              "uniques": []
             },
             "objections": {
               "columns": {
@@ -2855,7 +2858,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -3036,7 +3039,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -3219,7 +3222,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -3264,13 +3267,7 @@
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "slug"
-                  ]
-                }
-              ]
+              "uniques": []
             },
             "role_permissions": {
               "columns": {
@@ -3374,14 +3371,7 @@
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "roleId",
-                    "permissionId"
-                  ]
-                }
-              ]
+              "uniques": []
             },
             "roles": {
               "columns": {
@@ -3395,7 +3385,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -3458,13 +3448,7 @@
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "slug"
-                  ]
-                }
-              ]
+              "uniques": []
             },
             "states": {
               "columns": {
@@ -3478,7 +3462,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -3617,14 +3601,7 @@
                   "id"
                 ]
               },
-              "uniques": [
-                {
-                  "columns": [
-                    "userId",
-                    "roleId"
-                  ]
-                }
-              ]
+              "uniques": []
             },
             "users": {
               "columns": {
@@ -3643,7 +3620,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -3760,7 +3737,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -3852,7 +3829,7 @@
                   "nullable": false
                 },
                 "deletedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": true
                 },
@@ -4111,7 +4088,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "c0b232c072e516cf0405d946af0d9ba063973aad7e0bd355d1eb371262a67ac4"
+    "storageHash": "fb0583981156d28b66ee9ebc6c80ef3dc3a4551660aeaf4026a1567fa7f911ce"
   },
   "capabilities": {
     "postgres": {
