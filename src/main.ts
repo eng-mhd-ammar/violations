@@ -14,6 +14,10 @@ async function bootstrap() {
         AppModule,
     );
 
+    app.enableCors({
+        origin: '*',
+    });
+
     app.set('query parser', 'extended');
 
     useContainer(

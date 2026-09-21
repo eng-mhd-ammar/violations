@@ -387,9 +387,7 @@ async function seedRoles(): Promise<void> {
                     permissionId: permission.id,
                 });
 
-                console.log(
-                    `Permission assigned to accountant: ${permissionName}`,
-                );
+                console.log(`Permission assigned to accountant: ${permissionName}`);
             }
         }
 
