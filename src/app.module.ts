@@ -23,9 +23,21 @@ import { BranchesModule } from './features/branches/branches.module.js';
 import { PaymentsModule } from './features/payments/payments.module.js';
 import { CitizensModule } from './features/citizens/citizens.module.js';
 import { ViolationsModule } from './features/violations/violations.module.js';
+import { AttachmentsModule } from './features/attachments/attachment.module.js';
+
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
     imports: [
+        ServeStaticModule.forRoot({
+            rootPath: join(
+                process.cwd(),
+                'storage',
+            ),
+            serveRoot: '/storage',
+        }),
+
         PrismaModule,
         
         AuthModule,
@@ -38,6 +50,7 @@ import { ViolationsModule } from './features/violations/violations.module.js';
         BranchesModule,
         ViolationsModule,
         CitizensModule,
+        AttachmentsModule,
     ],
 
     providers: [
