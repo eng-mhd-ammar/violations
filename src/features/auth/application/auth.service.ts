@@ -48,17 +48,15 @@ export class AuthService {
             ),
         ];
 
-        const payload = {
-            sub: user.id,
-            username: user.username,
-            phone: user.phone,
-            roles,
-            permissions,
-        };
-
         const accessToken =
             await this.jwtService.signAsync(
-                payload,
+                {
+                    sub: user.id,
+                    username: user.username,
+                    phone: user.phone,
+                    roles,
+                    // permissions,
+                },
                 {
                     expiresIn: (env.JWT_ACCESS_TOKEN_EXPIRES_IN ?? '15m') as any,
                 },
@@ -101,7 +99,7 @@ export class AuthService {
                     (role) => role.slug,
                 );
 
-            const permissions = [
+            /*const permissions = [
                 ...new Set(
                     user.roles.flatMap(
                         (role) =>
@@ -111,7 +109,7 @@ export class AuthService {
                             ),
                     ),
                 ),
-            ];
+            ];*/
 
             const accessToken =
                 await this.jwtService.signAsync(
@@ -120,7 +118,7 @@ export class AuthService {
                         username: user.username,
                         phone: user.phone,
                         roles,
-                        permissions,
+                        // permissions,
                     },
                     {
                         expiresIn: (env.JWT_ACCESS_TOKEN_EXPIRES_IN ?? '15m') as any,
