@@ -27,8 +27,14 @@ import { AttachmentsModule } from './features/attachments/attachment.module.js';
 
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AppController } from './app.controller.js';
+import { AppService } from './app.service.js';
 
 @Module({
+    controllers: [
+        AppController,
+    ],
+
     imports: [
         ServeStaticModule.forRoot({
             rootPath: join(
@@ -67,6 +73,7 @@ import { join } from 'path';
         UniqueValidator,
         UniqueNotDeletedValidator,
         NotSoftDeletedValidator,
+        AppService,
     ],
 })
     

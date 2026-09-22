@@ -1,3 +1,5 @@
+import { UserRoleResource } from '../../../../user-roles/presentation/http/resources/user-role.resource.js';
+
 import { User } from '../../../domain/user.model.js';
 
 export interface UserResourceData {
@@ -9,27 +11,32 @@ export interface UserResourceData {
     last_name: string;
     full_name: string;
     is_active: boolean;
+
     branch_id: number | null;
+
+    userRoles?: ReturnType<typeof UserRoleResource.make>[];
 }
 
 export class UserResource {
+
     static make(user: User): UserResourceData {
 
         const resource: UserResourceData = {
             id: user.id,
-
             username: user.username,
             phone: user.phone,
             first_name: user.firstName,
             last_name: user.lastName,
             full_name: user.fullName,
             is_active: user.isActive,
-
             branch_id: user.branchId,
         };
 
-        return resource;
+        if (user.userRoles) {
+            resource.userRoles = UserRoleResource.collection(user.userRoles);
+        }
 
+        return resource;
     }
 
     static collection(users: User[]): UserResourceData[] {

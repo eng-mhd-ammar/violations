@@ -28,12 +28,13 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
             'lastName',
             'phone',
             'isActive',
+            'userRoles.role.slug',
         ];
     }
 
     protected allowedIncludes(): string[] {
         return [
-            'userRoles',
+            'userRoles.role',
         ];
     }
 

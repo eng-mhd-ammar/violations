@@ -1,3 +1,5 @@
+import { UserRole } from "../../user-roles/domain/user-role.model";
+
 export type UserAttributes = {
     id?: number;
 
@@ -15,6 +17,8 @@ export type UserAttributes = {
     createdAt?: string;
     updatedAt?: string;
     deletedAt?: string | null;
+
+    userRoles?: UserRole[];
 }
 
 export class User {
@@ -79,6 +83,14 @@ export class User {
 
     get deletedAt(): string | null {
         return this.attributes.deletedAt ?? null;
+    }
+
+    // ============================================================
+    // Relations
+    // ============================================================
+
+    get userRoles(): UserRole[] | undefined {
+        return this.attributes.userRoles;
     }
 
     // ============================================================
