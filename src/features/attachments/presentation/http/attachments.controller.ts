@@ -42,10 +42,8 @@ export class AttachmentsController {
         const isPaginated = 'items' in result;
         const items =isPaginated? result.items: result;
         const data = {
-            items: AttachmentResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: AttachmentResource.collection(items),
+            
             ...(isPaginated && {
                 pagination: result.pagination,
             }),
@@ -63,7 +61,7 @@ export class AttachmentsController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const attachment = await this.attachmentsService.findById(id, query);
-        const data = AttachmentResource.make(attachment, query.include ?? []);
+        const data = AttachmentResource.make(attachment);
 
         return new ResponseUtil(res).success(data, 'Attachment retrieved successfully', ResponseUtil.HTTP_OK);
     }

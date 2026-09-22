@@ -2,6 +2,7 @@ import { Role } from '../../../domain/role.model.js';
 
 export interface RoleResourceData {
     id: number | undefined;
+
     name: string;
     slug: string;
     description: string | null;
@@ -9,9 +10,12 @@ export interface RoleResourceData {
 }
 
 export class RoleResource {
-    static make(role: Role, includes: string[] = []): RoleResourceData {
+
+    static make(role: Role): RoleResourceData {
+        
         const resource: RoleResourceData = {
             id: role.id,
+
             name: role.name,
             slug: role.slug,
             description: role.description,
@@ -21,12 +25,11 @@ export class RoleResource {
         return resource;
     }
 
-    static collection(roles: Role[], includes: string[] = []): RoleResourceData[] {
+    static collection(roles: Role[]): RoleResourceData[] {
         return roles.map(
             (role) =>
                 this.make(
                     role,
-                    includes,
                 ),
         );
     }

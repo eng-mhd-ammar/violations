@@ -39,10 +39,7 @@ export class BranchesController {
         const items = isPaginated? result.items: result;
 
         const data = {
-            items: BranchResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: BranchResource.collection(items),
 
             ...(isPaginated && {
                 pagination: result.pagination,
@@ -61,7 +58,7 @@ export class BranchesController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const branch = await this.branchService.findById(id, query);
-        const data = BranchResource.make( branch, query.include ?? []);
+        const data = BranchResource.make(branch);
 
         return new ResponseUtil(res).success(data, 'Branch retrieved successfully', ResponseUtil.HTTP_OK);
     }

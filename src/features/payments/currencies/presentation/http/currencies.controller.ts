@@ -40,10 +40,8 @@ export class CurrenciesController {
         const items = isPaginated? result.items: result;
 
         const data = {
-            items: CurrencyResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: CurrencyResource.collection(items),
+            
 
             ...(isPaginated && {
                 pagination: result.pagination,
@@ -62,7 +60,7 @@ export class CurrenciesController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const currency = await this.currencyService.findById(id, query);
-        const data = CurrencyResource.make( currency, query.include ?? []);
+        const data = CurrencyResource.make( currency);
 
         return new ResponseUtil(res).success(data, 'Currency retrieved successfully', ResponseUtil.HTTP_OK);
     }

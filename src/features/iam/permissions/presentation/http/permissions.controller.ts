@@ -43,10 +43,8 @@ export class PermissionsController {
             : result;
 
         const data = {
-            items: PermissionResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: PermissionResource.collection(items),
+            
 
             ...(isPaginated && {
                 pagination: result.pagination,
@@ -65,7 +63,7 @@ export class PermissionsController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const permission = await this.permissionsService.findById(id);
-        const data = PermissionResource.make(permission, query.include ?? []);
+        const data = PermissionResource.make(permission);
         
         return new ResponseUtil(res).success(data, 'Permission retrieved successfully', ResponseUtil.HTTP_OK);
     }

@@ -1,5 +1,3 @@
-
-
 import { env } from 'process';
 import { ObjectionResource } from '../../../../violations/objections/presentation/http/resources/objection.resource.js';
 import { ViolationResource } from '../../../../violations/violations/presentation/http/resources/violation.resource.js';
@@ -20,11 +18,11 @@ export interface AttachmentResourceData {
 
     objection?: ReturnType<typeof ObjectionResource.make>;
     violation?: ReturnType<typeof ViolationResource.make>;
-
 }
 
 export class AttachmentResource {
-    static make(attachment: Attachment, includes: string[] = []): AttachmentResourceData {
+
+    static make(attachment: Attachment): AttachmentResourceData {
 
         const resource: AttachmentResourceData = {
             id: attachment.id,
@@ -39,23 +37,21 @@ export class AttachmentResource {
             violationId: attachment.violationId,
         };
 
-        if (includes.includes('objection') && attachment.objection) {
-            resource.objection = ObjectionResource.make(attachment.objection, includes);
+        if (attachment.objection) {
+            resource.objection = ObjectionResource.make(attachment.objection);
         }
 
-        if (includes.includes('violation') && attachment.violation) {
-            resource.violation = ViolationResource.make(attachment.violation, includes);
+        if (attachment.violation) {
+            resource.violation = ViolationResource.make(attachment.violation);
         }
 
         return resource;
     }
 
-    static collection(attachments: Attachment[], includes: string[] = []): AttachmentResourceData[] {
+    static collection(attachments: Attachment[]): AttachmentResourceData[] {
         return attachments.map(
-            (attachment) => this.make(
-                attachment,
-                includes,
-            ),
+            (attachment) =>
+                this.make(attachment),
         );
     }
 }

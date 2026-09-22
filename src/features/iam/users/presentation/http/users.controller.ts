@@ -45,10 +45,8 @@ export class UsersController {
             : result;
 
         const data = {
-            items: UserResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: UserResource.collection(items),
+            
 
             ...(isPaginated && {
                 pagination: result.pagination,
@@ -67,7 +65,7 @@ export class UsersController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
             const user = await this.usersService.findById(id);
-            const data = UserResource.make(user, query.include ?? []);
+            const data = UserResource.make(user);
 
         return new ResponseUtil(res).success(data, 'Users retrieved successfully', ResponseUtil.HTTP_OK);
     }

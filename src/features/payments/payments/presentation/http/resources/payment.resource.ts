@@ -1,7 +1,11 @@
 import { Payment } from '../../../domain/payment.model.js';
+
 import { UserResource } from '../../../../../iam/users/presentation/http/resources/user.resource.js';
+
 import { BranchResource } from '../../../../../branches/presentation/http/resources/branch.resource.js';
+
 import { CurrencyResource } from '../../../../currencies/presentation/http/resources/currency.resource.js';
+
 import { ViolationResource } from '../../../../../violations/violations/presentation/http/resources/violation.resource.js';
 
 export interface PaymentResourceData {
@@ -26,7 +30,8 @@ export interface PaymentResourceData {
 }
 
 export class PaymentResource {
-    static make(payment: Payment, includes: string[] = []): PaymentResourceData {
+
+    static make(payment: Payment): PaymentResourceData {
 
         const resource: PaymentResourceData = {
             id: payment.id,
@@ -41,29 +46,32 @@ export class PaymentResource {
             notes: payment.notes,
         };
 
-        if (includes.includes('accountant') && payment.accountant) {
-            resource.accountant = UserResource.make(payment.accountant, includes);
+        if (payment.accountant) {
+            resource.accountant = UserResource.make(payment.accountant);
         }
 
-        if (includes.includes('branch') && payment.branch) {
-            resource.branch = BranchResource.make(payment.branch, includes);
+        if (payment.branch) {
+            resource.branch = BranchResource.make(payment.branch);
         }
 
-        if (includes.includes('violation') && payment.violation) {
-            resource.violation = ViolationResource.make(payment.violation, includes);
+        if (payment.violation) {
+
+            resource.violation = ViolationResource.make(payment.violation);
         }
 
-        if (includes.includes('currency') && payment.currency) {
-            resource.currency = CurrencyResource.make(payment.currency, includes);
+        if (payment.currency) {
+            resource.currency = CurrencyResource.make(payment.currency);
         }
 
         return resource;
-
     }
 
-    static collection(payments: Payment[], includes: string[] = []): PaymentResourceData[] {
+    static collection(payments: Payment[]): PaymentResourceData[] {
         return payments.map(
-            (payment) =>this.make(payment, includes),
+            (payment) =>
+                this.make(
+                    payment,
+                ),
         );
     }
 }

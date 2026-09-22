@@ -2,6 +2,7 @@ import { User } from '../../../domain/user.model.js';
 
 export interface UserResourceData {
     id: number | undefined;
+
     username: string;
     phone: string;
     first_name: string;
@@ -12,27 +13,30 @@ export interface UserResourceData {
 }
 
 export class UserResource {
-    static make(user: User, includes: string[] = []): UserResourceData {
+    static make(user: User): UserResourceData {
+
         const resource: UserResourceData = {
             id: user.id,
+
             username: user.username,
             phone: user.phone,
             first_name: user.firstName,
             last_name: user.lastName,
             full_name: user.fullName,
             is_active: user.isActive,
+
             branch_id: user.branchId,
         };
 
         return resource;
+
     }
 
-    static collection(users: User[], includes: string[] = []): UserResourceData[] {
+    static collection(users: User[]): UserResourceData[] {
         return users.map(
             (user) =>
                 this.make(
                     user,
-                    includes,
                 ),
         );
     }

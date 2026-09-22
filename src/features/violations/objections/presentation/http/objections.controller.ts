@@ -40,10 +40,8 @@ export class ObjectionsController {
         const items = isPaginated? result.items: result;
 
         const data = {
-            items: ObjectionResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: ObjectionResource.collection(items),
+            
 
             ...(isPaginated && {
                 pagination: result.pagination,
@@ -62,7 +60,7 @@ export class ObjectionsController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const user = await this.objectionsService.findById(id);
-        const data = ObjectionResource.make(user, query.include ?? []);
+        const data = ObjectionResource.make(user);
 
         return new ResponseUtil(res).success(data, 'Objection retrieved successfully', ResponseUtil.HTTP_OK);
     }

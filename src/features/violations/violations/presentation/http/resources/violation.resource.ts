@@ -1,7 +1,6 @@
 import { CitizenResource } from '../../../../../citizens/presentation/http/resources/citizen.resource.js';
 import { CurrencyResource } from '../../../../../payments/currencies/presentation/http/resources/currency.resource.js';
 import { UserResource } from '../../../../../iam/users/presentation/http/resources/user.resource.js';
-
 import { Violation } from '../../../domain/violation.model.js';
 import { ViolationTypeResource } from '../../../../violation-types/presentation/http/resources/violation-type.resource.js';
 import { BranchResource } from '../../../../../branches/presentation/http/resources/branch.resource.js';
@@ -28,10 +27,8 @@ export interface ViolationResourceData {
 
     status: string;
     fineAmount: number;
-
     violationDate: string;
     location: string;
-
     cancelledAt?: string;
 
     citizen?: ReturnType<typeof CitizenResource.make>;
@@ -43,22 +40,16 @@ export interface ViolationResourceData {
 
 export class ViolationResource {
 
-    static make(
-        violation: Violation,
-        includes: string[] = [],
-    ): ViolationResourceData {
+    static make(violation: Violation): ViolationResourceData {
 
         const resource: ViolationResourceData = {
             id: violation.id,
-
             violationNumber: violation.violationNumber,
-
             citizenId: violation.citizenId,
             violationTypeId: violation.violationTypeId,
             branchId: violation.branchId,
             officerId: violation.officerId,
             paidCurrencyId: violation.paidCurrencyId,
-
             plateNumber: violation.plateNumber,
             plateCode: violation.plateCode,
             plateCategory: violation.plateCategory,
@@ -67,70 +58,42 @@ export class ViolationResource {
             model: violation.model,
             color: violation.color,
             manufactureYear: violation.manufactureYear,
-
             status: violation.status,
             fineAmount: violation.fineAmount,
-
             violationDate: violation.violationDate,
             location: violation.location,
-
             cancelledAt: violation.cancelledAt,
         };
 
-        if (includes.includes('citizen') && violation.citizen) {
-            resource.citizen = CitizenResource.make(
-                violation.citizen,
-                includes,
-            );
+        if (violation.citizen) {
+            resource.citizen = CitizenResource.make(violation.citizen);
         }
 
-        if (
-            includes.includes('violationType') &&
-            violation.violationType
-        ) {
-            resource.violationType = ViolationTypeResource.make(
-                violation.violationType,
-                includes,
-            );
+        if (violation.violationType) {
+            resource.violationType = ViolationTypeResource.make(violation.violationType);
         }
 
-        if (includes.includes('branch') && violation.branch) {
-            resource.branch = BranchResource.make(
-                violation.branch,
-                includes,
-            );
+        if (violation.branch) {
+            resource.branch = BranchResource.make(violation.branch);
         }
 
-        if (includes.includes('officer') && violation.officer) {
-            resource.officer = UserResource.make(
-                violation.officer,
-                includes,
-            );
+        if (violation.officer) {
+            resource.officer = UserResource.make(violation.officer);
         }
 
-        if (
-            includes.includes('paidCurrency') &&
-            violation.paidCurrency
-        ) {
-            resource.paidCurrency = CurrencyResource.make(
-                violation.paidCurrency,
-                includes,
-            );
+        if (violation.paidCurrency) {
+            resource.paidCurrency = CurrencyResource.make(violation.paidCurrency);
         }
 
         return resource;
     }
 
-    static collection(
-        violations: Violation[],
-        includes: string[] = [],
-    ): ViolationResourceData[] {
-
+    static collection(violations: Violation[]): ViolationResourceData[] {
         return violations.map(
-            (violation) => this.make(
-                violation,
-                includes,
-            ),
+            (violation) =>
+                this.make(
+                    violation,
+                ),
         );
     }
 }

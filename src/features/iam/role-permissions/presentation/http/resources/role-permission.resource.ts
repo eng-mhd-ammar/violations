@@ -4,39 +4,31 @@ import { PermissionResource } from '../../../../permissions/presentation/http/re
 
 export interface RolePermissionResourceData {
     id: number | undefined;
+
     role: ReturnType<typeof RoleResource.make> | null;
     permission: ReturnType<typeof PermissionResource.make> | null;
 }
 
 export class RolePermissionResource {
-    static make( rolePermission: RolePermission, includes: string[] = []): RolePermissionResourceData {
+    
+    static make(rolePermission: RolePermission): RolePermissionResourceData {
+
         const resource: RolePermissionResourceData = {
             id: rolePermission.id,
 
-            role: rolePermission.role
-                ? RoleResource.make(
-                    rolePermission.role,
-                    includes,
-                )
-                : null,
+            role: rolePermission.role? RoleResource.make(rolePermission.role): null,
 
-            permission: rolePermission.permission
-                ? PermissionResource.make(
-                    rolePermission.permission,
-                    includes,
-                )
-                : null,
+            permission: rolePermission.permission? PermissionResource.make(rolePermission.permission): null,
         };
 
         return resource;
     }
 
-    static collection(rolePermissions: RolePermission[], includes: string[] = []): RolePermissionResourceData[] {
+    static collection(rolePermissions: RolePermission[]): RolePermissionResourceData[] {
         return rolePermissions.map(
             (rolePermission) =>
                 this.make(
                     rolePermission,
-                    includes,
                 ),
         );
     }

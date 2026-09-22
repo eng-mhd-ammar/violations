@@ -40,10 +40,7 @@ export class AddressesController {
         const items = isPaginated? result.items: result;
 
         const data = {
-            items: AddressResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: AddressResource.collection(items),
 
             ...(isPaginated && {
                 pagination: result.pagination,
@@ -62,7 +59,7 @@ export class AddressesController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const address = await this.addressService.findById(id, query);
-        const data = AddressResource.make( address, query.include ?? []);
+        const data = AddressResource.make(address);
 
         return new ResponseUtil(res).success(data, 'Address retrieved successfully', ResponseUtil.HTTP_OK);
     }

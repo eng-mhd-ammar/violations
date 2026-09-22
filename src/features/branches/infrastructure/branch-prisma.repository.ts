@@ -38,6 +38,7 @@ export class BranchPrismaRepository extends BaseRepository<Branch, BranchAttribu
     protected allowedIncludes(): string[] {
         return [
             'address',
+            'address.state',
             'users',
         ];
     }
@@ -89,7 +90,7 @@ export class BranchPrismaRepository extends BaseRepository<Branch, BranchAttribu
                 start,
                 start + perPage,
             );
-
+        
         return {
             items,
             pagination: {

@@ -40,10 +40,8 @@ export class PaymentsController {
         const items = isPaginated? result.items: result;
 
         const data = {
-            items: PaymentResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: PaymentResource.collection(items),
+            
 
             ...(isPaginated && {
                 pagination: result.pagination,
@@ -62,7 +60,7 @@ export class PaymentsController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const user = await this.paymentsService.findById(id);
-        const data = PaymentResource.make(user, query.include ?? []);
+        const data = PaymentResource.make(user);
 
         return new ResponseUtil(res).success(data, 'Payment retrieved successfully', ResponseUtil.HTTP_OK);
     }

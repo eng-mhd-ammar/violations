@@ -43,10 +43,8 @@ export class UserRolesController {
         : result;
         
         const data = {
-            items: UserRoleResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: UserRoleResource.collection(items),
+            
             
             ...(isPaginated && {
                 pagination: result.pagination,
@@ -66,7 +64,7 @@ export class UserRolesController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const userRole = await this.userRolesService.findById(id);
-        const data = UserRoleResource.make(userRole, query.include ?? []);
+        const data = UserRoleResource.make(userRole);
 
         return new ResponseUtil(res).success(data, 'User role retrieved successfully', ResponseUtil.HTTP_OK);
     }

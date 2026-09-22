@@ -24,7 +24,8 @@ export interface ObjectionResourceData {
 
 export class ObjectionResource {
 
-    static make(objection: Objection, includes: string[] = []): ObjectionResourceData {
+    static make(objection: Objection): ObjectionResourceData {
+
         const resource: ObjectionResourceData = {
             id: objection.id,
 
@@ -41,36 +42,25 @@ export class ObjectionResource {
             reviewNotes: objection.reviewNotes,
         };
 
-        if (includes.includes('violation') && objection.violation) {
-            resource.violation = ViolationResource.make(
-                objection.violation,
-                includes,
-            );
+        if (objection.violation) {
+            resource.violation = ViolationResource.make(objection.violation);
         }
 
-        if (includes.includes('applicant') && objection.applicant) {
-            resource.applicant = UserResource.make(
-                objection.applicant,
-                includes,
-            );
+        if (objection.applicant) {
+            resource.applicant = UserResource.make(objection.applicant);
         }
 
-        if (includes.includes('reviewer') && objection.reviewer) {
-            resource.reviewer = UserResource.make(
-                objection.reviewer,
-                includes,
-            );
+        if (objection.reviewer) {
+            resource.reviewer = UserResource.make(objection.reviewer);
         }
 
         return resource;
     }
 
-    static collection(objections: Objection[], includes: string[] = []): ObjectionResourceData[] {
+    static collection(objections: Objection[]): ObjectionResourceData[] {
         return objections.map(
-            (objection) => this.make(
-                objection,
-                includes,
-            ),
+            (objection) =>
+                this.make(objection),
         );
     }
 }

@@ -40,10 +40,8 @@ export class StatesController {
         const items = isPaginated? result.items: result;
 
         const data = {
-            items: StateResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: StateResource.collection(items),
+            
 
             ...(isPaginated && {
                 pagination: result.pagination,
@@ -62,7 +60,7 @@ export class StatesController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const user = await this.statesService.findById(id);
-        const data = StateResource.make(user, query.include ?? []);
+        const data = StateResource.make(user);
 
         return new ResponseUtil(res).success(data, 'State retrieved successfully', ResponseUtil.HTTP_OK);
     }

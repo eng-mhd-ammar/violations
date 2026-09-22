@@ -4,34 +4,29 @@ import { State } from '../../../domain/state.model.js';
 export interface StateResourceData {
     id: number | undefined;
     name: string;
-    addresses?: unknown[];
+    addresses?: ReturnType<typeof AddressResource.make>[];
 }
 
 export class StateResource {
 
-    static make(state: State, includes: string[] = []): StateResourceData {
+    static make(state: State): StateResourceData {
+
         const resource: StateResourceData = {
             id: state.id,
             name: state.name,
         };
 
-        if (includes.includes('addresses')) {
-            resource.addresses =
-                AddressResource.collection(
-                    state.addresses,
-                );
+        if (state.addresses) {
+            resource.addresses = AddressResource.collection(state.addresses);
         }
 
         return resource;
     }
 
-    static collection(states: State[], includes: string[] = []): StateResourceData[] {
+    static collection(states: State[]): StateResourceData[] {
         return states.map(
             (state) =>
-                this.make(
-                    state,
-                    includes,
-                ),
+                this.make(state),
         );
     }
 }

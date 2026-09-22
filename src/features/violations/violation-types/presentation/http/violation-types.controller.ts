@@ -40,10 +40,8 @@ export class ViolationTypesController {
         const items = isPaginated? result.items: result;
 
         const data = {
-            items: ViolationTypeResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: ViolationTypeResource.collection(items),
+            
 
             ...(isPaginated && {
                 pagination: result.pagination,
@@ -62,7 +60,7 @@ export class ViolationTypesController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const violationType = await this.violationTypeService.findById(id, query);
-        const data = ViolationTypeResource.make( violationType, query.include ?? []);
+        const data = ViolationTypeResource.make( violationType);
 
         return new ResponseUtil(res).success(data, 'ViolationType retrieved successfully', ResponseUtil.HTTP_OK);
     }

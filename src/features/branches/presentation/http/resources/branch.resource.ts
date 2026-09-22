@@ -18,11 +18,8 @@ export interface BranchResourceData {
 
 export class BranchResource {
 
-    static make(
-        branch: Branch,
-        includes: string[] = [],
-    ): BranchResourceData {
-
+    static make(branch: Branch): BranchResourceData {
+        
         const resource: BranchResourceData = {
             id: branch.id,
             name: branch.name,
@@ -33,25 +30,17 @@ export class BranchResource {
             updatedAt: branch.updatedAt,
             deletedAt: branch.deletedAt,
 
-            users: branch.users.length
-                ? UserResource.collection(branch.users, includes)
-                : [],
+            users: Array.isArray(branch.users)? UserResource.collection(branch.users): [],
 
-            address: branch.address
-                ? AddressResource.make(branch.address, includes)
-                : null,
+            address: branch.address? AddressResource.make(branch.address): null,
         };
 
         return resource;
     }
 
-    static collection(
-        branches: Branch[],
-        includes: string[] = [],
-    ): BranchResourceData[] {
-
+    static collection(branches: Branch[]): BranchResourceData[] {
         return branches.map(
-            (branch) => this.make(branch, includes),
+            (branch) => this.make(branch),
         );
     }
 }

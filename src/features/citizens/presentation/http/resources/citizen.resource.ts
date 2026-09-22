@@ -1,4 +1,3 @@
-import { AddressResource } from '../../../../locations/addresses/presentation/http/resources/address.resource.js';
 import { Citizen } from '../../../domain/citizen.model.js';
 
 export interface CitizenResourceData {
@@ -14,11 +13,8 @@ export interface CitizenResourceData {
 
 export class CitizenResource {
 
-    static make(
-        citizen: Citizen,
-        includes: string[] = [],
-    ): CitizenResourceData {
-
+    static make(citizen: Citizen): CitizenResourceData {
+        
         const resource: CitizenResourceData = {
             id: citizen.id,
             nationalId: citizen.nationalId,
@@ -33,16 +29,9 @@ export class CitizenResource {
         return resource;
     }
 
-    static collection(
-        citizens: Citizen[],
-        includes: string[] = [],
-    ): CitizenResourceData[] {
-
+    static collection(citizens: Citizen[]): CitizenResourceData[] {
         return citizens.map(
-            (citizen) => this.make(
-                citizen,
-                includes,
-            ),
+            (citizen) => this.make(citizen),
         );
     }
 }

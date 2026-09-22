@@ -5,31 +5,31 @@ export interface AddressResourceData {
     id: number | undefined;
     city: string;
     street: string;
-    state?: ReturnType<typeof StateResource.make> | null;
+
+    state?: ReturnType<typeof StateResource.make>;
 }
 
 export class AddressResource {
-    static make(address: Address, includes: string[] = []): AddressResourceData {
+
+    static make(address: Address): AddressResourceData {
+
         const resource: AddressResourceData = {
             id: address.id,
             city: address.city,
             street: address.street,
         };
 
-        if (includes.includes('state')) {
-            resource.state = address.state? StateResource.make(address.state, includes): null;
+        if (address.state) {
+            resource.state = StateResource.make(address.state);
         }
 
         return resource;
     }
 
-    static collection(addresses: Address[], includes: string[] = []): AddressResourceData[] {
+    static collection(addresses: Address[]): AddressResourceData[] {
         return addresses.map(
             (address) =>
-                this.make(
-                    address,
-                    includes,
-                ),
+                this.make(address),
         );
     }
 }

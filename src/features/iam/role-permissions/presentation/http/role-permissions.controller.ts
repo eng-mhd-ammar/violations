@@ -45,10 +45,8 @@ export class RolePermissionsController {
             : result;
 
         const data = {
-            items: RolePermissionResource.collection(
-                items,
-                query.include ?? [],
-            ),
+            items: RolePermissionResource.collection(items),
+            
 
             ...(isPaginated && {
                 pagination: result.pagination,
@@ -67,7 +65,7 @@ export class RolePermissionsController {
     @Get(':id')
     async findOne(@Param('id', ParseIntPipe) id: number, @Res() res: ExpressResponse, @Query() query: QueryDto) {
         const rolePermission = await this.rolePermissionsService.findById(id);
-        const data = RolePermissionResource.make(rolePermission, query.include ?? []);
+        const data = RolePermissionResource.make(rolePermission);
 
         return new ResponseUtil(res).success(data, 'Role permission retrieved successfully', ResponseUtil.HTTP_OK);
     }

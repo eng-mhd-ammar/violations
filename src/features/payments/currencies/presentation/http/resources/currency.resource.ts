@@ -1,24 +1,21 @@
-import { UserResource } from '../../../../../iam/users/presentation/http/resources/user.resource.js';
-import { AddressResource } from '../../../../../locations/addresses/presentation/http/resources/address.resource.js';
 import { Currency } from '../../../domain/currency.model.js';
 
 export interface CurrencyResourceData {
     id: number | undefined;
+
     name: string;
     code: string;
+
     createdAt: string | undefined;
     updatedAt: string | undefined;
     deletedAt: string | null;
 
-    // payments: ReturnType<typeof PaymentResource.make>[];
+    // payments?: ReturnType<typeof PaymentResource.make>[];
 }
 
 export class CurrencyResource {
 
-    static make(
-        currency: Currency,
-        includes: string[] = [],
-    ): CurrencyResourceData {
+    static make(currency: Currency): CurrencyResourceData {
 
         const resource: CurrencyResourceData = {
             id: currency.id,
@@ -27,22 +24,22 @@ export class CurrencyResource {
             createdAt: currency.createdAt,
             updatedAt: currency.updatedAt,
             deletedAt: currency.deletedAt,
-
-            // payments: currency.payments.length
-            //     ? UserResource.collection(currency.payments, includes)
-            //     : [],
         };
+
+        // if (currency.payments) {
+        //     resource.payments =
+        //         PaymentResource.collection(
+        //             currency.payments,
+        //         );
+        // }
 
         return resource;
     }
 
-    static collection(
-        currencies: Currency[],
-        includes: string[] = [],
-    ): CurrencyResourceData[] {
-
+    static collection(currencies: Currency[]): CurrencyResourceData[] {
         return currencies.map(
-            (currency) => this.make(currency, includes),
+            (currency) =>
+                this.make(currency),
         );
     }
 }
