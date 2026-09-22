@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../core/database/prisma.service.js';
-import { BaseRepository } from '../../../../core/database/repositories/base.repository.js';
+import { AllowedFilter, BaseRepository } from '../../../../core/database/repositories/base.repository.js';
 import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
 import { User, type UserAttributes } from '../domain/user.model.js';
 import { UserRepository } from '../domain/user.repository.js';
@@ -20,7 +20,7 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
         return [];
     }
 
-    protected allowedFilters(): string[] {
+    protected allowedFilters(): AllowedFilter[] {
         return [
             'id',
             'username',
@@ -28,7 +28,10 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
             'lastName',
             'phone',
             'isActive',
-            'userRoles.role.slug',
+            {
+                path: 'userRoles.role.slug',
+                alias: 'role',
+            },
         ];
     }
 

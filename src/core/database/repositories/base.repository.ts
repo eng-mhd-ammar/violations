@@ -1,6 +1,13 @@
 import { BaseQueryBuilder } from './base-query-builder.js';
 import type { PaginatedResult, QueryOptions } from './query.types.js';
 
+export type AllowedFilter =
+    | string
+    | {
+        path: string;
+        alias: string;
+    };
+
 export abstract class BaseRepository<TDomain, TAttributes> {
     protected readonly model: any;
 
@@ -8,15 +15,13 @@ export abstract class BaseRepository<TDomain, TAttributes> {
         this.model = model;
     }
 
-    protected abstract toDomain(
-        data: TAttributes,
-    ): TDomain;
+    protected abstract toDomain(data: TAttributes): TDomain;
 
     protected allowedSorts(): string[] {
         return [];
     }
 
-    protected allowedFilters(): string[] {
+    protected allowedFilters(): AllowedFilter[] {
         return [];
     }
 
@@ -59,13 +64,34 @@ export abstract class BaseRepository<TDomain, TAttributes> {
 
         const filter: Record<string, unknown> = {};
 
-        for (
-            const [key, value]
-            of Object.entries(options.filter)
-        ) {
-            if (allowed.includes(key)) {
-                filter[key] = value;
+        for (const [key, value] of Object.entries(options.filter)) {
+            const filterDefinition =
+                allowed.find(
+                    item => {
+
+                        if (
+                            typeof item === 'string'
+                        ) {
+                            return item === key;
+                        }
+
+                        return (
+                            item.path === key ||
+                            item.alias === key
+                        );
+                    },
+                );
+
+            if (!filterDefinition) {
+                continue;
             }
+
+            const path =
+                typeof filterDefinition === 'string'
+                    ? filterDefinition
+                    : filterDefinition.path;
+
+            filter[path] = value;
         }
 
         return {
