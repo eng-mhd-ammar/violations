@@ -8,6 +8,13 @@ export type AllowedFilter =
         alias: string;
     };
 
+export type AllowedInclude =
+    | string
+    | {
+        path: string;
+        alias: string;
+    };
+
 export abstract class BaseRepository<TDomain, TAttributes> {
     protected readonly model: any;
 
@@ -25,7 +32,7 @@ export abstract class BaseRepository<TDomain, TAttributes> {
         return [];
     }
 
-    protected allowedIncludes(): string[] {
+    protected allowedIncludes(): AllowedInclude[] {
         return [];
     }
 
@@ -42,17 +49,70 @@ export abstract class BaseRepository<TDomain, TAttributes> {
     protected createQuery(options: QueryOptions = {}): BaseQueryBuilder {
         const filteredOptions = this.filterAllowedFilters(options);
 
+        const normalizedOptions = this.normalizeIncludes(filteredOptions);
+
         const builder = new BaseQueryBuilder(this.model);
 
-        builder.applySoftDeletes(filteredOptions);
+        builder.applySoftDeletes(normalizedOptions);
 
-        builder.applyFilters(filteredOptions);
+        builder.applyFilters(normalizedOptions);
 
-        builder.applySort(filteredOptions, this.allowedSorts(), this.defaultSort());
+        builder.applySort(normalizedOptions, this.allowedSorts(), this.defaultSort());
 
-        builder.applyIncludes(filteredOptions, this.allowedIncludes());
+        builder.applyIncludes(
+            normalizedOptions,
+            this.allowedIncludes().map(
+                item =>
+                    typeof item === 'string'
+                        ? item
+                        : item.path,
+            ),
+        );
 
         return builder;
+    }
+
+    protected normalizeIncludes(options: QueryOptions): QueryOptions {
+        if (!options.include) {
+            return options;
+        }
+
+        const allowed = this.allowedIncludes();
+
+        const includes: string[] = [];
+
+        for (const include of options.include) {
+            const includeDefinition =
+                allowed.find(
+                    item => {
+                        if (typeof item === 'string') {
+                            return (
+                                item === include
+                            );
+                        }
+                        return (
+                            item.path === include ||
+                            item.alias === include
+                        );
+                    },
+                );
+
+            if (!includeDefinition) {
+                continue;
+            }
+
+            const path =
+                typeof includeDefinition === 'string'
+                    ? includeDefinition
+                    : includeDefinition.path;
+
+            includes.push(path);
+        }
+
+        return {
+            ...options,
+            include: includes,
+        };
     }
 
     protected filterAllowedFilters(options: QueryOptions): QueryOptions {

@@ -1,3 +1,4 @@
+import { Branch } from "../../../branches/domain/branch.model";
 import { UserRole } from "../../user-roles/domain/user-role.model";
 
 export type UserAttributes = {
@@ -19,6 +20,7 @@ export type UserAttributes = {
     deletedAt?: string | null;
 
     userRoles?: UserRole[];
+    branch?: Branch;
 }
 
 export class User {
@@ -91,6 +93,10 @@ export class User {
 
     get userRoles(): UserRole[] | undefined {
         return this.attributes.userRoles;
+    }
+
+    get branch(): Branch | undefined {
+        return this.attributes.branch;
     }
 
     // ============================================================

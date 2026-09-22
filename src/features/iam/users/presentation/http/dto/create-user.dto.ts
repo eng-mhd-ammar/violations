@@ -41,7 +41,7 @@ export class CreateUserDto {
     @IsInt()
     branchId?: number;
     
-    @IsOptional()
+    @IsNotEmpty()
     @IsArray()
     @IsInt({ each: true })
     @Exists('Role', 'id', { each: true })

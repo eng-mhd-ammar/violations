@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../../core/database/prisma.service.js';
-import { AllowedFilter, BaseRepository } from '../../../../core/database/repositories/base.repository.js';
+import { AllowedFilter, AllowedInclude, BaseRepository } from '../../../../core/database/repositories/base.repository.js';
 import type { QueryOptions } from '../../../../core/database/repositories/query.types.js';
 import { User, type UserAttributes } from '../domain/user.model.js';
 import { UserRepository } from '../domain/user.repository.js';
@@ -35,9 +35,14 @@ export class UserPrismaRepository extends BaseRepository<User, UserAttributes> i
         ];
     }
 
-    protected allowedIncludes(): string[] {
+    protected allowedIncludes(): AllowedInclude[] {
         return [
             'userRoles.role',
+            'branch',
+            {
+                path: 'userRoles.role',
+                alias: 'role',
+            },
         ];
     }
 
