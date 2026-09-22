@@ -186,7 +186,10 @@ export class BaseQueryBuilder {
                 continue;
             }
 
-            this.query = this.applyNestedInclude(this.query, include);
+            this.query = this.applyNestedInclude(
+                this.query,
+                include,
+            );
         }
 
         return this;
@@ -220,7 +223,6 @@ export class BaseQueryBuilder {
     }
 
     protected buildNestedInclude(query: any, relations: string[]): any {
-
         const [
             relation,
             ...nestedRelations
@@ -230,19 +232,23 @@ export class BaseQueryBuilder {
             return query;
         }
 
-        if (nestedRelations.length === 0) {
-            return query.include(
-                relation,
-            );
-        }
-
         return query.include(
             relation,
-            (relationQuery: any) =>
-                this.buildNestedInclude(
-                    relationQuery,
+            (relationQuery: any) => {
+                const filteredQuery =
+                    relationQuery.where({
+                        deletedAt: null,
+                    });
+
+                if (nestedRelations.length === 0) {
+                    return filteredQuery;
+                }
+
+                return this.buildNestedInclude(
+                    filteredQuery,
                     nestedRelations,
-                ),
+                );
+            },
         );
     }
 
