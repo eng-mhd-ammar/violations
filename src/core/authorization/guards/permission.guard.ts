@@ -36,14 +36,13 @@ export class PermissionGuard implements CanActivate
     }
 
     console.log('ROLES:', user.roles);
+    console.log('PERMISSIONS: ', user.permissions);
 
     if (user.roles.includes('admin')) {
       return true;
     }
 
     const permissions = user.permissions ?? [];
-
-    console.log('PERMISSIONS:', permissions);
 
     const hasPermission = permissions.includes(permission);
 

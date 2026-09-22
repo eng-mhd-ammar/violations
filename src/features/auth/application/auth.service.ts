@@ -15,7 +15,7 @@ export class AuthService {
     constructor(@Inject(AUTH_REPOSITORY) private readonly authRepository: AuthRepository, private readonly jwtService: JwtService) {}
 
     async login(dto: LoginDto) {
-      const user = await this.authRepository.findUserForLogin(dto.identifier);
+        const user = await this.authRepository.findUserForLogin(dto.identifier);
 
         if (!user) {
             throw new UnauthorizedException('Invalid credentials');
@@ -55,7 +55,7 @@ export class AuthService {
                     username: user.username,
                     phone: user.phone,
                     roles,
-                    // permissions,
+                    permissions,
                 },
                 {
                     expiresIn: (env.JWT_ACCESS_TOKEN_EXPIRES_IN ?? '15m') as any,
@@ -99,7 +99,7 @@ export class AuthService {
                     (role) => role.slug,
                 );
 
-            /*const permissions = [
+            const permissions = [
                 ...new Set(
                     user.roles.flatMap(
                         (role) =>
@@ -109,7 +109,7 @@ export class AuthService {
                             ),
                     ),
                 ),
-            ];*/
+            ];
 
             const accessToken =
                 await this.jwtService.signAsync(
@@ -118,7 +118,7 @@ export class AuthService {
                         username: user.username,
                         phone: user.phone,
                         roles,
-                        // permissions,
+                        permissions,
                     },
                     {
                         expiresIn: (env.JWT_ACCESS_TOKEN_EXPIRES_IN ?? '15m') as any,
