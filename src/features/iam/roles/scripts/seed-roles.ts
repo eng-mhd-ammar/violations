@@ -4,21 +4,21 @@ import { db } from '../../../../prisma/db';
 
 const roles = [
     {
-        name: 'admin',
+        name: 'مدير النظام',
         slug: 'admin',
-        description: 'System administrator',
+        description: 'مدير النظام',
         isActive: true,
     },
     {
-        name: 'officer',
+        name: 'ضابط الشرطة',
         slug: 'police_officer',
-        description: 'Traffic police officer',
+        description: 'ضابط شرطة المرور',
         isActive: true,
     },
     {
-        name: 'accountant',
+        name: 'المحاسب',
         slug: 'accountant',
-        description: 'Traffic department accountant',
+        description: 'محاسب قسم المرور',
         isActive: true,
     },
 ];
@@ -244,11 +244,9 @@ async function seedRoles(): Promise<void> {
     try {
         await db.connect();
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * Create Roles
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         const roleRecords: Record<string, any> = {};
 
@@ -261,7 +259,6 @@ async function seedRoles(): Promise<void> {
 
             if (!existingRole) {
                 existingRole = await db.orm.public.Role.create(role);
-
                 console.log(`Role created: ${role.slug}`);
             } else {
                 console.log(`Role already exists: ${role.slug}`);
@@ -270,11 +267,9 @@ async function seedRoles(): Promise<void> {
             roleRecords[role.slug] = existingRole;
         }
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * Create Permissions
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         const permissionRecords: Record<string, any> = {};
 
@@ -300,11 +295,9 @@ async function seedRoles(): Promise<void> {
             permissionRecords[permissionName] = permission;
         }
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * Admin Permissions
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         const adminRole = roleRecords['admin'];
 
@@ -331,11 +324,9 @@ async function seedRoles(): Promise<void> {
             }
         }
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * Police Officer Permissions
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         const officerRole = roleRecords['police_officer'];
 
@@ -362,11 +353,9 @@ async function seedRoles(): Promise<void> {
             }
         }
 
-        /*
-         * ---------------------------------------------------------
+        /* ---------------------------------------------------------
          * Accountant Permissions
-         * ---------------------------------------------------------
-         */
+         * --------------------------------------------------------- */
 
         const accountantRole = roleRecords['accountant'];
 
@@ -387,14 +376,15 @@ async function seedRoles(): Promise<void> {
                     permissionId: permission.id,
                 });
 
-                console.log(`Permission assigned to accountant: ${permissionName}`);
+                console.log(
+                    `Permission assigned to accountant: ${permissionName}`,
+                );
             }
         }
 
         console.log('\nRoles and permissions seeding completed successfully.');
     } catch (error) {
         console.error('Failed to seed roles and permissions:', error);
-
         process.exitCode = 1;
     }
 }
