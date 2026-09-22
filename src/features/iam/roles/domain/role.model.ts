@@ -1,4 +1,5 @@
 import { Permission } from '../../permissions/domain/permission.model.js';
+import { RolePermission } from '../../role-permissions/domain/role-permission.model.js';
 import { UserRole } from '../../user-roles/domain/user-role.model.js';
 
 export type RoleAttributes = {
@@ -14,7 +15,7 @@ export type RoleAttributes = {
     updatedAt?: string;
     deletedAt?: string | null;
 
-    permissions?: Permission[];
+    rolePermissions?: RolePermission[];
     userRoles?: UserRole[];
 }
 
@@ -71,8 +72,12 @@ export class Role {
     // Relations
     // ============================================================
 
-    get permissions(): Permission[] {
-        return this.attributes.permissions ?? [];
+    // get permissions(): Permission[] {
+    //     return this.attributes.permissions ?? [];
+    // }
+
+    get rolePermissions(): RolePermission[] {
+        return this.attributes.rolePermissions ?? [];
     }
 
     get userRoles(): UserRole[] {
