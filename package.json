@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
-    "create:super-admin": "tsx src/scripts/create-super-admin.ts",
+    "create:super-admin": "tsx src/features/auth/scripts/create-super-admin.ts",
     "seed:roles": "tsx src/features/iam/roles/scripts/seed-roles.ts",
     "build": "nest build",
     "deploy": "nest deploy",

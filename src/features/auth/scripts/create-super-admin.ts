@@ -1,8 +1,8 @@
 import 'dotenv/config';
 
 import * as bcrypt from 'bcrypt';
+import { db } from '../../../prisma/db';
 
-import { db } from '../prisma/db.js';
 
 async function main() {
   const username = process.argv[2];
