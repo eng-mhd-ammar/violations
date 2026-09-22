@@ -20,7 +20,7 @@ export class StatesController {
     */
     @Can('states_create')
     @Post()
-    async create(@Body() dto: CreateStateDto, @Res() res: ExpressResponse,) {
+    async create(@Body() dto: CreateStateDto, @Res() res: ExpressResponse) {
         const state = await this.statesService.create(dto);
         const data = StateResource.make(state);
 
